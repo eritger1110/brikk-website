@@ -4,10 +4,9 @@
   "description": "Brikk Enterprise AI Agent Coordination Platform - The Economic Infrastructure for AI Agents",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "npm run build && npm run preview -- --host 0.0.0.0 --port $PORT"
+    "preview": "vite preview --host 0.0.0.0 --port $PORT",
+    "start": "npm run preview"
   },
   "dependencies": {
     "react": "^18.2.0",
