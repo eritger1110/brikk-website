@@ -10,7 +10,11 @@ export default defineConfig({
   },
   preview: {
     host: '0.0.0.0',
-    port: 10000
+    port: 10000,
+    allowedHosts: [
+      'brikk-website.onrender.com',
+      '.onrender.com'
+    ]
   },
   build: {
     outDir: 'dist'
