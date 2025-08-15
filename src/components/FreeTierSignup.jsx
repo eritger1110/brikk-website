@@ -1,0 +1,918 @@
+import React, { useState } from 'react';
+import { 
+  Mail, 
+  Lock, 
+  User, 
+  Building, 
+  CheckCircle, 
+  AlertCircle,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Zap,
+  Shield,
+  Code,
+  Users
+} from 'lucide-react';
+
+const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    company: '',
+    useCase: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return {
+      minLength,
+      hasUpper,
+      hasLower,
+      hasNumber,
+      hasSpecial,
+      isValid: minLength && hasUpper && hasLower && hasNumber && hasSpecial
+    };
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear errors as user types
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateStep1 = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (!validatePassword(formData.password).isValid) {
+      newErrors.password = 'Password does not meet requirements';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors = {};
+    
+    if (!formData.company.trim()) {
+      newErrors.company = 'Company name is required';
+    }
+    
+    if (!formData.useCase.trim()) {
+      newErrors.useCase = 'Please tell us about your use case';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleStep1Submit = (e) => {
+    e.preventDefault();
+    if (validateStep1()) {
+      setStep(2);
+    }
+  };
+
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateStep2()) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/free-tier/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        onSignupComplete(data);
+      } else {
+        setErrors({ submit: data.message || 'Signup failed. Please try again.' });
+      }
+    } catch (error) {
+      setErrors({ submit: 'Network error. Please check your connection and try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const passwordValidation = validatePassword(formData.password);
+
+  const benefits = [
+    {
+      icon: <Zap className="w-5 h-5" />,
+      title: "1,000 Free API Calls",
+      description: "Perfect for building proof-of-concepts and testing agent coordination"
+    },
+    {
+      icon: <Code className="w-5 h-5" />,
+      title: "All 6 Programming Languages",
+      description: "Python, Node.js, Java, Go, Rust, and C# support included"
+    },
+    {
+      icon: <Shield className="w-5 h-5" />,
+      title: "Enterprise Security",
+      description: "Same security architecture used by Fortune 500 companies"
+    },
+    {
+      icon: <Users className="w-5 h-5" />,
+      title: "Developer Community",
+      description: "Join 500+ developers building with Brikk"
+    }
+  ];
+
+  return (
+    <div style={{ 
+      background: 'var(--brikk-dark-bg)',
+      color: 'var(--brikk-white)',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ 
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '3rem'
+        }}>
+          <button
+            onClick={onBackToLanding}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--brikk-slate-text)',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            ← Back to Home
+          </button>
+          
+          <div style={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+          }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              background: 'var(--brikk-gradient)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: '800',
+              fontSize: '1.25rem'
+            }}>
+              B
+            </div>
+            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>Brikk</span>
+          </div>
+        </div>
+
+        <div style={{ 
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+          gap: '4rem',
+          alignItems: 'start'
+        }}>
+          {/* Left Side - Benefits */}
+          <div>
+            <h1 style={{ 
+              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              fontWeight: '700',
+              marginBottom: '1rem',
+              background: 'var(--brikk-gradient)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Start Building with Brikk
+            </h1>
+            
+            <p style={{ 
+              fontSize: '1.25rem',
+              color: 'var(--brikk-slate-text)',
+              marginBottom: '3rem',
+              lineHeight: '1.6'
+            }}>
+              Join 500+ developers already building the future of AI agent coordination. Get started with 1,000 free API calls and 2 agents.
+            </p>
+
+            <div style={{ marginBottom: '3rem' }}>
+              <h3 style={{ 
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                marginBottom: '1.5rem'
+              }}>
+                What's Included in Your Free Account:
+              </h3>
+              
+              <div style={{ 
+                display: 'grid',
+                gap: '1.5rem'
+              }}>
+                {benefits.map((benefit, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex',
+                    gap: '1rem',
+                    alignItems: 'flex-start'
+                  }}>
+                    <div style={{ 
+                      color: 'var(--brikk-purple)',
+                      background: 'rgba(115, 95, 255, 0.1)',
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      flexShrink: 0
+                    }}>
+                      {benefit.icon}
+                    </div>
+                    <div>
+                      <h4 style={{ 
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {benefit.title}
+                      </h4>
+                      <p style={{ 
+                        color: 'var(--brikk-slate-text)',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.5'
+                      }}>
+                        {benefit.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Trust Indicators */}
+            <div style={{ 
+              background: 'var(--brikk-card-bg)',
+              border: '1px solid var(--brikk-card-border)',
+              borderRadius: '12px',
+              padding: '1.5rem'
+            }}>
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1rem'
+              }}>
+                <Shield className="w-5 h-5" style={{ color: 'var(--brikk-teal)' }} />
+                <span style={{ fontWeight: '600' }}>Enterprise-Grade Security</span>
+              </div>
+              <p style={{ 
+                color: 'var(--brikk-slate-text)',
+                fontSize: '0.875rem',
+                margin: 0
+              }}>
+                Your data is protected with the same security architecture trusted by Fortune 500 companies. SOC 2 certified and HIPAA compliant.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Side - Signup Form */}
+          <div style={{ 
+            background: 'var(--brikk-card-bg)',
+            border: '1px solid var(--brikk-card-border)',
+            borderRadius: '16px',
+            padding: '2rem'
+          }}>
+            {/* Progress Indicator */}
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              marginBottom: '2rem'
+            }}>
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: step >= 1 ? 'var(--brikk-gradient)' : 'var(--brikk-card-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--brikk-white)',
+                  fontWeight: '600',
+                  fontSize: '0.875rem'
+                }}>
+                  {step > 1 ? <CheckCircle className="w-4 h-4" /> : '1'}
+                </div>
+                <span style={{ 
+                  fontSize: '0.875rem',
+                  color: step >= 1 ? 'var(--brikk-white)' : 'var(--brikk-slate-text)'
+                }}>
+                  Account
+                </span>
+              </div>
+              
+              <div style={{ 
+                flex: 1,
+                height: '2px',
+                background: step >= 2 ? 'var(--brikk-purple)' : 'var(--brikk-card-border)',
+                borderRadius: '1px'
+              }} />
+              
+              <div style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: step >= 2 ? 'var(--brikk-gradient)' : 'var(--brikk-card-border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--brikk-white)',
+                  fontWeight: '600',
+                  fontSize: '0.875rem'
+                }}>
+                  2
+                </div>
+                <span style={{ 
+                  fontSize: '0.875rem',
+                  color: step >= 2 ? 'var(--brikk-white)' : 'var(--brikk-slate-text)'
+                }}>
+                  Details
+                </span>
+              </div>
+            </div>
+
+            {step === 1 && (
+              <form onSubmit={handleStep1Submit}>
+                <h2 style={{ 
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  marginBottom: '1.5rem'
+                }}>
+                  Create Your Free Account
+                </h2>
+
+                {/* Name Field */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Full Name
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <User className="w-5 h-5" style={{ 
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--brikk-slate-text)'
+                    }} />
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="Enter your full name"
+                      style={{
+                        width: '100%',
+                        padding: '1rem 1rem 1rem 3rem',
+                        background: 'var(--brikk-dark-bg)',
+                        border: `1px solid ${errors.name ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                        borderRadius: '8px',
+                        color: 'var(--brikk-white)',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.name) {
+                          e.target.style.borderColor = 'var(--brikk-purple)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.name) {
+                          e.target.style.borderColor = 'var(--brikk-card-border)';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.name && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.name}
+                    </div>
+                  )}
+                </div>
+
+                {/* Email Field */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Email Address
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail className="w-5 h-5" style={{ 
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--brikk-slate-text)'
+                    }} />
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="Enter your email address"
+                      style={{
+                        width: '100%',
+                        padding: '1rem 1rem 1rem 3rem',
+                        background: 'var(--brikk-dark-bg)',
+                        border: `1px solid ${errors.email ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                        borderRadius: '8px',
+                        color: 'var(--brikk-white)',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.email) {
+                          e.target.style.borderColor = 'var(--brikk-purple)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.email) {
+                          e.target.style.borderColor = 'var(--brikk-card-border)';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.email && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
+
+                {/* Password Field */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Password
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock className="w-5 h-5" style={{ 
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--brikk-slate-text)'
+                    }} />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      placeholder="Create a strong password"
+                      style={{
+                        width: '100%',
+                        padding: '1rem 3rem 1rem 3rem',
+                        background: 'var(--brikk-dark-bg)',
+                        border: `1px solid ${errors.password ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                        borderRadius: '8px',
+                        color: 'var(--brikk-white)',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = 'var(--brikk-purple)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.password) {
+                          e.target.style.borderColor = 'var(--brikk-card-border)';
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--brikk-slate-text)',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  
+                  {/* Password Requirements */}
+                  {formData.password && (
+                    <div style={{ 
+                      marginTop: '0.75rem',
+                      padding: '1rem',
+                      background: 'rgba(115, 95, 255, 0.05)',
+                      border: '1px solid rgba(115, 95, 255, 0.2)',
+                      borderRadius: '8px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        marginBottom: '0.5rem'
+                      }}>
+                        Password Requirements:
+                      </div>
+                      <div style={{ 
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '0.25rem',
+                        fontSize: '0.75rem'
+                      }}>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          color: passwordValidation.minLength ? '#22c55e' : 'var(--brikk-slate-text)'
+                        }}>
+                          {passwordValidation.minLength ? <CheckCircle className="w-3 h-3" /> : <div style={{ width: '12px', height: '12px', border: '1px solid currentColor', borderRadius: '50%' }} />}
+                          8+ characters
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          color: passwordValidation.hasUpper ? '#22c55e' : 'var(--brikk-slate-text)'
+                        }}>
+                          {passwordValidation.hasUpper ? <CheckCircle className="w-3 h-3" /> : <div style={{ width: '12px', height: '12px', border: '1px solid currentColor', borderRadius: '50%' }} />}
+                          Uppercase letter
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          color: passwordValidation.hasLower ? '#22c55e' : 'var(--brikk-slate-text)'
+                        }}>
+                          {passwordValidation.hasLower ? <CheckCircle className="w-3 h-3" /> : <div style={{ width: '12px', height: '12px', border: '1px solid currentColor', borderRadius: '50%' }} />}
+                          Lowercase letter
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          color: passwordValidation.hasNumber ? '#22c55e' : 'var(--brikk-slate-text)'
+                        }}>
+                          {passwordValidation.hasNumber ? <CheckCircle className="w-3 h-3" /> : <div style={{ width: '12px', height: '12px', border: '1px solid currentColor', borderRadius: '50%' }} />}
+                          Number
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          color: passwordValidation.hasSpecial ? '#22c55e' : 'var(--brikk-slate-text)',
+                          gridColumn: '1 / -1'
+                        }}>
+                          {passwordValidation.hasSpecial ? <CheckCircle className="w-3 h-3" /> : <div style={{ width: '12px', height: '12px', border: '1px solid currentColor', borderRadius: '50%' }} />}
+                          Special character (!@#$%^&*)
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {errors.password && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.password}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  style={{
+                    width: '100%',
+                    background: 'var(--brikk-gradient)',
+                    color: 'var(--brikk-white)',
+                    border: 'none',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Continue
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </form>
+            )}
+
+            {step === 2 && (
+              <form onSubmit={handleFinalSubmit}>
+                <h2 style={{ 
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  marginBottom: '1.5rem'
+                }}>
+                  Tell Us About Your Project
+                </h2>
+
+                {/* Company Field */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Company Name
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Building className="w-5 h-5" style={{ 
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--brikk-slate-text)'
+                    }} />
+                    <input
+                      type="text"
+                      value={formData.company}
+                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      placeholder="Enter your company name"
+                      style={{
+                        width: '100%',
+                        padding: '1rem 1rem 1rem 3rem',
+                        background: 'var(--brikk-dark-bg)',
+                        border: `1px solid ${errors.company ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                        borderRadius: '8px',
+                        color: 'var(--brikk-white)',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.company) {
+                          e.target.style.borderColor = 'var(--brikk-purple)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.company) {
+                          e.target.style.borderColor = 'var(--brikk-card-border)';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.company && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.company}
+                    </div>
+                  )}
+                </div>
+
+                {/* Use Case Field */}
+                <div style={{ marginBottom: '2rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    What will you use Brikk for?
+                  </label>
+                  <textarea
+                    value={formData.useCase}
+                    onChange={(e) => handleInputChange('useCase', e.target.value)}
+                    placeholder="Tell us about your AI agent coordination use case..."
+                    rows={4}
+                    style={{
+                      width: '100%',
+                      padding: '1rem',
+                      background: 'var(--brikk-dark-bg)',
+                      border: `1px solid ${errors.useCase ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                      borderRadius: '8px',
+                      color: 'var(--brikk-white)',
+                      fontSize: '1rem',
+                      outline: 'none',
+                      resize: 'vertical',
+                      minHeight: '100px',
+                      transition: 'border-color 0.3s ease'
+                    }}
+                    onFocus={(e) => {
+                      if (!errors.useCase) {
+                        e.target.style.borderColor = 'var(--brikk-purple)';
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!errors.useCase) {
+                        e.target.style.borderColor = 'var(--brikk-card-border)';
+                      }
+                    }}
+                  />
+                  {errors.useCase && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.useCase}
+                    </div>
+                  )}
+                </div>
+
+                {errors.submit && (
+                  <div style={{ 
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    color: '#ef4444',
+                    fontSize: '0.875rem'
+                  }}>
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.submit}
+                  </div>
+                )}
+
+                <div style={{ 
+                  display: 'flex',
+                  gap: '1rem'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      color: 'var(--brikk-slate-text)',
+                      border: '1px solid var(--brikk-card-border)',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    style={{
+                      flex: 2,
+                      background: isLoading ? 'var(--brikk-slate-text)' : 'var(--brikk-gradient)',
+                      color: 'var(--brikk-white)',
+                      border: 'none',
+                      padding: '1rem',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {isLoading ? 'Creating Account...' : 'Create Free Account'}
+                    {!isLoading && <ArrowRight className="w-5 h-5" />}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Terms */}
+            <p style={{ 
+              fontSize: '0.75rem',
+              color: 'var(--brikk-slate-text)',
+              textAlign: 'center',
+              marginTop: '1.5rem',
+              lineHeight: '1.5'
+            }}>
+              By creating an account, you agree to our{' '}
+              <a href="#" style={{ color: 'var(--brikk-purple)' }}>Terms of Service</a>{' '}
+              and{' '}
+              <a href="#" style={{ color: 'var(--brikk-purple)' }}>Privacy Policy</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FreeTierSignup;
+

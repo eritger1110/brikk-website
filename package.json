@@ -1,13 +1,19 @@
 {
   "name": "brikk-enterprise-platform",
-  "version": "1.0.0",
-  "description": "Brikk Enterprise AI Agent Coordination Platform - The Economic Infrastructure for AI Agents",
+  "version": "2.0.0",
+  "description": "Brikk Enterprise AI Agent Coordination Platform - The Economic Infrastructure for AI Agents with Competitive Intelligence Features",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "vite",
+    "dev:backend": "nodemon api/server.js",
     "build": "vite build",
+    "build:backend": "echo 'Backend is Node.js - no build needed'",
     "preview": "vite preview",
-    "start": "npm run build && npm run preview -- --host 0.0.0.0 --port $PORT"
+    "start": "node api/server.js",
+    "start:dev": "concurrently \"npm run build && npm run preview -- --host 0.0.0.0 --port 4173\" \"npm run start\"",
+    "test": "echo 'Tests coming soon'",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -16,14 +22,23 @@
     "@vitejs/plugin-react": "^4.2.1",
     "lucide-react": "^0.263.1",
     "recharts": "^2.8.0",
-    "terser": "^5.19.2"
+    "terser": "^5.19.2",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^3.4.3",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -35,7 +50,10 @@
     "hipaa",
     "security",
     "multi-language",
-    "brikk"
+    "brikk",
+    "freemium",
+    "developer-first",
+    "competitive-intelligence"
   ],
   "author": "Brikk",
   "license": "MIT",
@@ -43,5 +61,16 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/eritger1110/brikk-website.git"
-  }
+  },
+  "competitive_advantages": [
+    "Only platform built specifically for AI agent coordination",
+    "Multi-language native support (Python, Node.js, Java, Go, Rust, C#)",
+    "Real-time coordination with sub-second response times", 
+    "Enterprise-grade security with HIPAA compliance",
+    "Developer-first freemium model for viral growth",
+    "HubSpot-inspired upgrade progression",
+    "Stripe-level pricing transparency",
+    "GitHub-style community building"
+  ]
 }
+
