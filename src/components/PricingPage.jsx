@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Check, Zap, Crown, Building, Users, Phone, Mail, MessageCircle, Shield, Clock, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Check, Zap, Crown, Building, Users, Phone, Mail, MessageCircle, Shield, Clock, BarChart3, Code, Star, Sparkles } from 'lucide-react';
 import BrikkLogo from '../assets/BrikkLogo.webp';
 
 const PricingPage = ({ onBackToHome, onNavigate }) => {
@@ -20,15 +20,32 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
         'Basic coordination',
         'Standard documentation'
       ],
-      limitations: [
-        'No phone support',
-        'Community support only',
-        'Basic analytics',
-        'Standard SLA'
-      ],
+      overage: '$0.008 per extra call',
+      extras: null,
       cta: 'Start Free',
       popular: false,
       color: 'gray'
+    },
+    {
+      id: 'hacker',
+      name: 'Hacker',
+      price: { monthly: 49, annual: 44 },
+      description: 'For developers building serious projects',
+      badge: 'Developer Favorite',
+      features: [
+        '7,500 API calls per month',
+        '3 agents maximum',
+        'All 6 programming languages',
+        'Email support',
+        'Basic coordination',
+        'Priority documentation',
+        'Community access'
+      ],
+      overage: '$0.008 per extra call',
+      extras: null,
+      cta: 'Start Free',
+      popular: false,
+      color: 'green'
     },
     {
       id: 'starter',
@@ -46,11 +63,8 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
         'Priority documentation',
         'Webhook integrations'
       ],
-      limitations: [
-        'No phone support',
-        'Email support only',
-        'Basic analytics'
-      ],
+      overage: '$0.005 per extra call',
+      extras: null,
       cta: 'Start 14-Day Trial',
       popular: true,
       color: 'blue'
@@ -71,10 +85,8 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
         'Dedicated account manager',
         'SLA guarantees'
       ],
-      limitations: [
-        'No custom SLA',
-        'Standard compliance'
-      ],
+      overage: '$0.002 per extra call',
+      extras: 'Reduced Brikk Agent Marketplace fee (2.4% + $0.30 per transaction)',
       cta: 'Start 14-Day Trial',
       popular: false,
       color: 'purple'
@@ -96,10 +108,35 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
         'Custom integrations',
         'Training and onboarding'
       ],
-      limitations: [],
+      overage: 'Negotiated',
+      extras: 'Reduced Brikk Agent Marketplace fee (2.0% + $0.30 per transaction)',
       cta: 'Contact Sales',
       popular: false,
       color: 'gold'
+    },
+    {
+      id: 'enterprise-plus',
+      name: 'Enterprise Plus',
+      price: { monthly: 'Custom', annual: 'Custom' },
+      description: 'Advanced compliance packages for regulated industries',
+      badge: 'Coming Soon',
+      features: [
+        'Unlimited API calls',
+        'Unlimited agents',
+        'Dedicated support team',
+        'Custom SLA',
+        'Advanced compliance packages',
+        'HIPAA compliance (planned)',
+        'SOC 2 certification (planned)',
+        'Government compliance (planned)',
+        'White-glove onboarding'
+      ],
+      overage: 'Negotiated',
+      extras: 'Advanced compliance packages (HIPAA, SOC 2, Government) planned for future release — contact us for early access and preferred pricing',
+      cta: 'Contact for Early Access',
+      popular: false,
+      color: 'platinum',
+      comingSoon: true
     }
   ];
 
@@ -107,37 +144,39 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
     {
       category: 'Core Features',
       features: [
-        { name: 'API Calls per Month', free: '1,000', starter: '10,000', professional: '100,000', enterprise: 'Unlimited' },
-        { name: 'Maximum Agents', free: '2', starter: '5', professional: '25', enterprise: 'Unlimited' },
-        { name: 'Programming Languages', free: '6', starter: '6', professional: '6', enterprise: '6' },
-        { name: 'Response Time SLA', free: 'Best Effort', starter: '< 100ms', professional: '< 50ms', enterprise: 'Custom' }
+        { name: 'API Calls per Month', free: '1,000', hacker: '7,500', starter: '10,000', professional: '100,000', enterprise: 'Unlimited' },
+        { name: 'Maximum Agents', free: '2', hacker: '3', starter: '5', professional: '25', enterprise: 'Unlimited' },
+        { name: 'Programming Languages', free: '6', hacker: '6', starter: '6', professional: '6', enterprise: '6' },
+        { name: 'Response Time SLA', free: 'Best Effort', hacker: 'Best Effort', starter: '< 100ms', professional: '< 50ms', enterprise: 'Custom' },
+        { name: 'Overage Pricing', free: '$0.008/call', hacker: '$0.008/call', starter: '$0.005/call', professional: '$0.002/call', enterprise: 'Negotiated' }
       ]
     },
     {
       category: 'Support & Services',
       features: [
-        { name: 'Support Channel', free: 'Community', starter: 'Email', professional: 'Phone + Email', enterprise: 'Dedicated Team' },
-        { name: 'Response Time', free: 'Community', starter: '48 hours', professional: '24 hours', enterprise: '1 hour' },
-        { name: 'Account Manager', free: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Training & Onboarding', free: '❌', starter: 'Self-service', professional: 'Guided', enterprise: 'Full Service' }
+        { name: 'Support Channel', free: 'Community', hacker: 'Email', starter: 'Email', professional: 'Phone + Email', enterprise: 'Dedicated Team' },
+        { name: 'Response Time', free: 'Community', hacker: '72 hours', starter: '48 hours', professional: '24 hours', enterprise: '1 hour' },
+        { name: 'Account Manager', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
+        { name: 'Training & Onboarding', free: '❌', hacker: 'Self-service', starter: 'Self-service', professional: 'Guided', enterprise: 'Full Service' }
       ]
     },
     {
       category: 'Analytics & Monitoring',
       features: [
-        { name: 'Basic Analytics', free: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
-        { name: 'Advanced Analytics', free: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Custom Dashboards', free: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Real-time Monitoring', free: '❌', starter: 'Basic', professional: 'Advanced', enterprise: 'Enterprise' }
+        { name: 'Basic Analytics', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
+        { name: 'Advanced Analytics', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
+        { name: 'Custom Dashboards', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
+        { name: 'Real-time Monitoring', free: '❌', hacker: 'Basic', starter: 'Basic', professional: 'Advanced', enterprise: 'Enterprise' }
       ]
     },
     {
       category: 'Security & Compliance',
       features: [
-        { name: 'Data Encryption', free: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
-        { name: 'HIPAA-Ready Architecture', free: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
-        { name: 'SOC 2 Compliance', free: 'Design Only', starter: 'Design Only', professional: 'In Progress', enterprise: 'Full Compliance' },
-        { name: 'Custom Security Controls', free: '❌', starter: '❌', professional: 'Limited', enterprise: 'Full' }
+        { name: 'Data Encryption', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
+        { name: 'HIPAA-Ready Architecture', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
+        { name: 'SOC 2 Compliance', free: 'Design Only', hacker: 'Design Only', starter: 'Design Only', professional: 'In Progress', enterprise: 'Full Compliance' },
+        { name: 'Custom Security Controls', free: '❌', hacker: '❌', starter: '❌', professional: 'Limited', enterprise: 'Full' },
+        { name: 'Marketplace Fee', free: 'N/A', hacker: 'Standard (2.9%)', starter: 'Standard (2.9%)', professional: 'Reduced (2.4%)', enterprise: 'Reduced (2.0%)' }
       ]
     }
   ];
@@ -418,7 +457,7 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
               <ul style={{
                 listStyle: 'none',
                 padding: 0,
-                margin: '0 0 2rem 0'
+                margin: '0 0 1rem 0'
               }}>
                 {plan.features.map((feature, index) => (
                   <li key={index} style={{
@@ -434,6 +473,78 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
                   </li>
                 ))}
               </ul>
+
+              {/* Overage Pricing */}
+              <div style={{
+                background: 'rgba(59, 130, 246, 0.05)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                borderRadius: '8px',
+                padding: '0.75rem',
+                marginBottom: '1rem'
+              }}>
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--brikk-slate-text)',
+                  marginBottom: '0.25rem',
+                  fontWeight: '500'
+                }}>
+                  Overage Pricing:
+                </div>
+                <div style={{
+                  fontSize: '0.9rem',
+                  color: 'var(--brikk-white)',
+                  fontWeight: '600'
+                }}>
+                  {plan.overage}
+                </div>
+              </div>
+
+              {/* Extras */}
+              {plan.extras && (
+                <div style={{
+                  background: 'rgba(16, 185, 129, 0.05)',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  marginBottom: '1rem'
+                }}>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: 'var(--brikk-slate-text)',
+                    marginBottom: '0.25rem',
+                    fontWeight: '500'
+                  }}>
+                    Extras:
+                  </div>
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--brikk-white)',
+                    lineHeight: 1.4
+                  }}>
+                    {plan.extras}
+                  </div>
+                </div>
+              )}
+
+              {/* Coming Soon Badge */}
+              {plan.comingSoon && (
+                <div style={{
+                  background: 'rgba(251, 191, 36, 0.1)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '0.9rem',
+                    color: '#fbbf24',
+                    fontWeight: '600'
+                  }}>
+                    🚀 Coming Soon - Contact for Early Access
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={() => plan.id === 'free' ? onNavigate('signup') : plan.id === 'enterprise' ? onNavigate('contact') : onNavigate('signup')}
@@ -486,6 +597,65 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
             borderRadius: '16px',
             overflow: 'hidden'
           }}>
+            {/* Table Headers */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
+              gap: '1rem',
+              padding: '1rem 2rem',
+              background: 'rgba(59, 130, 246, 0.2)',
+              borderBottom: '1px solid var(--brikk-border)',
+              alignItems: 'center'
+            }}>
+              <div style={{
+                fontSize: '1rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600'
+              }}>
+                Feature
+              </div>
+              <div style={{
+                fontSize: '0.9rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Free
+              </div>
+              <div style={{
+                fontSize: '0.9rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Hacker
+              </div>
+              <div style={{
+                fontSize: '0.9rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Starter
+              </div>
+              <div style={{
+                fontSize: '0.9rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Professional
+              </div>
+              <div style={{
+                fontSize: '0.9rem',
+                color: 'var(--brikk-white)',
+                fontWeight: '600',
+                textAlign: 'center'
+              }}>
+                Enterprise
+              </div>
+            </div>
+            
             {comparisonFeatures.map((category, categoryIndex) => (
               <div key={categoryIndex}>
                 <div style={{
@@ -505,7 +675,7 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
                 {category.features.map((feature, featureIndex) => (
                   <div key={featureIndex} style={{
                     display: 'grid',
-                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr',
+                    gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 1fr',
                     gap: '1rem',
                     padding: '1rem 2rem',
                     borderBottom: featureIndex < category.features.length - 1 ? '1px solid var(--brikk-border)' : 'none',
@@ -524,6 +694,13 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
                       textAlign: 'center'
                     }}>
                       {feature.free}
+                    </div>
+                    <div style={{
+                      fontSize: '0.8rem',
+                      color: 'var(--brikk-slate-text)',
+                      textAlign: 'center'
+                    }}>
+                      {feature.hacker}
                     </div>
                     <div style={{
                       fontSize: '0.8rem',

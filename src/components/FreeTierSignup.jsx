@@ -52,9 +52,20 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
       price: '$0',
       period: 'forever',
       description: 'Perfect for developers and proof-of-concepts',
-      features: ['1,000 API calls/month', '2 agents maximum', 'Community support', 'All 6 languages'],
+      features: ['1,000 API calls/month', '2 agents maximum', 'Community support', 'All 6 languages', '$0.008 per extra call'],
       highlight: false,
       requiresPayment: false
+    },
+    {
+      id: 'hacker',
+      name: 'Hacker',
+      price: '$49',
+      period: 'per month',
+      description: 'For developers building serious projects',
+      features: ['7,500 API calls/month', '3 agents maximum', 'Email support', 'All 6 languages', '$0.008 per extra call'],
+      highlight: false,
+      requiresPayment: true,
+      badge: 'Developer Favorite'
     },
     {
       id: 'starter',
@@ -62,7 +73,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
       price: '$99',
       period: 'per month',
       description: 'For small teams getting serious about agent coordination',
-      features: ['10,000 API calls/month', '5 agents maximum', 'Email support', 'Remove branding'],
+      features: ['10,000 API calls/month', '5 agents maximum', 'Email support', 'Remove branding', '$0.005 per extra call'],
       highlight: true,
       requiresPayment: true
     },
@@ -72,7 +83,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
       price: '$299',
       period: 'per month',
       description: 'For businesses scaling agent coordination',
-      features: ['100,000 API calls/month', '25 agents maximum', 'Phone support', 'Advanced analytics'],
+      features: ['100,000 API calls/month', '25 agents maximum', 'Phone support', 'Advanced analytics', '$0.002 per extra call', 'Reduced marketplace fee (2.4%)'],
       highlight: false,
       requiresPayment: true
     },
@@ -82,7 +93,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
       price: 'Custom',
       period: 'pricing',
       description: 'For Fortune 500 companies and large deployments',
-      features: ['Unlimited API calls', 'Unlimited agents', 'Dedicated support', 'Custom SLA'],
+      features: ['Unlimited API calls', 'Unlimited agents', 'Dedicated support', 'Custom SLA', 'Negotiated overage rates', 'Reduced marketplace fee (2.0%)'],
       highlight: false,
       requiresPayment: true
     }
