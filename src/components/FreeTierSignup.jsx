@@ -25,6 +25,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     company: '',
     useCase: '',
     selectedPlan: 'free',
@@ -860,6 +861,67 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
                   )}
                 </div>
 
+                {/* Confirm Password Field */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ 
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    marginBottom: '0.5rem'
+                  }}>
+                    Confirm Password
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock className="w-5 h-5" style={{ 
+                      position: 'absolute',
+                      left: '1rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: 'var(--brikk-slate-text)'
+                    }} />
+                    <input
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      placeholder="Confirm your password"
+                      style={{
+                        width: '100%',
+                        padding: '1rem 1rem 1rem 3rem',
+                        background: 'var(--brikk-dark-bg)',
+                        border: `1px solid ${errors.confirmPassword ? '#ef4444' : 'var(--brikk-card-border)'}`,
+                        borderRadius: '8px',
+                        color: 'var(--brikk-white)',
+                        fontSize: '1rem',
+                        outline: 'none',
+                        transition: 'border-color 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        if (!errors.confirmPassword) {
+                          e.target.style.borderColor = 'var(--brikk-purple)';
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (!errors.confirmPassword) {
+                          e.target.style.borderColor = 'var(--brikk-card-border)';
+                        }
+                      }}
+                    />
+                  </div>
+                  {errors.confirmPassword && (
+                    <div style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                      color: '#ef4444',
+                      fontSize: '0.875rem'
+                    }}>
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.confirmPassword}
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="submit"
                   style={{
@@ -1479,12 +1541,12 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
                   </div>
                 </div>
 
-                {/* Optional Credit Card Section */}
+                {/* Credit Card Section */}
                 <div style={{ 
                   marginBottom: '2rem',
                   padding: '1.5rem',
-                  background: 'rgba(115, 95, 255, 0.05)',
-                  border: '1px solid rgba(115, 95, 255, 0.2)',
+                  background: formData.selectedPlan !== 'free' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(115, 95, 255, 0.05)',
+                  border: formData.selectedPlan !== 'free' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(115, 95, 255, 0.2)',
                   borderRadius: '12px'
                 }}>
                   <div style={{ 
@@ -1500,43 +1562,58 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
                         marginBottom: '0.25rem',
                         color: 'var(--brikk-white)'
                       }}>
-                        Payment Information (Optional)
+                        Payment Information {formData.selectedPlan !== 'free' ? '(Required)' : '(Optional)'}
                       </h3>
                       <p style={{ 
                         fontSize: '0.875rem',
                         color: 'var(--brikk-slate-text)',
-                        margin: 0
+                        margin: '0 0 0.5rem 0'
                       }}>
-                        Add a payment method for seamless upgrades. No charges until you upgrade.
+                        {formData.selectedPlan !== 'free' 
+                          ? 'Payment method required for paid plans. You will be charged immediately upon account creation.'
+                          : 'Add a payment method for seamless upgrades. No charges until you upgrade.'
+                        }
                       </p>
-                    </div>
-                    <div style={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <input
-                        type="checkbox"
-                        id="addPayment"
-                        checked={formData.addPayment}
-                        onChange={(e) => handleInputChange('addPayment', e.target.checked)}
-                        style={{
-                          width: '18px',
-                          height: '18px',
-                          accentColor: 'var(--brikk-purple)'
-                        }}
-                      />
-                      <label htmlFor="addPayment" style={{ 
-                        fontSize: '0.875rem',
-                        fontWeight: '500',
-                        cursor: 'pointer'
+                      <div style={{ 
+                        fontSize: '0.75rem',
+                        color: 'var(--brikk-slate-text)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
                       }}>
-                        Add payment method
-                      </label>
+                        <CreditCard className="w-4 h-4" />
+                        We accept: Visa, Mastercard, American Express, Discover, Diners Club, JCB
+                      </div>
                     </div>
+                    {formData.selectedPlan === 'free' && (
+                      <div style={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        <input
+                          type="checkbox"
+                          id="addPayment"
+                          checked={formData.addPayment}
+                          onChange={(e) => handleInputChange('addPayment', e.target.checked)}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            accentColor: 'var(--brikk-purple)'
+                          }}
+                        />
+                        <label htmlFor="addPayment" style={{ 
+                          fontSize: '0.875rem',
+                          fontWeight: '500',
+                          cursor: 'pointer'
+                        }}>
+                          Add payment method
+                        </label>
+                      </div>
+                    )}
                   </div>
 
-                  {formData.addPayment && (
+                  {(formData.addPayment || formData.selectedPlan !== 'free') && (
                     <div style={{ 
                       display: 'grid',
                       gap: '1rem'
@@ -1750,7 +1827,9 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
                       transition: 'all 0.3s ease'
                     }}
                   >
-                    {isLoading ? 'Creating Account...' : 'Create Free Account'}
+                    {isLoading ? 'Creating Account...' : (
+                      formData.selectedPlan === 'free' ? 'Create Free Account' : `Create ${formData.selectedPlan.charAt(0).toUpperCase() + formData.selectedPlan.slice(1)} Account`
+                    )}
                     {!isLoading && <ArrowRight className="w-5 h-5" />}
                   </button>
                 </div>

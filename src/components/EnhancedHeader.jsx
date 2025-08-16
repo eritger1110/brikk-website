@@ -173,7 +173,7 @@ const EnhancedHeader = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
+            gap: '1rem',
             cursor: 'pointer'
           }}
         >
@@ -181,14 +181,14 @@ const EnhancedHeader = ({
             src={BrikkLogo} 
             alt="Brikk Logo" 
             style={{
-              height: '48px',
+              height: '56px',
               width: 'auto'
             }}
           />
           <div>
             <div style={{
-              fontSize: '1.5rem',
-              fontWeight: '700',
+              fontSize: '1.75rem',
+              fontWeight: '800',
               color: 'var(--brikk-white)',
               lineHeight: 1
             }}>
