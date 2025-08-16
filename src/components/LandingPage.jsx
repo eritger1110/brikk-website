@@ -19,25 +19,13 @@ import {
   Award
 } from 'lucide-react';
 const LandingPage = ({ onGetStarted, onNavigate }) => {
-  const [liveMetrics, setLiveMetrics] = useState({
-    coordinations: 15861,
-    successRate: 99.97,
-    activeAgents: 6,
-    customers: 847
-  });
-
-  // Simulate live metrics updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveMetrics(prev => ({
-        ...prev,
-        coordinations: prev.coordinations + Math.floor(Math.random() * 5) + 1,
-        successRate: 99.97 + (Math.random() * 0.02 - 0.01), // Small variance around 99.97%
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Remove fake metrics - replace with truthful platform capabilities
+  const platformCapabilities = {
+    languages: 6,
+    responseTime: "< 50ms",
+    uptime: "99.97%",
+    security: "Enterprise-Grade"
+  };
 
   const features = [
     {
@@ -113,27 +101,22 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
     }
   ];
 
-  const testimonials = [
+  // Remove fake testimonials - replace with truthful platform benefits
+  const platformBenefits = [
     {
-      quote: "Brikk's coordination platform shows incredible promise for our diagnostic workflow. The multi-language support could help us coordinate different AI agents seamlessly.",
-      author: "Dr. Sarah Chen",
-      title: "Chief Medical Officer",
-      company: "Regional Medical Center",
-      avatar: "👩‍⚕️"
+      title: "Multi-Language Coordination",
+      description: "Connect agents across 6 programming languages with our Universal Coordination Protocol.",
+      benefit: "Seamless Integration"
     },
     {
-      quote: "The multi-language support is exactly what we need. Being able to coordinate Python and Java agents through a single platform could be game-changing for our trading systems.",
-      author: "Michael Rodriguez",
-      title: "Head of Technology",
-      company: "Global Investment Bank",
-      avatar: "👨‍💼"
+      title: "Enterprise Security",
+      description: "Built with enterprise-grade security architecture designed for compliance requirements.",
+      benefit: "Security First"
     },
     {
-      quote: "Enterprise-grade security designed for healthcare compliance is crucial for us. Brikk's security architecture gives us confidence in the platform's potential.",
-      author: "Jennifer Park",
-      title: "CTO",
-      company: "Healthcare Innovation Labs",
-      avatar: "👩‍💻"
+      title: "Real-Time Performance",
+      description: "Sub-second response times with high availability infrastructure for mission-critical applications.",
+      benefit: "Performance Focused"
     }
   ];
 
@@ -293,7 +276,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             }}>
               <TrendingUp className="w-4 h-4" style={{ color: 'var(--brikk-white)' }} />
               <span style={{ fontSize: '0.875rem', color: 'var(--brikk-white)', fontWeight: '500' }}>
-                {liveMetrics.successRate.toFixed(2)}% Uptime
+                {platformCapabilities.uptime} Target Uptime
               </span>
             </div>
           </div>
@@ -321,7 +304,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             The only platform built specifically for AI agent coordination. Connect agents across 6 programming languages with enterprise-grade security and real-time performance.
           </p>
 
-          {/* Live Metrics */}
+          {/* Platform Capabilities */}
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -337,7 +320,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 color: 'var(--brikk-teal)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.coordinations.toLocaleString()}+
+                {platformCapabilities.responseTime}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -345,7 +328,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Daily Coordinations
+                Response Time
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -355,7 +338,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 color: 'var(--brikk-purple)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.successRate.toFixed(2)}%
+                {platformCapabilities.uptime}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -363,7 +346,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Success Rate
+                Target Uptime
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -373,7 +356,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 color: 'var(--brikk-white)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.activeAgents}
+                {platformCapabilities.languages}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -391,7 +374,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 color: 'var(--brikk-teal)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.customers}+
+                {platformCapabilities.security}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -399,7 +382,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Enterprise Customers
+                Security Level
               </div>
             </div>
           </div>
@@ -441,6 +424,42 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
+              onClick={() => {
+                // Create and show video modal
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  background: rgba(0, 0, 0, 0.9);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  z-index: 10000;
+                  cursor: pointer;
+                `;
+                
+                const video = document.createElement('video');
+                video.src = '/brikk-demo-video.mp4';
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = `
+                  max-width: 90%;
+                  max-height: 90%;
+                  border-radius: 12px;
+                `;
+                
+                modal.appendChild(video);
+                document.body.appendChild(modal);
+                
+                modal.addEventListener('click', (e) => {
+                  if (e.target === modal) {
+                    document.body.removeChild(modal);
+                  }
+                });
+              }}
               style={{
                 background: 'transparent',
                 color: 'var(--brikk-white)',
@@ -803,8 +822,8 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section style={{ padding: '6rem 2rem' }}>
+      {/* Platform Benefits Section */}
+      <section style={{ padding: '6rem 2rem', background: 'rgba(15, 15, 17, 0.5)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 style={{ 
@@ -812,7 +831,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
               fontWeight: '700',
               marginBottom: '1rem'
             }}>
-              What Our Customers Say
+              Why Choose Brikk
             </h2>
             <p style={{ 
               fontSize: '1.25rem',
@@ -820,7 +839,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Real results from real customers using Brikk in production.
+              Built specifically for AI agent coordination with enterprise-grade capabilities.
             </p>
           </div>
 
@@ -829,7 +848,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
             gap: '2rem'
           }}>
-            {testimonials.map((testimonial, index) => (
+            {platformBenefits.map((benefit, index) => (
               <div
                 key={index}
                 style={{
@@ -841,56 +860,32 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 }}
               >
                 <div style={{ 
-                  display: 'flex',
-                  gap: '0.5rem',
-                  marginBottom: '1rem',
-                  color: 'var(--brikk-yellow)'
+                  display: 'inline-block',
+                  background: 'var(--brikk-gradient)',
+                  color: 'var(--brikk-white)',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  marginBottom: '1.5rem'
                 }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4" fill="currentColor" />
-                  ))}
+                  {benefit.benefit}
                 </div>
-                <blockquote style={{ 
-                  fontSize: '1.125rem',
-                  lineHeight: '1.6',
-                  marginBottom: '1.5rem',
-                  fontStyle: 'italic',
+                <h3 style={{ 
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
                   color: 'var(--brikk-white)'
                 }}>
-                  "{testimonial.quote}"
-                </blockquote>
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem'
+                  {benefit.title}
+                </h3>
+                <p style={{ 
+                  fontSize: '1.125rem',
+                  lineHeight: '1.6',
+                  color: 'var(--brikk-slate-text)'
                 }}>
-                  <div style={{ 
-                    fontSize: '2rem',
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(115, 95, 255, 0.1)',
-                    borderRadius: '50%'
-                  }}>
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div style={{ 
-                      fontWeight: '600',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {testimonial.author}
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.875rem',
-                      color: 'var(--brikk-slate-text)'
-                    }}>
-                      {testimonial.title}, {testimonial.company}
-                    </div>
-                  </div>
-                </div>
+                  {benefit.description}
+                </p>
               </div>
             ))}
           </div>
@@ -1116,7 +1111,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Connect with 500+ developers building the future of AI agent coordination.
+              Connect with developers building the future of AI agent coordination.
             </p>
           </div>
 
@@ -1146,10 +1141,10 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 Discord Community
               </h3>
               <p style={{ color: 'var(--brikk-slate-text)', marginBottom: '1rem' }}>
-                Join 500+ developers sharing projects, getting help, and building together.
+                Join developers sharing projects, getting help, and building together.
               </p>
               <div style={{ fontSize: '0.875rem', color: 'var(--brikk-teal)' }}>
-                23 members online now
+                Active Community
               </div>
             </div>
 
@@ -1177,7 +1172,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 Agent coordination templates for all 6 programming languages.
               </p>
               <div style={{ fontSize: '0.875rem', color: 'var(--brikk-teal)' }}>
-                1,247 stars • 89 forks
+                Open Source Examples
               </div>
             </div>
 
@@ -1231,7 +1226,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             color: 'var(--brikk-slate-text)',
             marginBottom: '3rem'
           }}>
-            Join 847+ companies already using Brikk to coordinate AI agents at scale.
+            Start building with enterprise-grade AI agent coordination today.
           </p>
           
           <div style={{ 
