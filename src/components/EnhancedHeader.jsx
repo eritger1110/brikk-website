@@ -47,14 +47,14 @@ const EnhancedHeader = ({
   }, []);
 
   const navigationItems = [
-    { id: 'home', label: 'Home', action: () => onNavigate('landing') },
-    { id: 'features', label: 'Features', action: () => onNavigate('features') },
-    { id: 'pricing', label: 'Pricing', action: () => onNavigate('pricing') },
-    { id: 'use-cases', label: 'Use Cases', action: () => onNavigate('use-cases') },
+    { id: 'home', label: 'Home', action: () => { onNavigate('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'features', label: 'Features', action: () => { onNavigate('features'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'pricing', label: 'Pricing', action: () => { onNavigate('pricing'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'use-cases', label: 'Use Cases', action: () => { onNavigate('use-cases'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { 
       id: 'resources', 
       label: 'Resources', 
-      action: () => onNavigate('resources'),
+      action: () => { onNavigate('resources'); window.scrollTo({ top: 0, behavior: 'smooth' }); },
       dropdown: [
         { 
           label: 'Documentation', 
@@ -173,7 +173,6 @@ const EnhancedHeader = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
             cursor: 'pointer'
           }}
         >
@@ -181,27 +180,10 @@ const EnhancedHeader = ({
             src={BrikkLogo} 
             alt="Brikk Logo" 
             style={{
-              height: '56px',
+              height: '72px',
               width: 'auto'
             }}
           />
-          <div>
-            <div style={{
-              fontSize: '1.75rem',
-              fontWeight: '800',
-              color: 'var(--brikk-white)',
-              lineHeight: 1
-            }}>
-              Brikk
-            </div>
-            <div style={{
-              fontSize: '0.875rem',
-              color: 'var(--brikk-slate-text)',
-              lineHeight: 1
-            }}>
-              AI Agent Infrastructure
-            </div>
-          </div>
         </div>
 
         {/* Desktop Navigation */}
