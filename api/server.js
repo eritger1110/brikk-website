@@ -8,6 +8,7 @@
  * - Developer community integration (GitHub-style viral growth)
  * - Usage tracking with upgrade triggers (Stripe-inspired transparency)
  * - Enterprise-grade security and compliance
+ * - Stripe payment processing for subscriptions
  */
 
 import express from 'express';
@@ -16,6 +17,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import Stripe from 'stripe';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs/promises';
@@ -26,6 +28,22 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'brikk-competitive-intelligence-secret-2025';
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_51234567890abcdef', {
+    apiVersion: '2023-10-16',
+});
+
+// Stripe webhook secret for verifying webhook signatures
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_secret';
+
+// Stripe Price IDs for subscription plans
+const STRIPE_PRICE_IDS = {
+    hacker: process.env.STRIPE_HACKER_PRICE_ID || 'price_hacker_monthly',
+    starter: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter_monthly',
+    professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional_monthly',
+    enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise_monthly'
+};
 
 // Security middleware
 app.use(helmet());
@@ -84,6 +102,49 @@ const trackUsage = (userId, type = 'api_call') => {
     usage.set(userId, userUsage);
     
     return userUsage;
+};
+
+// Get plan limits based on plan type
+const getPlanLimits = (planType) => {
+    const planLimits = {
+        free: {
+            api_calls_limit: 1000,
+            agents_limit: 2,
+            overage_rate: 0.008,
+            marketplace_fee: null,
+            support: 'community'
+        },
+        hacker: {
+            api_calls_limit: 7500,
+            agents_limit: 3,
+            overage_rate: 0.008,
+            marketplace_fee: 0.029,
+            support: 'email'
+        },
+        starter: {
+            api_calls_limit: 10000,
+            agents_limit: 5,
+            overage_rate: 0.005,
+            marketplace_fee: 0.029,
+            support: 'email'
+        },
+        professional: {
+            api_calls_limit: 100000,
+            agents_limit: 25,
+            overage_rate: 0.002,
+            marketplace_fee: 0.024,
+            support: 'phone'
+        },
+        enterprise: {
+            api_calls_limit: -1, // unlimited
+            agents_limit: -1, // unlimited
+            overage_rate: null, // negotiated
+            marketplace_fee: 0.020,
+            support: 'dedicated'
+        }
+    };
+    
+    return planLimits[planType] || planLimits.free;
 };
 
 // Health check endpoint
@@ -254,6 +315,10 @@ app.post('/api/free-tier/signup', async (req, res) => {
                 'Deploy your first agent coordination'
             ],
             upgrade_path: {
+                hacker: {
+                    price: '$49/month',
+                    benefits: '7.5x more API calls, 1.5x more agents, email support'
+                },
                 starter: {
                     price: '$99/month',
                     benefits: '10x more API calls, 2.5x more agents, remove Brikk branding'
@@ -421,6 +486,17 @@ app.get('/api/usage/:userId', (req, res) => {
             },
             upgrade_prompts: upgradePrompts,
             upgrade_options: {
+                hacker: {
+                    price: '$49/month',
+                    api_calls: 7500,
+                    agents: 3,
+                    key_benefits: [
+                        '7.5x more API calls (7,500/month)',
+                        '1.5x more agents (3 total)',
+                        'Email support',
+                        'Priority documentation'
+                    ]
+                },
                 starter: {
                     price: '$99/month',
                     api_calls: 10000,
@@ -711,6 +787,343 @@ app.post('/api/track-usage', (req, res) => {
         });
     }
 });
+
+// ==================== STRIPE PAYMENT ENDPOINTS ====================
+
+// Create Stripe customer and setup subscription
+app.post('/api/payments/create-customer', async (req, res) => {
+    try {
+        const { email, name, company, address, payment_method_id, plan_type } = req.body;
+        
+        // Validation
+        if (!email || !name || !plan_type) {
+            return res.status(400).json({
+                error: 'Missing required fields',
+                required: ['email', 'name', 'plan_type']
+            });
+        }
+        
+        if (!['starter', 'professional', 'enterprise'].includes(plan_type)) {
+            return res.status(400).json({
+                error: 'Invalid plan type',
+                valid_plans: ['starter', 'professional', 'enterprise']
+            });
+        }
+        
+        // Create Stripe customer
+        const customer = await stripe.customers.create({
+            email,
+            name,
+            metadata: {
+                company: company || '',
+                plan_type,
+                source: 'brikk_platform'
+            },
+            address: address ? {
+                line1: address.street,
+                city: address.city,
+                state: address.state,
+                postal_code: address.zip,
+                country: address.country || 'US'
+            } : undefined
+        });
+        
+        let subscription = null;
+        let setup_intent = null;
+        
+        if (payment_method_id) {
+            // Attach payment method to customer
+            await stripe.paymentMethods.attach(payment_method_id, {
+                customer: customer.id,
+            });
+            
+            // Set as default payment method
+            await stripe.customers.update(customer.id, {
+                invoice_settings: {
+                    default_payment_method: payment_method_id,
+                },
+            });
+            
+            // Create subscription
+            subscription = await stripe.subscriptions.create({
+                customer: customer.id,
+                items: [{
+                    price: STRIPE_PRICE_IDS[plan_type],
+                }],
+                payment_behavior: 'default_incomplete',
+                payment_settings: { save_default_payment_method: 'on_subscription' },
+                expand: ['latest_invoice.payment_intent'],
+            });
+        } else {
+            // Create setup intent for future payments
+            setup_intent = await stripe.setupIntents.create({
+                customer: customer.id,
+                payment_method_types: ['card'],
+                usage: 'off_session'
+            });
+        }
+        
+        res.json({
+            success: true,
+            customer_id: customer.id,
+            subscription: subscription ? {
+                id: subscription.id,
+                status: subscription.status,
+                client_secret: subscription.latest_invoice?.payment_intent?.client_secret
+            } : null,
+            setup_intent: setup_intent ? {
+                id: setup_intent.id,
+                client_secret: setup_intent.client_secret
+            } : null,
+            message: payment_method_id 
+                ? 'Customer created and subscription started'
+                : 'Customer created, ready for payment method'
+        });
+        
+    } catch (error) {
+        console.error('Stripe customer creation error:', error);
+        res.status(500).json({
+            error: 'Failed to create customer',
+            message: error.message
+        });
+    }
+});
+
+// Create payment intent for one-time payments
+app.post('/api/payments/create-payment-intent', async (req, res) => {
+    try {
+        const { amount, currency = 'usd', customer_id, plan_type } = req.body;
+        
+        if (!amount || !customer_id) {
+            return res.status(400).json({
+                error: 'Missing required fields',
+                required: ['amount', 'customer_id']
+            });
+        }
+        
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: Math.round(amount * 100), // Convert to cents
+            currency,
+            customer: customer_id,
+            metadata: {
+                plan_type: plan_type || 'unknown',
+                source: 'brikk_platform'
+            },
+            automatic_payment_methods: {
+                enabled: true,
+            },
+        });
+        
+        res.json({
+            success: true,
+            client_secret: paymentIntent.client_secret,
+            payment_intent_id: paymentIntent.id
+        });
+        
+    } catch (error) {
+        console.error('Payment intent creation error:', error);
+        res.status(500).json({
+            error: 'Failed to create payment intent',
+            message: error.message
+        });
+    }
+});
+
+// Update subscription plan
+app.post('/api/payments/update-subscription', async (req, res) => {
+    try {
+        const { subscription_id, new_plan_type } = req.body;
+        
+        if (!subscription_id || !new_plan_type) {
+            return res.status(400).json({
+                error: 'Missing required fields',
+                required: ['subscription_id', 'new_plan_type']
+            });
+        }
+        
+        if (!['starter', 'professional', 'enterprise'].includes(new_plan_type)) {
+            return res.status(400).json({
+                error: 'Invalid plan type',
+                valid_plans: ['starter', 'professional', 'enterprise']
+            });
+        }
+        
+        // Get current subscription
+        const subscription = await stripe.subscriptions.retrieve(subscription_id);
+        
+        // Update subscription with new price
+        const updatedSubscription = await stripe.subscriptions.update(subscription_id, {
+            items: [{
+                id: subscription.items.data[0].id,
+                price: STRIPE_PRICE_IDS[new_plan_type],
+            }],
+            proration_behavior: 'create_prorations',
+        });
+        
+        res.json({
+            success: true,
+            subscription: {
+                id: updatedSubscription.id,
+                status: updatedSubscription.status,
+                current_period_end: updatedSubscription.current_period_end,
+                plan_type: new_plan_type
+            },
+            message: `Successfully upgraded to ${new_plan_type} plan`
+        });
+        
+    } catch (error) {
+        console.error('Subscription update error:', error);
+        res.status(500).json({
+            error: 'Failed to update subscription',
+            message: error.message
+        });
+    }
+});
+
+// Cancel subscription
+app.post('/api/payments/cancel-subscription', async (req, res) => {
+    try {
+        const { subscription_id, cancel_at_period_end = true } = req.body;
+        
+        if (!subscription_id) {
+            return res.status(400).json({
+                error: 'Missing subscription_id'
+            });
+        }
+        
+        const subscription = await stripe.subscriptions.update(subscription_id, {
+            cancel_at_period_end
+        });
+        
+        res.json({
+            success: true,
+            subscription: {
+                id: subscription.id,
+                status: subscription.status,
+                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_end: subscription.current_period_end
+            },
+            message: cancel_at_period_end 
+                ? 'Subscription will cancel at the end of the current period'
+                : 'Subscription cancelled immediately'
+        });
+        
+    } catch (error) {
+        console.error('Subscription cancellation error:', error);
+        res.status(500).json({
+            error: 'Failed to cancel subscription',
+            message: error.message
+        });
+    }
+});
+
+// Get customer billing information
+app.get('/api/payments/customer/:customer_id', async (req, res) => {
+    try {
+        const { customer_id } = req.params;
+        
+        const customer = await stripe.customers.retrieve(customer_id);
+        const subscriptions = await stripe.subscriptions.list({
+            customer: customer_id,
+            status: 'all',
+            limit: 10
+        });
+        
+        const paymentMethods = await stripe.paymentMethods.list({
+            customer: customer_id,
+            type: 'card',
+        });
+        
+        res.json({
+            success: true,
+            customer: {
+                id: customer.id,
+                email: customer.email,
+                name: customer.name,
+                created: customer.created,
+                metadata: customer.metadata
+            },
+            subscriptions: subscriptions.data.map(sub => ({
+                id: sub.id,
+                status: sub.status,
+                current_period_start: sub.current_period_start,
+                current_period_end: sub.current_period_end,
+                cancel_at_period_end: sub.cancel_at_period_end,
+                items: sub.items.data.map(item => ({
+                    price_id: item.price.id,
+                    amount: item.price.unit_amount,
+                    currency: item.price.currency,
+                    interval: item.price.recurring?.interval
+                }))
+            })),
+            payment_methods: paymentMethods.data.map(pm => ({
+                id: pm.id,
+                type: pm.type,
+                card: pm.card ? {
+                    brand: pm.card.brand,
+                    last4: pm.card.last4,
+                    exp_month: pm.card.exp_month,
+                    exp_year: pm.card.exp_year
+                } : null
+            }))
+        });
+        
+    } catch (error) {
+        console.error('Customer retrieval error:', error);
+        res.status(500).json({
+            error: 'Failed to retrieve customer information',
+            message: error.message
+        });
+    }
+});
+
+// Stripe webhook handler
+app.post('/api/payments/webhook', express.raw({type: 'application/json'}), (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+    
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+    
+    // Handle the event
+    switch (event.type) {
+        case 'customer.subscription.created':
+            console.log('Subscription created:', event.data.object);
+            // Update user plan in database
+            break;
+            
+        case 'customer.subscription.updated':
+            console.log('Subscription updated:', event.data.object);
+            // Update user plan in database
+            break;
+            
+        case 'customer.subscription.deleted':
+            console.log('Subscription cancelled:', event.data.object);
+            // Downgrade user to free plan
+            break;
+            
+        case 'invoice.payment_succeeded':
+            console.log('Payment succeeded:', event.data.object);
+            // Confirm subscription is active
+            break;
+            
+        case 'invoice.payment_failed':
+            console.log('Payment failed:', event.data.object);
+            // Handle failed payment
+            break;
+            
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+    
+    res.json({received: true});
+});
+
+// ==================== END STRIPE ENDPOINTS ====================
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {

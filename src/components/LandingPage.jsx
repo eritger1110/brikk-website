@@ -18,27 +18,14 @@ import {
   BookOpen,
   Award
 } from 'lucide-react';
-
-const LandingPage = ({ onGetStarted }) => {
-  const [liveMetrics, setLiveMetrics] = useState({
-    coordinations: 15861,
-    successRate: 99.97,
-    activeAgents: 6,
-    customers: 847
-  });
-
-  // Simulate live metrics updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveMetrics(prev => ({
-        ...prev,
-        coordinations: prev.coordinations + Math.floor(Math.random() * 5) + 1,
-        successRate: 99.97 + (Math.random() * 0.02 - 0.01), // Small variance around 99.97%
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
+const LandingPage = ({ onGetStarted, onNavigate }) => {
+  // Remove fake metrics - replace with truthful platform capabilities
+  const platformCapabilities = {
+    languages: 6,
+    responseTime: "< 50ms",
+    uptime: "99.97%",
+    security: "Enterprise-Grade"
+  };
 
   const features = [
     {
@@ -56,8 +43,8 @@ const LandingPage = ({ onGetStarted }) => {
     {
       icon: <Shield className="w-8 h-8" />,
       title: "Enterprise Security",
-      description: "HIPAA compliant, SOC 2 certified, with defense-in-depth architecture. Built for Fortune 500 requirements.",
-      highlight: "HIPAA + SOC 2 Ready"
+      description: "Enterprise-grade security architecture designed for HIPAA and SOC 2 compliance. Built with Fortune 500 security requirements in mind.",
+      highlight: "Enterprise-Grade Security"
     },
     {
       icon: <Globe className="w-8 h-8" />,
@@ -83,58 +70,53 @@ const LandingPage = ({ onGetStarted }) => {
     {
       industry: "Healthcare",
       title: "Patient Diagnosis Coordination",
-      description: "500+ healthcare organizations use Brikk to coordinate diagnostic agents, reducing diagnosis time by 60% while maintaining HIPAA compliance.",
-      metrics: "60% faster diagnosis • 500+ organizations • HIPAA compliant",
-      icon: "🏥",
-      customers: ["Mayo Clinic", "Johns Hopkins", "Kaiser Permanente"]
+      description: "Healthcare organizations can use Brikk to coordinate diagnostic agents with enterprise-grade security designed for healthcare compliance requirements.",
+      metrics: "Enterprise security • Healthcare-ready • HIPAA-designed architecture",
+      icon: <Shield className="w-8 h-8" style={{ color: 'var(--brikk-teal)' }} />,
+      customers: ["Healthcare Innovation Labs", "Regional Medical Centers", "Diagnostic Networks"]
     },
     {
       industry: "Financial Services", 
       title: "Risk Assessment & Monitoring",
-      description: "150+ financial institutions rely on Brikk for real-time risk assessment, fraud detection, and regulatory compliance monitoring.",
-      metrics: "24/7 monitoring • 150+ institutions • Real-time alerts",
-      icon: "🏦",
-      customers: ["JPMorgan Chase", "Goldman Sachs", "Wells Fargo"]
+      description: "Financial institutions can leverage Brikk for real-time risk assessment and monitoring with enterprise-grade security architecture.",
+      metrics: "Real-time coordination • Enterprise security • Financial-grade architecture",
+      icon: <BarChart3 className="w-8 h-8" style={{ color: 'var(--brikk-purple)' }} />,
+      customers: ["Investment Banks", "Trading Firms", "Financial Technology Companies"]
     },
     {
       industry: "Manufacturing",
       title: "Quality Control & Optimization",
-      description: "200+ manufacturing plants use Brikk to coordinate quality control agents, improving efficiency by 30% and reducing defects.",
-      metrics: "30% efficiency gain • 200+ plants • Zero downtime",
-      icon: "🏭",
-      customers: ["General Electric", "Boeing", "Ford Motor"]
+      description: "Manufacturing organizations can coordinate quality control agents for improved efficiency and defect reduction using Brikk's real-time coordination platform.",
+      metrics: "Real-time coordination • Quality optimization • Industrial-grade reliability",
+      icon: <Cpu className="w-8 h-8" style={{ color: 'var(--brikk-teal)' }} />,
+      customers: ["Manufacturing Companies", "Industrial Automation", "Quality Control Systems"]
     },
     {
       industry: "Customer Service",
       title: "Multi-Channel Support",
-      description: "1000+ customer service teams coordinate support agents across channels, providing instant responses in 40+ languages.",
-      metrics: "Instant response • 1000+ teams • 40+ languages",
-      icon: "🎧",
-      customers: ["Amazon", "Microsoft", "Salesforce"]
+      description: "Customer service teams can coordinate support agents across multiple channels using Brikk's multi-language coordination platform.",
+      metrics: "Multi-channel coordination • Real-time responses • Global language support",
+      icon: <Users className="w-8 h-8" style={{ color: 'var(--brikk-purple)' }} />,
+      customers: ["Customer Service Platforms", "Support Technology Companies", "Service Organizations"]
     }
   ];
 
-  const testimonials = [
+  // Remove fake testimonials - replace with truthful platform benefits
+  const platformBenefits = [
     {
-      quote: "Brikk transformed our diagnostic workflow. We're now coordinating 12 different AI agents seamlessly, reducing patient diagnosis time from hours to minutes.",
-      author: "Dr. Sarah Chen",
-      title: "Chief Medical Officer",
-      company: "Regional Medical Center",
-      avatar: "👩‍⚕️"
+      title: "Multi-Language Coordination",
+      description: "Connect agents across 6 programming languages with our Universal Coordination Protocol.",
+      benefit: "Seamless Integration"
     },
     {
-      quote: "The multi-language support is incredible. Our Python risk models now coordinate perfectly with our Java trading systems. Game-changing technology.",
-      author: "Michael Rodriguez",
-      title: "Head of Technology",
-      company: "Global Investment Bank",
-      avatar: "👨‍💼"
+      title: "Enterprise Security",
+      description: "Built with enterprise-grade security architecture designed for compliance requirements.",
+      benefit: "Security First"
     },
     {
-      quote: "HIPAA compliance out of the box was crucial for us. Brikk's security architecture gave us confidence to deploy across all our facilities.",
-      author: "Jennifer Park",
-      title: "CTO",
-      company: "Healthcare Innovation Labs",
-      avatar: "👩‍💻"
+      title: "Real-Time Performance",
+      description: "Sub-second response times with high availability infrastructure for mission-critical applications.",
+      benefit: "Performance Focused"
     }
   ];
 
@@ -153,7 +135,24 @@ const LandingPage = ({ onGetStarted }) => {
       ],
       cta: "Start Free",
       popular: false,
-      highlight: "No credit card required"
+      highlight: "1,000 Free API Calls"
+    },
+    {
+      name: "Hacker",
+      price: "$49",
+      period: "per month",
+      description: "For developers building serious projects",
+      features: [
+        "7,500 API calls per month",
+        "3 agents maximum",
+        "Email support",
+        "Basic analytics",
+        "All 6 programming languages",
+        "Developer community access"
+      ],
+      cta: "Start 14-Day Trial",
+      popular: false,
+      highlight: "Developer Favorite"
     },
     {
       name: "Starter", 
@@ -214,6 +213,7 @@ const LandingPage = ({ onGetStarted }) => {
       color: 'var(--brikk-white)',
       minHeight: '100vh'
     }}>
+      
       {/* Hero Section */}
       <section style={{ 
         padding: '8rem 2rem 6rem',
@@ -265,7 +265,7 @@ const LandingPage = ({ onGetStarted }) => {
             }}>
               <Award className="w-4 h-4" style={{ color: 'var(--brikk-teal)' }} />
               <span style={{ fontSize: '0.875rem', color: 'var(--brikk-teal)', fontWeight: '500' }}>
-                SOC 2 Certified
+                Enterprise Security
               </span>
             </div>
             <div style={{ 
@@ -279,7 +279,7 @@ const LandingPage = ({ onGetStarted }) => {
             }}>
               <Shield className="w-4 h-4" style={{ color: 'var(--brikk-purple)' }} />
               <span style={{ fontSize: '0.875rem', color: 'var(--brikk-purple)', fontWeight: '500' }}>
-                HIPAA Compliant
+                Compliance-Ready
               </span>
             </div>
             <div style={{ 
@@ -293,7 +293,7 @@ const LandingPage = ({ onGetStarted }) => {
             }}>
               <TrendingUp className="w-4 h-4" style={{ color: 'var(--brikk-white)' }} />
               <span style={{ fontSize: '0.875rem', color: 'var(--brikk-white)', fontWeight: '500' }}>
-                {liveMetrics.successRate.toFixed(2)}% Uptime
+                {platformCapabilities.uptime} Target Uptime
               </span>
             </div>
           </div>
@@ -321,7 +321,7 @@ const LandingPage = ({ onGetStarted }) => {
             The only platform built specifically for AI agent coordination. Connect agents across 6 programming languages with enterprise-grade security and real-time performance.
           </p>
 
-          {/* Live Metrics */}
+          {/* Platform Capabilities */}
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -337,7 +337,7 @@ const LandingPage = ({ onGetStarted }) => {
                 color: 'var(--brikk-teal)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.coordinations.toLocaleString()}+
+                {platformCapabilities.responseTime}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -345,7 +345,7 @@ const LandingPage = ({ onGetStarted }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Daily Coordinations
+                Response Time
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -355,7 +355,7 @@ const LandingPage = ({ onGetStarted }) => {
                 color: 'var(--brikk-purple)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.successRate.toFixed(2)}%
+                {platformCapabilities.uptime}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -363,7 +363,7 @@ const LandingPage = ({ onGetStarted }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Success Rate
+                Target Uptime
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -373,7 +373,7 @@ const LandingPage = ({ onGetStarted }) => {
                 color: 'var(--brikk-white)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.activeAgents}
+                {platformCapabilities.languages}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -391,7 +391,7 @@ const LandingPage = ({ onGetStarted }) => {
                 color: 'var(--brikk-teal)',
                 marginBottom: '0.5rem'
               }}>
-                {liveMetrics.customers}+
+                {platformCapabilities.security}
               </div>
               <div style={{ 
                 fontSize: '0.875rem',
@@ -399,7 +399,7 @@ const LandingPage = ({ onGetStarted }) => {
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                Enterprise Customers
+                Security Level
               </div>
             </div>
           </div>
@@ -441,6 +441,129 @@ const LandingPage = ({ onGetStarted }) => {
               <ArrowRight className="w-5 h-5" />
             </button>
             <button
+              onClick={() => {
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  background: rgba(0, 0, 0, 0.95);
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  z-index: 10000;
+                  backdrop-filter: blur(8px);
+                `;
+                
+                const videoContainer = document.createElement('div');
+                videoContainer.style.cssText = `
+                  position: relative;
+                  max-width: 95vw;
+                  max-height: 95vh;
+                  width: 1200px;
+                  height: 675px;
+                  background: #000;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+                `;
+                
+                const video = document.createElement('video');
+                video.src = '/brikk-demo-video.mp4';
+                video.controls = true;
+                video.autoplay = true;
+                video.muted = false;
+                video.preload = 'auto';
+                video.style.cssText = `
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                  background: #000;
+                `;
+                
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '×';
+                closeButton.style.cssText = `
+                  position: absolute;
+                  top: 20px;
+                  right: 20px;
+                  width: 40px;
+                  height: 40px;
+                  background: rgba(255, 255, 255, 0.1);
+                  border: 2px solid rgba(255, 255, 255, 0.3);
+                  border-radius: 50%;
+                  color: white;
+                  font-size: 24px;
+                  font-weight: bold;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  z-index: 10001;
+                  transition: all 0.3s ease;
+                `;
+                
+                closeButton.addEventListener('mouseenter', () => {
+                  closeButton.style.background = 'rgba(255, 255, 255, 0.2)';
+                  closeButton.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                });
+                
+                closeButton.addEventListener('mouseleave', () => {
+                  closeButton.style.background = 'rgba(255, 255, 255, 0.1)';
+                  closeButton.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                });
+                
+                closeButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                });
+                
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(closeButton);
+                modal.appendChild(videoContainer);
+                document.body.appendChild(modal);
+                
+                // Enhanced error handling
+                video.addEventListener('error', (e) => {
+                  console.error('Video error:', e);
+                  const errorMsg = document.createElement('div');
+                  errorMsg.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    text-align: center;
+                    font-size: 18px;
+                  `;
+                  errorMsg.innerHTML = 'Video loading error. Please try again.';
+                  videoContainer.appendChild(errorMsg);
+                });
+                
+                video.addEventListener('loadstart', () => {
+                  console.log('Video loading started');
+                });
+                
+                video.addEventListener('canplay', () => {
+                  console.log('Video can start playing');
+                });
+                
+                modal.addEventListener('click', (e) => {
+                  if (e.target === modal) {
+                    document.body.removeChild(modal);
+                  }
+                });
+                
+                // Escape key to close
+                const handleEscape = (e) => {
+                  if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleEscape);
+                  }
+                };
+                document.addEventListener('keydown', handleEscape);
+              }}
               style={{
                 background: 'transparent',
                 color: 'var(--brikk-white)',
@@ -476,8 +599,156 @@ const LandingPage = ({ onGetStarted }) => {
             marginTop: '2rem',
             opacity: 0.8
           }}>
-            No credit card required • 1,000 free API calls • 2 agents included • All 6 programming languages
+            1,000 free API calls • 2 agents included • All 6 programming languages
           </p>
+
+          {/* Demo Login Buttons */}
+          <div style={{
+            marginTop: '3rem',
+            padding: '2rem',
+            background: 'rgba(15, 23, 42, 0.8)',
+            border: '1px solid var(--brikk-card-border)',
+            borderRadius: '16px',
+            textAlign: 'center'
+          }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              marginBottom: '1rem',
+              color: 'var(--brikk-white)'
+            }}>
+              🎯 Demo Portal Access
+            </h3>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--brikk-slate-text)',
+              marginBottom: '1.5rem'
+            }}>
+              Experience all user views and admin capabilities
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => {
+                  // Simulate admin login
+                  const adminUser = {
+                    name: 'Admin Demo',
+                    email: 'admin@brikk.com',
+                    role: 'admin',
+                    tier: 'Enterprise'
+                  };
+                  onNavigate('admin');
+                  // Store demo user temporarily
+                  window.demoUser = adminUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(239, 68, 68, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Shield className="w-4 h-4" />
+                Admin Portal Demo
+              </button>
+              <button
+                onClick={() => {
+                  // Simulate customer login
+                  const customerUser = {
+                    name: 'Customer Demo',
+                    email: 'customer@company.com',
+                    role: 'customer',
+                    tier: 'Professional'
+                  };
+                  onNavigate('customer-portal');
+                  window.demoUser = customerUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Users className="w-4 h-4" />
+                Customer Portal Demo
+              </button>
+              <button
+                onClick={() => {
+                  // Simulate developer login
+                  const developerUser = {
+                    name: 'Developer Demo',
+                    email: 'dev@startup.com',
+                    role: 'developer',
+                    tier: 'Hacker'
+                  };
+                  onNavigate('dashboard');
+                  window.demoUser = developerUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Code className="w-4 h-4" />
+                Developer Portal Demo
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -519,9 +790,24 @@ const LandingPage = ({ onGetStarted }) => {
                 fontSize: '1.5rem',
                 fontWeight: '600',
                 marginBottom: '1rem',
-                color: '#ef4444'
+                color: '#ef4444',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
-                ❌ The Problems
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(239, 68, 68, 0.3)'
+                }}>
+                  <span style={{ fontSize: '16px', fontWeight: 'bold' }}>×</span>
+                </div>
+                The Problems
               </h3>
               <ul style={{ 
                 listStyle: 'none',
@@ -563,9 +849,24 @@ const LandingPage = ({ onGetStarted }) => {
                 fontSize: '1.5rem',
                 fontWeight: '600',
                 marginBottom: '1rem',
-                color: '#22c55e'
+                color: '#22c55e',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
-                ✅ The Brikk Solution
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(34, 197, 94, 0.3)'
+                }}>
+                  <CheckCircle className="w-4 h-4" />
+                </div>
+                The Brikk Solution
               </h3>
               <ul style={{ 
                 listStyle: 'none',
@@ -622,70 +923,116 @@ const LandingPage = ({ onGetStarted }) => {
 
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: '2rem'
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '2rem',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr'
+            }
           }}>
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                style={{
-                  background: 'var(--brikk-card-bg)',
-                  border: '1px solid var(--brikk-card-border)',
-                  borderRadius: '16px',
-                  padding: '2rem',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.borderColor = 'var(--brikk-purple)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(115, 95, 255, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'var(--brikk-card-border)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  marginBottom: '1rem'
-                }}>
+            {features.map((feature, index) => {
+              // Define vibrant color schemes for each feature
+              const colorSchemes = [
+                { primary: '#3b82f6', secondary: 'rgba(59, 130, 246, 0.1)', accent: '#1d4ed8' }, // Blue
+                { primary: '#8b5cf6', secondary: 'rgba(139, 92, 246, 0.1)', accent: '#7c3aed' }, // Purple
+                { primary: '#10b981', secondary: 'rgba(16, 185, 129, 0.1)', accent: '#059669' }, // Emerald
+                { primary: '#f59e0b', secondary: 'rgba(245, 158, 11, 0.1)', accent: '#d97706' }, // Amber
+                { primary: '#ef4444', secondary: 'rgba(239, 68, 68, 0.1)', accent: '#dc2626' }, // Red
+                { primary: '#06b6d4', secondary: 'rgba(6, 182, 212, 0.1)', accent: '#0891b2' }  // Cyan
+              ];
+              const colorScheme = colorSchemes[index % colorSchemes.length];
+              
+              return (
+                <div
+                  key={index}
+                  style={{
+                    background: `linear-gradient(135deg, ${colorScheme.secondary} 0%, rgba(15, 15, 17, 0.8) 100%)`,
+                    border: `2px solid ${colorScheme.secondary}`,
+                    borderRadius: '20px',
+                    padding: '2.5rem',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.currentTarget.style.borderColor = colorScheme.primary;
+                    e.currentTarget.style.boxShadow = `0 25px 50px ${colorScheme.secondary}, 0 0 0 1px ${colorScheme.primary}`;
+                    e.currentTarget.style.background = `linear-gradient(135deg, ${colorScheme.secondary} 0%, ${colorScheme.secondary} 100%)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.borderColor = colorScheme.secondary;
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.background = `linear-gradient(135deg, ${colorScheme.secondary} 0%, rgba(15, 15, 17, 0.8) 100%)`;
+                  }}
+                >
+                  {/* Decorative background element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50%',
+                    right: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: `radial-gradient(circle, ${colorScheme.secondary} 0%, transparent 70%)`,
+                    opacity: 0.3,
+                    pointerEvents: 'none'
+                  }} />
+                  
                   <div style={{ 
-                    color: 'var(--brikk-purple)',
-                    background: 'rgba(115, 95, 255, 0.1)',
-                    padding: '0.75rem',
-                    borderRadius: '12px'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.5rem',
+                    marginBottom: '1.5rem',
+                    position: 'relative',
+                    zIndex: 1
                   }}>
-                    {feature.icon}
-                  </div>
-                  <div>
-                    <h3 style={{ 
-                      fontSize: '1.25rem',
-                      fontWeight: '600',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {feature.title}
-                    </h3>
                     <div style={{ 
-                      fontSize: '0.875rem',
-                      color: 'var(--brikk-teal)',
-                      fontWeight: '500'
+                      color: colorScheme.primary,
+                      background: `linear-gradient(135deg, ${colorScheme.secondary} 0%, ${colorScheme.secondary} 100%)`,
+                      padding: '1rem',
+                      borderRadius: '16px',
+                      border: `2px solid ${colorScheme.primary}`,
+                      boxShadow: `0 8px 25px ${colorScheme.secondary}`
                     }}>
-                      {feature.highlight}
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h3 style={{ 
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        marginBottom: '0.5rem',
+                        background: `linear-gradient(135deg, ${colorScheme.primary} 0%, ${colorScheme.accent} 100%)`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                      }}>
+                        {feature.title}
+                      </h3>
+                      <div style={{ 
+                        fontSize: '0.875rem',
+                        color: colorScheme.primary,
+                        fontWeight: '600',
+                        background: colorScheme.secondary,
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '12px',
+                        display: 'inline-block'
+                      }}>
+                        {feature.highlight}
+                      </div>
                     </div>
                   </div>
+                  <p style={{ 
+                    color: 'var(--brikk-slate-text)',
+                    lineHeight: '1.7',
+                    fontSize: '1rem',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    {feature.description}
+                  </p>
                 </div>
-                <p style={{ 
-                  color: 'var(--brikk-slate-text)',
-                  lineHeight: '1.6'
-                }}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -713,8 +1060,11 @@ const LandingPage = ({ onGetStarted }) => {
 
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem'
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '2rem',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr'
+            }
           }}>
             {useCases.map((useCase, index) => (
               <div
@@ -743,7 +1093,16 @@ const LandingPage = ({ onGetStarted }) => {
                   gap: '1rem',
                   marginBottom: '1rem'
                 }}>
-                  <div style={{ fontSize: '2rem' }}>{useCase.icon}</div>
+                  <div style={{ 
+                    background: 'rgba(115, 95, 255, 0.1)',
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {useCase.icon}
+                  </div>
                   <div>
                     <div style={{ 
                       fontSize: '0.875rem',
@@ -791,8 +1150,8 @@ const LandingPage = ({ onGetStarted }) => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section style={{ padding: '6rem 2rem' }}>
+      {/* Platform Benefits Section */}
+      <section style={{ padding: '6rem 2rem', background: 'rgba(15, 15, 17, 0.5)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 style={{ 
@@ -800,7 +1159,7 @@ const LandingPage = ({ onGetStarted }) => {
               fontWeight: '700',
               marginBottom: '1rem'
             }}>
-              What Our Customers Say
+              Why Choose Brikk
             </h2>
             <p style={{ 
               fontSize: '1.25rem',
@@ -808,7 +1167,7 @@ const LandingPage = ({ onGetStarted }) => {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Real results from real customers using Brikk in production.
+              Built specifically for AI agent coordination with enterprise-grade capabilities.
             </p>
           </div>
 
@@ -817,7 +1176,7 @@ const LandingPage = ({ onGetStarted }) => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
             gap: '2rem'
           }}>
-            {testimonials.map((testimonial, index) => (
+            {platformBenefits.map((benefit, index) => (
               <div
                 key={index}
                 style={{
@@ -829,56 +1188,32 @@ const LandingPage = ({ onGetStarted }) => {
                 }}
               >
                 <div style={{ 
-                  display: 'flex',
-                  gap: '0.5rem',
-                  marginBottom: '1rem',
-                  color: 'var(--brikk-yellow)'
+                  display: 'inline-block',
+                  background: 'var(--brikk-gradient)',
+                  color: 'var(--brikk-white)',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  marginBottom: '1.5rem'
                 }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4" fill="currentColor" />
-                  ))}
+                  {benefit.benefit}
                 </div>
-                <blockquote style={{ 
-                  fontSize: '1.125rem',
-                  lineHeight: '1.6',
-                  marginBottom: '1.5rem',
-                  fontStyle: 'italic',
+                <h3 style={{ 
+                  fontSize: '1.5rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
                   color: 'var(--brikk-white)'
                 }}>
-                  "{testimonial.quote}"
-                </blockquote>
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem'
+                  {benefit.title}
+                </h3>
+                <p style={{ 
+                  fontSize: '1.125rem',
+                  lineHeight: '1.6',
+                  color: 'var(--brikk-slate-text)'
                 }}>
-                  <div style={{ 
-                    fontSize: '2rem',
-                    width: '48px',
-                    height: '48px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(115, 95, 255, 0.1)',
-                    borderRadius: '50%'
-                  }}>
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div style={{ 
-                      fontWeight: '600',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {testimonial.author}
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.875rem',
-                      color: 'var(--brikk-slate-text)'
-                    }}>
-                      {testimonial.title}, {testimonial.company}
-                    </div>
-                  </div>
-                </div>
+                  {benefit.description}
+                </p>
               </div>
             ))}
           </div>
@@ -909,8 +1244,10 @@ const LandingPage = ({ onGetStarted }) => {
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2rem',
-            alignItems: 'stretch'
+            gap: '1.5rem',
+            alignItems: 'stretch',
+            maxWidth: '1400px',
+            margin: '0 auto'
           }}>
             {pricingTiers.map((tier, index) => (
               <div
@@ -1104,7 +1441,7 @@ const LandingPage = ({ onGetStarted }) => {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Connect with 500+ developers building the future of AI agent coordination.
+              Connect with developers building the future of AI agent coordination.
             </p>
           </div>
 
@@ -1134,10 +1471,10 @@ const LandingPage = ({ onGetStarted }) => {
                 Discord Community
               </h3>
               <p style={{ color: 'var(--brikk-slate-text)', marginBottom: '1rem' }}>
-                Join 500+ developers sharing projects, getting help, and building together.
+                Join developers sharing projects, getting help, and building together.
               </p>
               <div style={{ fontSize: '0.875rem', color: 'var(--brikk-teal)' }}>
-                23 members online now
+                Active Community
               </div>
             </div>
 
@@ -1165,7 +1502,7 @@ const LandingPage = ({ onGetStarted }) => {
                 Agent coordination templates for all 6 programming languages.
               </p>
               <div style={{ fontSize: '0.875rem', color: 'var(--brikk-teal)' }}>
-                1,247 stars • 89 forks
+                Open Source Examples
               </div>
             </div>
 
@@ -1219,7 +1556,7 @@ const LandingPage = ({ onGetStarted }) => {
             color: 'var(--brikk-slate-text)',
             marginBottom: '3rem'
           }}>
-            Join 847+ companies already using Brikk to coordinate AI agents at scale.
+            Start building with enterprise-grade AI agent coordination today.
           </p>
           
           <div style={{ 
@@ -1265,7 +1602,7 @@ const LandingPage = ({ onGetStarted }) => {
             color: 'var(--brikk-slate-text)',
             opacity: 0.8
           }}>
-            1,000 free API calls • No credit card required • Deploy in minutes
+            1,000 free API calls • Deploy in minutes
           </p>
         </div>
       </section>

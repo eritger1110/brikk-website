@@ -1,0 +1,9 @@
+nohup: ignoring input
+
+> brikk-enterprise-platform@2.0.0 preview
+> vite preview
+
+Port 10000 is in use, trying another one...
+Port 10001 is in use, trying another one...
+  ➜  Local:   http://localhost:10002/
+  ➜  Network: http://169.254.0.21:10002/

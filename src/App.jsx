@@ -5,7 +5,15 @@ import './App.css';
 import LandingPage from './components/LandingPage';
 import FreeTierSignup from './components/FreeTierSignup';
 import DeveloperDashboard from './components/DeveloperDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import CustomerDashboard from './components/CustomerDashboard';
 import EnhancedHeader from './components/EnhancedHeader';
+import FeaturesPage from './components/FeaturesPage';
+import PricingPage from './components/PricingPage';
+import UseCasesPage from './components/UseCasesPage';
+import ResourcesPage from './components/ResourcesPage';
+import TermsOfService from './components/TermsOfService';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
@@ -71,6 +79,46 @@ function App() {
 
   const renderCurrentPage = () => {
     switch (currentPage) {
+      case 'features':
+        return (
+          <FeaturesPage 
+            onBackToHome={() => setCurrentPage('landing')}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'pricing':
+        return (
+          <PricingPage 
+            onBackToHome={() => setCurrentPage('landing')}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'use-cases':
+        return (
+          <UseCasesPage 
+            onBackToHome={() => setCurrentPage('landing')}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'resources':
+        return (
+          <ResourcesPage 
+            onBackToHome={() => setCurrentPage('landing')}
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'terms':
+        return (
+          <TermsOfService 
+            onBackToHome={() => setCurrentPage('landing')}
+          />
+        );
+      case 'privacy':
+        return (
+          <PrivacyPolicy 
+            onBackToHome={() => setCurrentPage('landing')}
+          />
+        );
       case 'signup':
         return (
           <FreeTierSignup 
@@ -138,8 +186,43 @@ function App() {
           </div>
         );
       case 'dashboard':
+        // Check if user is admin
+        if (user && user.role === 'admin') {
+          return (
+            <AdminDashboard 
+              user={user}
+              onNavigate={handleNavigate}
+              onLogout={handleLogout}
+            />
+          );
+        } else if (user && user.role === 'customer') {
+          return (
+            <CustomerDashboard 
+              user={user}
+              onUpgrade={handleUpgrade}
+              onLogout={handleLogout}
+            />
+          );
+        } else {
+          return (
+            <DeveloperDashboard 
+              user={user}
+              onUpgrade={handleUpgrade}
+              onLogout={handleLogout}
+            />
+          );
+        }
+      case 'admin':
         return (
-          <DeveloperDashboard 
+          <AdminDashboard 
+            user={user}
+            onNavigate={handleNavigate}
+            onLogout={handleLogout}
+          />
+        );
+      case 'customer-portal':
+        return (
+          <CustomerDashboard 
             user={user}
             onUpgrade={handleUpgrade}
             onLogout={handleLogout}
@@ -401,6 +484,7 @@ function App() {
           <LandingPage 
             onSignup={handleSignup}
             onLogin={handleLogin}
+            onNavigate={handleNavigate}
           />
         );
     }

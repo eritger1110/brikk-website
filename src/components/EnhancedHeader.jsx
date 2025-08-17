@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Menu, 
   X, 
@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ExternalLink
 } from 'lucide-react';
+import BrikkLogo from '../assets/BrikkLogo.webp';
 
 const EnhancedHeader = ({ 
   user, 
@@ -30,15 +31,30 @@ const EnhancedHeader = ({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
 
+  // Click-away functionality
+  useEffect(() => {
+    const handleClickAway = (event) => {
+      // Close dropdowns when clicking outside
+      if (!event.target.closest('[data-dropdown]')) {
+        setIsResourcesOpen(false);
+        setIsUserMenuOpen(false);
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickAway);
+    return () => document.removeEventListener('click', handleClickAway);
+  }, []);
+
   const navigationItems = [
-    { id: 'home', label: 'Home', href: '#home' },
-    { id: 'features', label: 'Features', href: '#features' },
-    { id: 'pricing', label: 'Pricing', href: '#pricing' },
-    { id: 'use-cases', label: 'Use Cases', href: '#use-cases' },
+    { id: 'home', label: 'Home', action: () => { onNavigate('landing'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'features', label: 'Features', action: () => { onNavigate('features'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'pricing', label: 'Pricing', action: () => { onNavigate('pricing'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'use-cases', label: 'Use Cases', action: () => { onNavigate('use-cases'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { 
       id: 'resources', 
       label: 'Resources', 
-      href: '#resources',
+      action: () => { onNavigate('resources'); window.scrollTo({ top: 0, behavior: 'smooth' }); },
       dropdown: [
         { 
           label: 'Documentation', 
@@ -74,6 +90,21 @@ const EnhancedHeader = ({
       icon: <BarChart3 className="w-4 h-4" />, 
       action: () => onNavigate('dashboard') 
     },
+    ...(user?.role === 'admin' ? [
+      { 
+        label: 'Admin Portal', 
+        icon: <Shield className="w-4 h-4" />, 
+        action: () => onNavigate('admin'),
+        highlight: true
+      }
+    ] : []),
+    ...(user?.role === 'customer' || user?.role === 'admin' ? [
+      { 
+        label: 'Customer Portal', 
+        icon: <Users className="w-4 h-4" />, 
+        action: () => onNavigate('customer-portal')
+      }
+    ] : []),
     { 
       label: 'Account Settings', 
       icon: <Settings className="w-4 h-4" />, 
@@ -83,7 +114,7 @@ const EnhancedHeader = ({
       label: 'Upgrade Plan', 
       icon: <Crown className="w-4 h-4" />, 
       action: () => onNavigate('upgrade'),
-      highlight: true
+      highlight: !user?.role || user?.role === 'developer'
     },
     { 
       label: 'Logout', 
@@ -114,16 +145,19 @@ const EnhancedHeader = ({
       return;
     }
     
-    if (item.href.startsWith('#')) {
+    if (item.action) {
+      item.action();
+    } else if (item.href && item.href.startsWith('#')) {
       const element = document.querySelector(item.href);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
-    } else {
+    } else if (item.href) {
       window.open(item.href, '_blank');
     }
     
     setIsMenuOpen(false);
+    setIsResourcesOpen(false);
   };
 
   return (
@@ -146,45 +180,25 @@ const EnhancedHeader = ({
       }}>
         {/* Logo */}
         <div 
-          onClick={() => onNavigate('home')}
+          onClick={() => {
+            onNavigate('home');
+            // Scroll to top of page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
             cursor: 'pointer'
           }}
         >
-          <div style={{
-            width: '40px',
-            height: '40px',
-            background: 'var(--brikk-gradient)',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            color: 'var(--brikk-white)'
-          }}>
-            B
-          </div>
-          <div>
-            <div style={{
-              fontSize: '1.25rem',
-              fontWeight: '700',
-              color: 'var(--brikk-white)',
-              lineHeight: 1
-            }}>
-              Brikk
-            </div>
-            <div style={{
-              fontSize: '0.75rem',
-              color: 'var(--brikk-slate-text)',
-              lineHeight: 1
-            }}>
-              AI Agent Infrastructure
-            </div>
-          </div>
+          <img 
+            src={BrikkLogo} 
+            alt="Brikk Logo" 
+            style={{
+              height: '72px',
+              width: 'auto'
+            }}
+          />
         </div>
 
         {/* Desktop Navigation */}
@@ -197,7 +211,7 @@ const EnhancedHeader = ({
           }
         }}>
           {navigationItems.map((item) => (
-            <div key={item.id} style={{ position: 'relative' }}>
+            <div key={item.id} style={{ position: 'relative' }} data-dropdown>
               <button
                 onClick={() => handleNavClick(item)}
                 style={{
@@ -234,7 +248,8 @@ const EnhancedHeader = ({
                   position: 'absolute',
                   top: '100%',
                   left: 0,
-                  background: 'var(--brikk-card-bg)',
+                  background: 'rgba(15, 23, 42, 0.98)',
+                  backdropFilter: 'blur(10px)',
                   border: '1px solid var(--brikk-card-border)',
                   borderRadius: '8px',
                   padding: '0.5rem',
@@ -286,7 +301,7 @@ const EnhancedHeader = ({
           gap: '1rem'
         }}>
           {isAuthenticated ? (
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative' }} data-dropdown>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 style={{
@@ -343,7 +358,8 @@ const EnhancedHeader = ({
                   position: 'absolute',
                   top: '100%',
                   right: 0,
-                  background: 'var(--brikk-card-bg)',
+                  background: 'rgba(15, 23, 42, 0.98)',
+                  backdropFilter: 'blur(10px)',
                   border: '1px solid var(--brikk-card-border)',
                   borderRadius: '8px',
                   padding: '0.5rem',
