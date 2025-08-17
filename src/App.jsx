@@ -5,6 +5,8 @@ import './App.css';
 import LandingPage from './components/LandingPage';
 import FreeTierSignup from './components/FreeTierSignup';
 import DeveloperDashboard from './components/DeveloperDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import CustomerDashboard from './components/CustomerDashboard';
 import EnhancedHeader from './components/EnhancedHeader';
 import FeaturesPage from './components/FeaturesPage';
 import PricingPage from './components/PricingPage';
@@ -189,6 +191,18 @@ function App() {
             user={user}
             onUpgrade={handleUpgrade}
             onLogout={handleLogout}
+          />
+        );
+      case 'admin-dashboard':
+        return (
+          <AdminDashboard 
+            onBackToHome={() => setCurrentPage('landing')}
+          />
+        );
+      case 'customer-dashboard':
+        return (
+          <CustomerDashboard 
+            onBackToHome={() => setCurrentPage('landing')}
           />
         );
       case 'upgrade':

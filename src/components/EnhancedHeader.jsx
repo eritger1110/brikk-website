@@ -90,6 +90,21 @@ const EnhancedHeader = ({
       icon: <BarChart3 className="w-4 h-4" />, 
       action: () => onNavigate('dashboard') 
     },
+    ...(user?.role === 'admin' ? [
+      { 
+        label: 'Admin Portal', 
+        icon: <Shield className="w-4 h-4" />, 
+        action: () => onNavigate('admin'),
+        highlight: true
+      }
+    ] : []),
+    ...(user?.role === 'customer' || user?.role === 'admin' ? [
+      { 
+        label: 'Customer Portal', 
+        icon: <Users className="w-4 h-4" />, 
+        action: () => onNavigate('customer-portal')
+      }
+    ] : []),
     { 
       label: 'Account Settings', 
       icon: <Settings className="w-4 h-4" />, 
@@ -99,7 +114,7 @@ const EnhancedHeader = ({
       label: 'Upgrade Plan', 
       icon: <Crown className="w-4 h-4" />, 
       action: () => onNavigate('upgrade'),
-      highlight: true
+      highlight: !user?.role || user?.role === 'developer'
     },
     { 
       label: 'Logout', 

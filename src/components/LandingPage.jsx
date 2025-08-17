@@ -138,6 +138,23 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
       highlight: "1,000 Free API Calls"
     },
     {
+      name: "Hacker",
+      price: "$49",
+      period: "per month",
+      description: "For developers building serious projects",
+      features: [
+        "7,500 API calls per month",
+        "3 agents maximum",
+        "Email support",
+        "Basic analytics",
+        "All 6 programming languages",
+        "Developer community access"
+      ],
+      cta: "Start 14-Day Trial",
+      popular: false,
+      highlight: "Developer Favorite"
+    },
+    {
       name: "Starter", 
       price: "$99",
       period: "per month",
@@ -432,35 +449,120 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                   left: 0;
                   width: 100%;
                   height: 100%;
-                  background: rgba(0, 0, 0, 0.9);
+                  background: rgba(0, 0, 0, 0.95);
                   display: flex;
                   justify-content: center;
                   align-items: center;
                   z-index: 10000;
-                  backdrop-filter: blur(5px);
+                  backdrop-filter: blur(8px);
+                `;
+                
+                const videoContainer = document.createElement('div');
+                videoContainer.style.cssText = `
+                  position: relative;
+                  max-width: 95vw;
+                  max-height: 95vh;
+                  width: 1200px;
+                  height: 675px;
+                  background: #000;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
                 `;
                 
                 const video = document.createElement('video');
                 video.src = '/brikk-demo-video.mp4';
                 video.controls = true;
                 video.autoplay = true;
+                video.muted = false;
+                video.preload = 'auto';
                 video.style.cssText = `
-                  max-width: 90vw;
-                  max-height: 90vh;
-                  width: auto;
-                  height: auto;
-                  border-radius: 12px;
-                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                  background: #000;
                 `;
                 
-                modal.appendChild(video);
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '×';
+                closeButton.style.cssText = `
+                  position: absolute;
+                  top: 20px;
+                  right: 20px;
+                  width: 40px;
+                  height: 40px;
+                  background: rgba(255, 255, 255, 0.1);
+                  border: 2px solid rgba(255, 255, 255, 0.3);
+                  border-radius: 50%;
+                  color: white;
+                  font-size: 24px;
+                  font-weight: bold;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  z-index: 10001;
+                  transition: all 0.3s ease;
+                `;
+                
+                closeButton.addEventListener('mouseenter', () => {
+                  closeButton.style.background = 'rgba(255, 255, 255, 0.2)';
+                  closeButton.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                });
+                
+                closeButton.addEventListener('mouseleave', () => {
+                  closeButton.style.background = 'rgba(255, 255, 255, 0.1)';
+                  closeButton.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                });
+                
+                closeButton.addEventListener('click', () => {
+                  document.body.removeChild(modal);
+                });
+                
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(closeButton);
+                modal.appendChild(videoContainer);
                 document.body.appendChild(modal);
+                
+                // Enhanced error handling
+                video.addEventListener('error', (e) => {
+                  console.error('Video error:', e);
+                  const errorMsg = document.createElement('div');
+                  errorMsg.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    text-align: center;
+                    font-size: 18px;
+                  `;
+                  errorMsg.innerHTML = 'Video loading error. Please try again.';
+                  videoContainer.appendChild(errorMsg);
+                });
+                
+                video.addEventListener('loadstart', () => {
+                  console.log('Video loading started');
+                });
+                
+                video.addEventListener('canplay', () => {
+                  console.log('Video can start playing');
+                });
                 
                 modal.addEventListener('click', (e) => {
                   if (e.target === modal) {
                     document.body.removeChild(modal);
                   }
                 });
+                
+                // Escape key to close
+                const handleEscape = (e) => {
+                  if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleEscape);
+                  }
+                };
+                document.addEventListener('keydown', handleEscape);
               }}
               style={{
                 background: 'transparent',
@@ -499,6 +601,154 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
           }}>
             1,000 free API calls • 2 agents included • All 6 programming languages
           </p>
+
+          {/* Demo Login Buttons */}
+          <div style={{
+            marginTop: '3rem',
+            padding: '2rem',
+            background: 'rgba(15, 23, 42, 0.8)',
+            border: '1px solid var(--brikk-card-border)',
+            borderRadius: '16px',
+            textAlign: 'center'
+          }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              marginBottom: '1rem',
+              color: 'var(--brikk-white)'
+            }}>
+              🎯 Demo Portal Access
+            </h3>
+            <p style={{
+              fontSize: '0.875rem',
+              color: 'var(--brikk-slate-text)',
+              marginBottom: '1.5rem'
+            }}>
+              Experience all user views and admin capabilities
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => {
+                  // Simulate admin login
+                  const adminUser = {
+                    name: 'Admin Demo',
+                    email: 'admin@brikk.com',
+                    role: 'admin',
+                    tier: 'Enterprise'
+                  };
+                  onNavigate('admin');
+                  // Store demo user temporarily
+                  window.demoUser = adminUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(239, 68, 68, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Shield className="w-4 h-4" />
+                Admin Portal Demo
+              </button>
+              <button
+                onClick={() => {
+                  // Simulate customer login
+                  const customerUser = {
+                    name: 'Customer Demo',
+                    email: 'customer@company.com',
+                    role: 'customer',
+                    tier: 'Professional'
+                  };
+                  onNavigate('customer-portal');
+                  window.demoUser = customerUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Users className="w-4 h-4" />
+                Customer Portal Demo
+              </button>
+              <button
+                onClick={() => {
+                  // Simulate developer login
+                  const developerUser = {
+                    name: 'Developer Demo',
+                    email: 'dev@startup.com',
+                    role: 'developer',
+                    tier: 'Hacker'
+                  };
+                  onNavigate('dashboard');
+                  window.demoUser = developerUser;
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                <Code className="w-4 h-4" />
+                Developer Portal Demo
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -540,9 +790,24 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 fontSize: '1.5rem',
                 fontWeight: '600',
                 marginBottom: '1rem',
-                color: '#ef4444'
+                color: '#ef4444',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
-                ❌ The Problems
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(239, 68, 68, 0.3)'
+                }}>
+                  <span style={{ fontSize: '16px', fontWeight: 'bold' }}>×</span>
+                </div>
+                The Problems
               </h3>
               <ul style={{ 
                 listStyle: 'none',
@@ -584,9 +849,24 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 fontSize: '1.5rem',
                 fontWeight: '600',
                 marginBottom: '1rem',
-                color: '#22c55e'
+                color: '#22c55e',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
-                ✅ The Brikk Solution
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(34, 197, 94, 0.3)'
+                }}>
+                  <CheckCircle className="w-4 h-4" />
+                </div>
+                The Brikk Solution
               </h3>
               <ul style={{ 
                 listStyle: 'none',
@@ -649,67 +929,110 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
               gridTemplateColumns: '1fr'
             }
           }}>
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                style={{
-                  background: 'var(--brikk-card-bg)',
-                  border: '1px solid var(--brikk-card-border)',
-                  borderRadius: '16px',
-                  padding: '2rem',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.borderColor = 'var(--brikk-purple)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(115, 95, 255, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'var(--brikk-card-border)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  marginBottom: '1rem'
-                }}>
+            {features.map((feature, index) => {
+              // Define vibrant color schemes for each feature
+              const colorSchemes = [
+                { primary: '#3b82f6', secondary: 'rgba(59, 130, 246, 0.1)', accent: '#1d4ed8' }, // Blue
+                { primary: '#8b5cf6', secondary: 'rgba(139, 92, 246, 0.1)', accent: '#7c3aed' }, // Purple
+                { primary: '#10b981', secondary: 'rgba(16, 185, 129, 0.1)', accent: '#059669' }, // Emerald
+                { primary: '#f59e0b', secondary: 'rgba(245, 158, 11, 0.1)', accent: '#d97706' }, // Amber
+                { primary: '#ef4444', secondary: 'rgba(239, 68, 68, 0.1)', accent: '#dc2626' }, // Red
+                { primary: '#06b6d4', secondary: 'rgba(6, 182, 212, 0.1)', accent: '#0891b2' }  // Cyan
+              ];
+              const colorScheme = colorSchemes[index % colorSchemes.length];
+              
+              return (
+                <div
+                  key={index}
+                  style={{
+                    background: `linear-gradient(135deg, ${colorScheme.secondary} 0%, rgba(15, 15, 17, 0.8) 100%)`,
+                    border: `2px solid ${colorScheme.secondary}`,
+                    borderRadius: '20px',
+                    padding: '2.5rem',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.currentTarget.style.borderColor = colorScheme.primary;
+                    e.currentTarget.style.boxShadow = `0 25px 50px ${colorScheme.secondary}, 0 0 0 1px ${colorScheme.primary}`;
+                    e.currentTarget.style.background = `linear-gradient(135deg, ${colorScheme.secondary} 0%, ${colorScheme.secondary} 100%)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.borderColor = colorScheme.secondary;
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.background = `linear-gradient(135deg, ${colorScheme.secondary} 0%, rgba(15, 15, 17, 0.8) 100%)`;
+                  }}
+                >
+                  {/* Decorative background element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-50%',
+                    right: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: `radial-gradient(circle, ${colorScheme.secondary} 0%, transparent 70%)`,
+                    opacity: 0.3,
+                    pointerEvents: 'none'
+                  }} />
+                  
                   <div style={{ 
-                    color: 'var(--brikk-purple)',
-                    background: 'rgba(115, 95, 255, 0.1)',
-                    padding: '0.75rem',
-                    borderRadius: '12px'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.5rem',
+                    marginBottom: '1.5rem',
+                    position: 'relative',
+                    zIndex: 1
                   }}>
-                    {feature.icon}
-                  </div>
-                  <div>
-                    <h3 style={{ 
-                      fontSize: '1.25rem',
-                      fontWeight: '600',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {feature.title}
-                    </h3>
                     <div style={{ 
-                      fontSize: '0.875rem',
-                      color: 'var(--brikk-teal)',
-                      fontWeight: '500'
+                      color: colorScheme.primary,
+                      background: `linear-gradient(135deg, ${colorScheme.secondary} 0%, ${colorScheme.secondary} 100%)`,
+                      padding: '1rem',
+                      borderRadius: '16px',
+                      border: `2px solid ${colorScheme.primary}`,
+                      boxShadow: `0 8px 25px ${colorScheme.secondary}`
                     }}>
-                      {feature.highlight}
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h3 style={{ 
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        marginBottom: '0.5rem',
+                        background: `linear-gradient(135deg, ${colorScheme.primary} 0%, ${colorScheme.accent} 100%)`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent'
+                      }}>
+                        {feature.title}
+                      </h3>
+                      <div style={{ 
+                        fontSize: '0.875rem',
+                        color: colorScheme.primary,
+                        fontWeight: '600',
+                        background: colorScheme.secondary,
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '12px',
+                        display: 'inline-block'
+                      }}>
+                        {feature.highlight}
+                      </div>
                     </div>
                   </div>
+                  <p style={{ 
+                    color: 'var(--brikk-slate-text)',
+                    lineHeight: '1.7',
+                    fontSize: '1rem',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    {feature.description}
+                  </p>
                 </div>
-                <p style={{ 
-                  color: 'var(--brikk-slate-text)',
-                  lineHeight: '1.6'
-                }}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -920,12 +1243,11 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
 
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '1.5rem',
             alignItems: 'stretch',
-            '@media (max-width: 768px)': {
-              gridTemplateColumns: '1fr'
-            }
+            maxWidth: '1400px',
+            margin: '0 auto'
           }}>
             {pricingTiers.map((tier, index) => (
               <div
