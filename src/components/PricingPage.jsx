@@ -156,26 +156,26 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
       features: [
         { name: 'Support Channel', free: 'Community', hacker: 'Email', starter: 'Email', professional: 'Phone + Email', enterprise: 'Dedicated Team' },
         { name: 'Response Time', free: 'Community', hacker: '72 hours', starter: '48 hours', professional: '24 hours', enterprise: '1 hour' },
-        { name: 'Account Manager', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Training & Onboarding', free: '❌', hacker: 'Self-service', starter: 'Self-service', professional: 'Guided', enterprise: 'Full Service' }
+        { name: 'Account Manager', free: 'No', hacker: 'No', starter: 'No', professional: 'Yes', enterprise: 'Yes' },
+        { name: 'Training & Onboarding', free: 'No', hacker: 'Self-service', starter: 'Self-service', professional: 'Guided', enterprise: 'Full Service' }
       ]
     },
     {
       category: 'Analytics & Monitoring',
       features: [
-        { name: 'Basic Analytics', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
-        { name: 'Advanced Analytics', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Custom Dashboards', free: '❌', hacker: '❌', starter: '❌', professional: '✅', enterprise: '✅' },
-        { name: 'Real-time Monitoring', free: '❌', hacker: 'Basic', starter: 'Basic', professional: 'Advanced', enterprise: 'Enterprise' }
+        { name: 'Basic Analytics', free: 'Yes', hacker: 'Yes', starter: 'Yes', professional: 'Yes', enterprise: 'Yes' },
+        { name: 'Advanced Analytics', free: 'No', hacker: 'No', starter: 'No', professional: 'Yes', enterprise: 'Yes' },
+        { name: 'Custom Dashboards', free: 'No', hacker: 'No', starter: 'No', professional: 'Yes', enterprise: 'Yes' },
+        { name: 'Real-time Monitoring', free: 'No', hacker: 'Basic', starter: 'Basic', professional: 'Advanced', enterprise: 'Enterprise' }
       ]
     },
     {
       category: 'Security & Compliance',
       features: [
-        { name: 'Data Encryption', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
-        { name: 'HIPAA-Ready Architecture', free: '✅', hacker: '✅', starter: '✅', professional: '✅', enterprise: '✅' },
+        { name: 'Data Encryption', free: 'Yes', hacker: 'Yes', starter: 'Yes', professional: 'Yes', enterprise: 'Yes' },
+        { name: 'HIPAA-Ready Architecture', free: 'Yes', hacker: 'Yes', starter: 'Yes', professional: 'Yes', enterprise: 'Yes' },
         { name: 'SOC 2 Compliance', free: 'Design Only', hacker: 'Design Only', starter: 'Design Only', professional: 'In Progress', enterprise: 'Full Compliance' },
-        { name: 'Custom Security Controls', free: '❌', hacker: '❌', starter: '❌', professional: 'Limited', enterprise: 'Full' },
+        { name: 'Custom Security Controls', free: 'No', hacker: 'No', starter: 'No', professional: 'Limited', enterprise: 'Full' },
         { name: 'Marketplace Fee', free: 'N/A', hacker: 'Standard (2.9%)', starter: 'Standard (2.9%)', professional: 'Reduced (2.4%)', enterprise: 'Reduced (2.0%)' }
       ]
     }
@@ -545,9 +545,19 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
                   <div style={{
                     fontSize: '0.9rem',
                     color: '#fbbf24',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
                   }}>
-                    🚀 Coming Soon - Contact for Early Access
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: '#fbbf24'
+                    }}></div>
+                    Coming Soon - Contact for Early Access
                   </div>
                 </div>
               )}
