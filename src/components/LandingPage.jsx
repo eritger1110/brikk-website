@@ -135,7 +135,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
       ],
       cta: "Start Free",
       popular: false,
-      highlight: "No credit card required"
+      highlight: "1,000 Free API Calls"
     },
     {
       name: "Starter", 
@@ -425,7 +425,6 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             </button>
             <button
               onClick={() => {
-                // Create and show video modal
                 const modal = document.createElement('div');
                 modal.style.cssText = `
                   position: fixed;
@@ -435,10 +434,10 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                   height: 100%;
                   background: rgba(0, 0, 0, 0.9);
                   display: flex;
-                  align-items: center;
                   justify-content: center;
+                  align-items: center;
                   z-index: 10000;
-                  cursor: pointer;
+                  backdrop-filter: blur(5px);
                 `;
                 
                 const video = document.createElement('video');
@@ -446,9 +445,12 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
                 video.controls = true;
                 video.autoplay = true;
                 video.style.cssText = `
-                  max-width: 90%;
-                  max-height: 90%;
+                  max-width: 90vw;
+                  max-height: 90vh;
+                  width: auto;
+                  height: auto;
                   border-radius: 12px;
+                  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
                 `;
                 
                 modal.appendChild(video);
@@ -495,7 +497,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             marginTop: '2rem',
             opacity: 0.8
           }}>
-            No credit card required • 1,000 free API calls • 2 agents included • All 6 programming languages
+            1,000 free API calls • 2 agents included • All 6 programming languages
           </p>
         </div>
       </section>
@@ -735,8 +737,11 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
 
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '2rem'
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '2rem',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr'
+            }
           }}>
             {useCases.map((useCase, index) => (
               <div
@@ -915,9 +920,12 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
 
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '2rem',
-            alignItems: 'stretch'
+            alignItems: 'stretch',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr'
+            }
           }}>
             {pricingTiers.map((tier, index) => (
               <div
@@ -1272,7 +1280,7 @@ const LandingPage = ({ onGetStarted, onNavigate }) => {
             color: 'var(--brikk-slate-text)',
             opacity: 0.8
           }}>
-            1,000 free API calls • No credit card required • Deploy in minutes
+            1,000 free API calls • Deploy in minutes
           </p>
         </div>
       </section>

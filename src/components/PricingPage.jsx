@@ -227,7 +227,10 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
           alignItems: 'center'
         }}>
           <button
-            onClick={onBackToHome}
+            onClick={() => {
+              onBackToHome();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             style={{
               background: 'transparent',
               border: 'none',
@@ -259,7 +262,10 @@ const PricingPage = ({ onBackToHome, onNavigate }) => {
                 width: 'auto',
                 cursor: 'pointer'
               }}
-              onClick={onBackToHome}
+              onClick={() => {
+              onBackToHome();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             />
             <div>
               <div style={{

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import BrikkLogo from '../assets/BrikkLogo.webp';
 import { createCustomer, createPaymentMethod, formatCardNumber, validateCardInfo } from '../utils/stripe';
+import PolicyPopup from './PolicyPopup';
 
 const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
   const [formData, setFormData] = useState({
@@ -45,6 +46,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [policyPopup, setPolicyPopup] = useState({ isOpen: false, type: '', title: '', content: '' });
 
   const pricingPlans = [
     {
@@ -159,6 +161,12 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
       newErrors.password = 'Password is required';
     } else if (!validatePassword(formData.password).isValid) {
       newErrors.password = 'Password does not meet requirements';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
     
     setErrors(newErrors);
@@ -318,7 +326,10 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
           marginBottom: '3rem'
         }}>
           <button
-            onClick={onBackToLanding}
+            onClick={() => {
+              onBackToLanding();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             style={{
               background: 'transparent',
               border: 'none',
@@ -1277,6 +1288,7 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
                       borderRadius: '8px',
                       color: 'var(--brikk-white)',
                       fontSize: '1rem',
+                      fontFamily: 'inherit',
                       outline: 'none',
                       resize: 'vertical',
                       minHeight: '100px',
@@ -1845,13 +1857,111 @@ const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
               lineHeight: '1.5'
             }}>
               By creating an account, you agree to our{' '}
-              <a href="#" style={{ color: 'var(--brikk-purple)' }}>Terms of Service</a>{' '}
+              <button 
+                onClick={() => setPolicyPopup({
+                  isOpen: true,
+                  type: 'terms',
+                  title: 'Terms of Service',
+                  content: (
+                    <div>
+                      <p><strong>Effective Date:</strong> January 1, 2025</p>
+                      <p><strong>Last Updated:</strong> January 1, 2025</p>
+                      
+                      <h3>1. Acceptance of Terms</h3>
+                      <p>By accessing or using the Brikk platform ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these terms, then you may not access the Service.</p>
+                      
+                      <h3>2. Description of Service</h3>
+                      <p>Brikk provides an AI agent coordination platform that enables developers to connect and coordinate artificial intelligence agents across multiple programming languages. The Service includes API access, documentation, developer tools, and related services.</p>
+                      
+                      <h3>3. User Accounts</h3>
+                      <p><strong>Account Creation:</strong> You must provide accurate and complete information when creating an account. You are responsible for maintaining the security of your account credentials.</p>
+                      
+                      <h3>4. Acceptable Use Policy</h3>
+                      <p>You may use the Service to develop and deploy AI agent coordination systems, access our APIs within your subscription limits, and integrate with supported programming languages. You may not use the Service to violate any applicable laws, infringe on intellectual property rights, or exceed your subscription limits without authorization.</p>
+                      
+                      <h3>5. Subscription Plans and Billing</h3>
+                      <p>We offer Free, Paid, and Enterprise plans with different limits and features. All fees are non-refundable except as required by law. You may cancel your subscription at any time.</p>
+                      
+                      <h3>6. Limitation of Liability</h3>
+                      <p>Our liability is limited to the amount you paid for the Service in the 12 months preceding the claim. We provide the Service "AS IS" without warranties.</p>
+                      
+                      <h3>7. Contact Information</h3>
+                      <p>For questions about these Terms, contact us at legal@getbrikk.com</p>
+                    </div>
+                  )
+                })}
+                style={{ 
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--brikk-purple)',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: 'inherit',
+                  padding: 0
+                }}
+              >
+                Terms of Service
+              </button>{' '}
               and{' '}
-              <a href="#" style={{ color: 'var(--brikk-purple)' }}>Privacy Policy</a>.
+              <button 
+                onClick={() => setPolicyPopup({
+                  isOpen: true,
+                  type: 'privacy',
+                  title: 'Privacy Policy',
+                  content: (
+                    <div>
+                      <p><strong>Effective Date:</strong> January 1, 2025</p>
+                      <p><strong>Last Updated:</strong> January 1, 2025</p>
+                      
+                      <h3>1. Introduction</h3>
+                      <p>Brikk Technologies, Inc. is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI agent coordination platform.</p>
+                      
+                      <h3>2. Information We Collect</h3>
+                      <p><strong>Account Information:</strong> Name, email address, company name, billing address</p>
+                      <p><strong>Usage Data:</strong> API calls, response times, error rates, and performance metrics</p>
+                      <p><strong>Payment Information:</strong> Credit card details (processed securely through Stripe)</p>
+                      
+                      <h3>3. How We Use Your Information</h3>
+                      <p>We use your information to provide and maintain the Brikk platform, process API requests, manage your account and subscriptions, and improve our services.</p>
+                      
+                      <h3>4. Data Security</h3>
+                      <p>We implement enterprise-grade security measures including encryption, access controls, and regular security audits. We are designed to meet HIPAA and SOC 2 compliance requirements.</p>
+                      
+                      <h3>5. Data Retention</h3>
+                      <p>We retain your data for as long as your account is active or as needed to provide services. You may request data deletion at any time.</p>
+                      
+                      <h3>6. Your Rights</h3>
+                      <p>You have the right to access, update, or delete your personal information. Contact us at privacy@getbrikk.com for data requests.</p>
+                      
+                      <h3>7. Contact Information</h3>
+                      <p>For questions about this Privacy Policy, contact us at privacy@getbrikk.com</p>
+                    </div>
+                  )
+                })}
+                style={{ 
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--brikk-purple)',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: 'inherit',
+                  padding: 0
+                }}
+              >
+                Privacy Policy
+              </button>.
             </p>
           </div>
         </div>
       </div>
+      
+      <PolicyPopup
+        isOpen={policyPopup.isOpen}
+        onClose={() => setPolicyPopup({ isOpen: false, type: '', title: '', content: '' })}
+        type={policyPopup.type}
+        title={policyPopup.title}
+        content={policyPopup.content}
+      />
     </div>
   );
 };
