@@ -18,7 +18,12 @@ import {
   Crown
 } from 'lucide-react';
 import BrikkLogo from '../assets/BrikkLogo.webp';
-import { createCustomer, createPaymentMethod, formatCardNumber, validateCardInfo } from '../utils/stripe';
+
+// Mock functions for demo purposes
+const createCustomer = async () => ({ id: 'demo_customer' });
+const createPaymentMethod = async () => ({ id: 'demo_payment' });
+const formatCardNumber = (num) => num;
+const validateCardInfo = () => ({ isValid: true });
 import PolicyPopup from './PolicyPopup';
 
 const FreeTierSignup = ({ onSignupComplete, onBackToLanding }) => {
