@@ -3,10 +3,10 @@ import './App.css';
 
 // Import enhanced components
 import LandingPage from './components/LandingPage';
-import FreeTierSignup from './components/FreeTierSignup';
+import FreeTierSignup from './components/FreeTierSignupNew';
 import DeveloperDashboard from './components/DeveloperDashboard';
-import AdminDashboard from './components/AdminDashboard';
-import CustomerDashboard from './components/CustomerDashboard';
+import AdminDashboard from './components/AdminDashboardNew';
+import CustomerDashboard from './components/CustomerDashboardNew';
 import EnhancedHeader from './components/EnhancedHeader';
 import FeaturesPage from './components/FeaturesPage';
 import PricingPage from './components/PricingPage';
