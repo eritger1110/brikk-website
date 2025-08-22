@@ -1,0 +1,32 @@
+1
+00:00:00,000 --> 00:00:07,000
+Start free and get a live API key in seconds. No sales call.
+
+2
+00:00:07,000 --> 00:00:18,000
+Create agents from templates or from scratch. Any language.
+
+3
+00:00:18,000 --> 00:00:30,000
+Connect them with a visual rule: when payment clears, shipping is triggered.
+
+4
+00:00:30,000 --> 00:00:48,000
+Test live in the Playground. Agents coordinate and complete the workflow.
+
+5
+00:00:48,000 --> 00:01:03,000
+Full observability: structured logs, correlation IDs, and signed webhooks with automatic retries.
+
+6
+00:01:03,000 --> 00:01:15,000
+Usage stays transparent. Most small teams land in the forty-nine to ninety-nine dollar tiers, with best-price auto-upgrade if you spike.
+
+7
+00:01:15,000 --> 00:01:26,000
+Grab the Quickstart and deploy in minutes.
+
+8
+00:01:26,000 --> 00:01:30,000
+Brikk: the economic infrastructure for AI agents. Start free today.
+

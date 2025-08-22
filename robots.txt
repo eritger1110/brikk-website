@@ -1,0 +1,45 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://brikk.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Block access to admin and internal pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_test/
+Disallow: /internal/
+
+# Block access to development files
+Disallow: /*.json$
+Disallow: /*.log$
+Disallow: /node_modules/
+Disallow: /.git/
+
+# Allow access to important resources
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /fonts/
+Allow: /videos/
+
+# Block common bot traps
+Disallow: /trap/
+Disallow: /honeypot/
+
