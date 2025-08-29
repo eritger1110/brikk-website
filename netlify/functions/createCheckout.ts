@@ -11,19 +11,31 @@ const PLAN_TO_PRICE = {
 
 export async function handler(event: any) {
   try {
+    // Check environment variables
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('STRIPE_SECRET_KEY not set');
+      return res(500, { message: 'Server configuration error' });
+    }
+    
     const { plan } = JSON.parse(event.body || '{}');
     if (!plan || !PLAN_TO_PRICE[plan as keyof typeof PLAN_TO_PRICE]) {
       return res(400, { message: 'Plan is required or invalid.' });
     }
+    
     const price = PLAN_TO_PRICE[plan as keyof typeof PLAN_TO_PRICE]!;
+    if (!price) {
+      console.error(`Price ID not found for plan: ${plan}`);
+      return res(500, { message: 'Plan configuration error' });
+    }
+    
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price, quantity: 1 }],
       // require card even for Free
       payment_method_collection: 'always',
       subscription_data: { payment_settings: { save_default_payment_method: 'on_subscription' } },
-      success_url: process.env.CHECKOUT_SUCCESS_URL!,
-      cancel_url: process.env.CHECKOUT_CANCEL_URL!,
+      success_url: process.env.CHECKOUT_SUCCESS_URL || `${process.env.SITE_URL}/thanks`,
+      cancel_url: process.env.CHECKOUT_CANCEL_URL || `${process.env.SITE_URL}/pricing`,
     });
     return res(200, { url: session.url });
   } catch (err: any) {

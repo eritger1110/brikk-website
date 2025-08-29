@@ -401,11 +401,8 @@
         recommendedPlan.textContent = plan;
       }
 
-      // Update API calls based on workflows (roughly 12 calls per workflow)
+      // Update calculator when workflow slider changes (independent sliders)
       workflowSlider.addEventListener('input', function() {
-        const workflows = parseInt(this.value);
-        const estimatedApiCalls = Math.min(workflows * 12, 1200000);
-        apiSlider.value = estimatedApiCalls;
         updateCalculator();
       });
 
