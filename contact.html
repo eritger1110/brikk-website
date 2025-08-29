@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <title>Contact Brikk - Get in Touch</title>
+    <meta name="description" content="Contact Brikk for sales, support, partnerships, or general inquiries. Multiple ways to get in touch." />
+    
+    <link rel="stylesheet" href="./assets/brand-system.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="flex items-center">
+          <a href="./index.html" class="flex items-center">
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo" />
+          </a>
+        </div>
+        
+        <nav class="nav-links">
+          <a href="./index.html">Home</a>
+          <a href="./features.html">Features</a>
+          <a href="./use-cases.html">Use Cases</a>
+          <a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a>
+          <a href="./contact.html" style="color: var(--accent-teal);">Contact</a>
+        </nav>
+        
+        <div class="flex items-center">
+          <a href="./signup.html" class="btn-primary">
+            Start Free
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding-top: var(--header-desktop);">
+      <!-- Hero Section -->
+      <section class="section text-center">
+        <div class="container">
+          <h1 class="gradient-text mb-3">
+            Get in Touch
+          </h1>
+          
+          <p class="text-xl mb-4" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">
+            Ready to build with Brikk? Have questions about our platform? We're here to help.
+          </p>
+        </div>
+      </section>
+
+      <!-- Contact Options -->
+      <section class="section">
+        <div class="container">
+          <div class="grid-3" style="margin-bottom: 4rem;">
+            <div class="card text-center">
+              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Sales</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Ready to get started? Talk to our sales team about your use case.
+              </p>
+              <button onclick="showForm('sales')" class="btn-primary">
+                Contact Sales
+              </button>
+            </div>
+            
+            <div class="card text-center">
+              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Support</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Need help with your integration? Our support team is here for you.
+              </p>
+              <button onclick="showForm('support')" class="btn-primary">
+                Get Support
+              </button>
+            </div>
+            
+            <div class="card text-center">
+              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Partnerships</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Interested in partnering with us? Let's explore opportunities.
+              </p>
+              <button onclick="showForm('partnerships')" class="btn-primary">
+                Partner With Us
+              </button>
+            </div>
+          </div>
+
+          <!-- Contact Forms -->
+          <div id="contact-forms">
+            <!-- Sales Form -->
+            <div id="sales-form" class="contact-form" style="display: none;">
+              <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Contact Sales</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                  Tell us about your project and we'll help you get started with Brikk.
+                </p>
+                
+                <form name="sales-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                  <input type="hidden" name="form-name" value="sales-contact" />
+                  <input type="hidden" name="bot-field" />
+                  
+                  <div class="grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">First Name *</label>
+                      <input type="text" name="first-name" required class="form-input" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Last Name *</label>
+                      <input type="text" name="last-name" required class="form-input" />
+                    </div>
+                  </div>
+                  
+                  <div class="grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Email *</label>
+                      <input type="email" name="email" required class="form-input" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Company</label>
+                      <input type="text" name="company" class="form-input" />
+                    </div>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Use Case</label>
+                    <select name="use-case" class="form-input">
+                      <option value="">Select a use case</option>
+                      <option value="fintech">Fintech & Payments</option>
+                      <option value="healthcare">Healthcare</option>
+                      <option value="supply-chain">Supply Chain</option>
+                      <option value="gaming">Gaming & Entertainment</option>
+                      <option value="marketplace">Marketplace</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Expected Monthly Volume</label>
+                    <select name="volume" class="form-input">
+                      <option value="">Select volume</option>
+                      <option value="1k-10k">1K - 10K transactions</option>
+                      <option value="10k-100k">10K - 100K transactions</option>
+                      <option value="100k-1m">100K - 1M transactions</option>
+                      <option value="1m+">1M+ transactions</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 2rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Tell us about your project *</label>
+                    <textarea name="message" required class="form-input" rows="4" placeholder="Describe your use case, timeline, and any specific requirements..."></textarea>
+                  </div>
+                  
+                  <button type="submit" class="btn-primary w-full">
+                    Send Message
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Support Form -->
+            <div id="support-form" class="contact-form" style="display: none;">
+              <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Get Support</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                  Need help with your integration or have technical questions? We're here to help.
+                </p>
+                
+                <form name="support-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                  <input type="hidden" name="form-name" value="support-contact" />
+                  <input type="hidden" name="bot-field" />
+                  
+                  <div class="grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Name *</label>
+                      <input type="text" name="name" required class="form-input" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Email *</label>
+                      <input type="email" name="email" required class="form-input" />
+                    </div>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Account ID (if applicable)</label>
+                    <input type="text" name="account-id" class="form-input" placeholder="Your Brikk account ID" />
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Issue Type</label>
+                    <select name="issue-type" class="form-input">
+                      <option value="">Select issue type</option>
+                      <option value="integration">Integration Help</option>
+                      <option value="api">API Questions</option>
+                      <option value="billing">Billing</option>
+                      <option value="bug">Bug Report</option>
+                      <option value="feature">Feature Request</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Priority</label>
+                    <select name="priority" class="form-input">
+                      <option value="low">Low - General question</option>
+                      <option value="medium">Medium - Non-urgent issue</option>
+                      <option value="high">High - Blocking development</option>
+                      <option value="urgent">Urgent - Production issue</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 2rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Description *</label>
+                    <textarea name="description" required class="form-input" rows="4" placeholder="Please describe your issue or question in detail..."></textarea>
+                  </div>
+                  
+                  <button type="submit" class="btn-primary w-full">
+                    Submit Support Request
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Partnerships Form -->
+            <div id="partnerships-form" class="contact-form" style="display: none;">
+              <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Partnership Inquiry</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                  Interested in partnering with Brikk? Let's explore how we can work together.
+                </p>
+                
+                <form name="partnership-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                  <input type="hidden" name="form-name" value="partnership-contact" />
+                  <input type="hidden" name="bot-field" />
+                  
+                  <div class="grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Name *</label>
+                      <input type="text" name="name" required class="form-input" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Title</label>
+                      <input type="text" name="title" class="form-input" />
+                    </div>
+                  </div>
+                  
+                  <div class="grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Email *</label>
+                      <input type="email" name="email" required class="form-input" />
+                    </div>
+                    <div>
+                      <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Company *</label>
+                      <input type="text" name="company" required class="form-input" />
+                    </div>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Partnership Type</label>
+                    <select name="partnership-type" class="form-input">
+                      <option value="">Select partnership type</option>
+                      <option value="technology">Technology Integration</option>
+                      <option value="reseller">Reseller/Channel</option>
+                      <option value="strategic">Strategic Partnership</option>
+                      <option value="investment">Investment</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 1rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Company Size</label>
+                    <select name="company-size" class="form-input">
+                      <option value="">Select company size</option>
+                      <option value="startup">Startup (1-50 employees)</option>
+                      <option value="growth">Growth (51-500 employees)</option>
+                      <option value="enterprise">Enterprise (500+ employees)</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 2rem;">
+                    <label style="color: var(--text-primary); display: block; margin-bottom: 0.5rem;">Partnership Proposal *</label>
+                    <textarea name="proposal" required class="form-input" rows="4" placeholder="Tell us about your company and how you'd like to partner with Brikk..."></textarea>
+                  </div>
+                  
+                  <button type="submit" class="btn-primary w-full">
+                    Submit Partnership Inquiry
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Direct Contact -->
+      <section class="section" style="background: var(--surface);">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 style="color: var(--text-primary);">Other Ways to Reach Us</h2>
+          </div>
+          
+          <div class="grid-3">
+            <div class="card text-center">
+              <svg class="w-8 h-8 mx-auto mb-3" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Email</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Send us an email and we'll get back to you within 24 hours.
+              </p>
+              <a href="mailto:hello@getbrikk.com" style="color: var(--accent-teal);">
+                hello@getbrikk.com
+              </a>
+            </div>
+            
+            <div class="card text-center">
+              <svg class="w-8 h-8 mx-auto mb-3" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+              <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Discord</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Join our developer community for real-time support and discussions.
+              </p>
+              <a href="#" style="color: var(--accent-teal);">
+                Join Discord
+              </a>
+            </div>
+            
+            <div class="card text-center">
+              <svg class="w-8 h-8 mx-auto mb-3" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Office</h3>
+              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Visit us at our headquarters in Wisconsin.
+              </p>
+              <p style="color: var(--accent-teal);">
+                N61W21414 Legacy Trl<br>
+                Menomonee Falls, WI 53051<br>
+                <a href="tel:262-388-5212" style="color: var(--accent-teal);">262-388-5212</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-grid">
+          <div>
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo-footer mb-3" />
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">
+              Economic infrastructure for AI agents. Enabling the future of autonomous commerce.
+            </p>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Product</h3>
+            <ul class="footer-links">
+              <li><a href="./features.html">Features</a></li>
+              <li><a href="./use-cases.html">Use Cases</a></li>
+              <li><a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a></li>
+              <li><a href="./security.html">Security</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Company</h3>
+            <ul class="footer-links">
+              <li><a href="./about.html">About</a></li>
+              <li><a href="./contact.html">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>© 2025 Brikk. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function showForm(type) {
+        // Hide all forms
+        const forms = document.querySelectorAll('.contact-form');
+        forms.forEach(form => form.style.display = 'none');
+        
+        // Show selected form
+        const selectedForm = document.getElementById(type + '-form');
+        if (selectedForm) {
+          selectedForm.style.display = 'block';
+          selectedForm.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    </script>
+  </body>
+</html>
+
