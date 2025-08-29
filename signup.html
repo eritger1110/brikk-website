@@ -84,13 +84,13 @@
             
             <!-- Coming Soon Notice -->
             <div class="text-center p-6" style="background: var(--surface); border-radius: 12px; border: 2px dashed var(--accent-teal);">
-              <svg class="w-16 h-16 mx-auto mb-4" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-16 h-16 feature-icon mx-auto mb-4" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               
-              <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Coming Soon</h3>
+              <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Get Started</h3>
               <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                We're putting the finishing touches on our signup process. Join our waitlist to be notified when we launch.
+                Choose your plan and start building with Brikk's economic infrastructure for AI agents.
               </p>
               
               <!-- Plan Selection Buttons -->
@@ -106,30 +106,23 @@
                 </div>
               </div>
               
-              <form name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="waitlist-form">
-                <input type="hidden" name="form-name" value="waitlist" />
-                <input type="hidden" name="bot-field" />
-                <input type="hidden" name="selected-plan" id="selected-plan-input" />
-                
-                <div style="margin-bottom: 1rem;">
-                  <input 
-                    type="email" 
-                    name="email" 
-                    required 
-                    class="form-input" 
-                    placeholder="Enter your email address"
-                    style="text-align: center;"
-                    id="email-input"
-                  />
-                </div>
-                
-                <button type="submit" class="btn-primary w-full" id="submit-button">
-                  Join Waitlist
+              <div class="flex justify-center gap-4 flex-wrap">
+                <button onclick="startCheckout('free')" class="btn-secondary">
+                  Start Free Plan
                 </button>
-              </form>
+                <button onclick="startCheckout('hacker')" class="btn-secondary">
+                  Choose Hacker - $29.99/mo
+                </button>
+                <button onclick="startCheckout('starter')" class="btn-primary">
+                  Choose Starter - $99.99/mo
+                </button>
+                <button onclick="startCheckout('pro')" class="btn-secondary">
+                  Choose Professional - $299.99/mo
+                </button>
+              </div>
               
               <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 1rem;">
-                We'll send you an email as soon as signups are available.
+                Start building with Brikk's economic infrastructure for AI agents today.
               </p>
             </div>
             
@@ -164,7 +157,7 @@
           
           <div class="grid-3">
             <div class="card text-center">
-              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
@@ -176,7 +169,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -188,7 +181,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                 </svg>
@@ -275,79 +268,28 @@
     </footer>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-      let selectedPlan = null;
-      
-      const priceIds = {
-        'starter': 'price_STARTER_MONTHLY',
-        'professional': 'price_PRO_MONTHLY'
-      };
-
-      function selectPlan(plan) {
-        selectedPlan = plan;
-        document.getElementById('selected-plan-input').value = plan;
-        
-        // Update button text to show selected plan
-        const submitButton = document.getElementById('submit-button');
-        submitButton.textContent = `Join Waitlist (${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan)`;
-        
-        // Highlight selected plan button
-        document.querySelectorAll('button[onclick^="selectPlan"]').forEach(btn => {
-          btn.classList.remove('btn-primary');
-          btn.classList.add('btn-secondary');
-        });
-        
-        event.target.classList.remove('btn-secondary');
-        event.target.classList.add('btn-primary');
-      }
-
-      // Handle form submission for Stripe checkout
-      document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email-input').value;
-        const submitButton = document.getElementById('submit-button');
-        
-        if (!selectedPlan || !email) {
-          alert('Please select a plan and enter your email.');
-          return;
-        }
-        
-        // Disable button and show loading
-        submitButton.disabled = true;
-        submitButton.textContent = 'Creating checkout session...';
-        
+      // Stripe Checkout Integration
+      async function startCheckout(plan) {
         try {
-          // Call Netlify function to create checkout session
-          const response = await fetch('/.netlify/functions/createCheckout', {
+          const res = await fetch('/.netlify/functions/createCheckout', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              plan: selectedPlan,
-              email: email
-            })
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ plan })
           });
           
-          const data = await response.json();
-          
-          if (response.ok && data.url) {
-            // Redirect to Stripe Checkout
-            window.location.href = data.url;
-          } else {
-            throw new Error(data.error || 'Failed to create checkout session');
+          if(!res.ok){ 
+            const e = await res.json().catch(()=>({}));
+            alert(e.message || 'Unable to start checkout.'); 
+            return;
           }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Something went wrong. Please try again or contact support.');
           
-          // Re-enable button
-          submitButton.disabled = false;
-          submitButton.textContent = selectedPlan ? 
-            `Join Waitlist (${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Plan)` : 
-            'Join Waitlist';
+          const { url } = await res.json();
+          window.location.href = url;
+        } catch (error) {
+          console.error('Checkout error:', error);
+          alert('Something went wrong. Please try again or contact support.');
         }
-      });
+      }
     </script>
   </body>
 </html>
