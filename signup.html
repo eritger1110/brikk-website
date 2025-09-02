@@ -71,76 +71,47 @@
         </div>
       </section>
 
-      <!-- Signup Form -->
+      <!-- Create Account Section -->
       <section class="section">
         <div class="container">
           <div class="card" style="max-width: 500px; margin: 0 auto;">
             <div class="text-center mb-4">
               <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Create Your Account</h2>
               <p style="color: var(--text-secondary);">
-                Get started in less than 2 minutes
+                Choose your plan and start building with Brikk
               </p>
             </div>
             
-            <!-- Coming Soon Notice -->
-            <div class="text-center p-6" style="background: var(--surface); border-radius: 12px; border: 2px dashed var(--accent-teal);">
-              <svg class="w-16 h-16 feature-icon mx-auto mb-4" style="color: var(--accent-teal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              
-              <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Get Started</h3>
-              <p style="color: var(--text-secondary); margin-bottom: 2rem;">
-                Choose your plan and start building with Brikk's economic infrastructure for AI agents.
-              </p>
-              
-              <!-- Plan Selection Buttons -->
-              <div style="margin-bottom: 2rem;">
-                <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Choose Your Plan</h4>
-                <div class="flex justify-center gap-3 flex-wrap">
-                  <button onclick="selectPlan('starter')" class="btn-primary">
-                    Starter - $49/mo
-                  </button>
-                  <button onclick="selectPlan('professional')" class="btn-secondary">
-                    Professional - $199/mo
-                  </button>
-                </div>
-              </div>
-              
-              <div class="flex justify-center gap-4 flex-wrap">
-                <button onclick="startCheckout('free')" class="btn-secondary">
-                  Start Free Plan
-                </button>
-                <button onclick="startCheckout('hacker')" class="btn-secondary">
-                  Choose Hacker - $29.99/mo
-                </button>
-                <button onclick="startCheckout('starter')" class="btn-primary">
-                  Choose Starter - $99.99/mo
-                </button>
-                <button onclick="startCheckout('pro')" class="btn-secondary">
-                  Choose Professional - $299.99/mo
-                </button>
-              </div>
-              
-              <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 1rem;">
-                Start building with Brikk's economic infrastructure for AI agents today.
+            <!-- Plan Selector -->
+            <div style="margin-bottom: 2rem;">
+              <label style="display: block; color: var(--text-primary); margin-bottom: 0.5rem; font-weight: 600;">
+                Select Plan
+              </label>
+              <select id="planSelector" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); font-size: 1rem;">
+                <option value="free">Free - $0.00/month</option>
+                <option value="hacker">Hacker - $29.99/month</option>
+                <option value="starter" selected>Starter - $99.99/month (Most Popular)</option>
+                <option value="pro">Professional - $299.99/month</option>
+              </select>
+            </div>
+            
+            <!-- Selected Plan Display -->
+            <div id="selectedPlanDisplay" class="text-center" style="background: var(--surface); padding: 20px; border-radius: 8px; margin-bottom: 2rem; border: 2px solid var(--accent-teal);">
+              <h3 id="planName" style="color: var(--text-primary); margin-bottom: 0.5rem;">Starter Plan</h3>
+              <div id="planPrice" style="font-size: 2rem; font-weight: bold; color: var(--accent-teal); margin-bottom: 1rem;">$99.99/month</div>
+              <p id="planDescription" style="color: var(--text-secondary); font-size: 0.875rem;">
+                Perfect for growing teams with advanced agent coordination needs
               </p>
             </div>
             
-            <!-- Alternative Actions -->
-            <div class="text-center" style="margin-top: 2rem;">
-              <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                Want to get started right away?
-              </p>
-              
-              <div class="flex justify-center gap-3 flex-wrap">
-                <a href="./instant-demo.html" class="btn-secondary">
-                  Try Instant Demo
-                </a>
-                <a href="./contact.html" class="btn-secondary">
-                  Contact Sales
-                </a>
-              </div>
-            </div>
+            <!-- Continue Button -->
+            <button id="continueBtn" onclick="continueToCheckout()" class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+              Continue to Checkout
+            </button>
+            
+            <p style="color: var(--text-secondary); font-size: 0.875rem; text-align: center; margin-top: 1rem;">
+              All plans include secure messaging, smart contracts, and payment processing. Cancel anytime.
+            </p>
           </div>
         </div>
       </section>
@@ -157,7 +128,7 @@
           
           <div class="grid-3">
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
@@ -169,7 +140,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -181,7 +152,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                 </svg>
@@ -268,6 +239,30 @@
     </footer>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+      // Plan data - consistent with pricing.js
+      const PLANS = {
+        free: { label: 'Free', price: 0, description: 'Perfect for getting started with basic agent coordination' },
+        hacker: { label: 'Hacker', price: 29.99, description: 'Ideal for developers building advanced agent workflows' },
+        starter: { label: 'Starter', price: 99.99, description: 'Perfect for growing teams with advanced agent coordination needs' },
+        pro: { label: 'Professional', price: 299.99, description: 'Enterprise-grade solution for large-scale agent deployments' }
+      };
+
+      // Update plan display when selector changes
+      document.getElementById('planSelector').addEventListener('change', function() {
+        const selectedPlan = this.value;
+        const plan = PLANS[selectedPlan];
+        
+        document.getElementById('planName').textContent = plan.label + ' Plan';
+        document.getElementById('planPrice').textContent = plan.price === 0 ? 'Free' : `$${plan.price.toFixed(2)}/month`;
+        document.getElementById('planDescription').textContent = plan.description;
+      });
+
+      // Continue to checkout with selected plan
+      function continueToCheckout() {
+        const selectedPlan = document.getElementById('planSelector').value;
+        startCheckout(selectedPlan);
+      }
+
       // Stripe Checkout Integration
       async function startCheckout(plan) {
         try {

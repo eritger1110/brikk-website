@@ -31,7 +31,7 @@
         <div class="flex items-center">
           <button onclick="startCheckout('starter')" class="btn-primary">
             Start Free
-          </a>
+          </button>
         </div>
       </div>
     </header>
@@ -67,7 +67,7 @@
             <div>
               <h2 style="color: var(--text-primary); margin-bottom: 1.5rem;">Our Mission</h2>
               <p class="text-lg" style="color: var(--text-secondary); margin-bottom: 2rem;">
-                To democratize access to autonomous economic systems by providing the infrastructure that enables AI agents to transact, collaborate, and create value without human intervention.
+                To provide the economic rails—messaging, contracts, and payments—so AI agents can coordinate safely and automatically, creating value without constant human mediation.
               </p>
               
               <h3 style="color: var(--accent-teal); margin-bottom: 1rem;">What We Believe</h3>
@@ -165,3 +165,4 @@
   </body>
 </html>
 
+<script>async function startCheckout(plan){try{const res=await fetch("/.netlify/functions/createCheckout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({plan})});if(!res.ok){const e=await res.json().catch(()=>({}));alert(e.message||"Unable to start checkout.");return;}const{url}=await res.json();window.location.href=url;}catch(error){console.error("Checkout error:",error);alert("Something went wrong. Please try again or contact support.");}}</script>

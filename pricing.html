@@ -8,6 +8,7 @@
     <meta name="description" content="Choose the perfect plan for your AI agent coordination needs. Start free and scale as you grow." />
     
     <link rel="stylesheet" href="./assets/brand-system.css" />
+    <script type="module" src="./assets/js/pricing.js"></script>
   </head>
   <body>
     <!-- Header -->
@@ -213,7 +214,7 @@
           <div class="grid-3">
             <div class="card text-center">
               <div class="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
-                <svg class="w-6 h-6" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 accordion-chevron" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
               </div>
@@ -225,7 +226,7 @@
             
             <div class="card text-center">
               <div class="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
-                <svg class="w-6 h-6" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 accordion-chevron" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.414-4.414a2 2 0 00-2.828 0L4 20v4h4L20.586 11.414z"></path>
                 </svg>
               </div>
@@ -237,7 +238,7 @@
             
             <div class="card text-center">
               <div class="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
-                <svg class="w-6 h-6" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 accordion-chevron" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                 </svg>
               </div>
@@ -351,7 +352,9 @@
       </div>
     </footer>
     
-    <script>
+    <script type="module">
+      import { PRICING, getRecommendedTier, formatPrice } from './assets/js/pricing.js';
+      
       // Pricing calculator logic
       const workflowSlider = document.getElementById('workflowSlider');
       const apiSlider = document.getElementById('apiSlider');
@@ -376,36 +379,21 @@
         workflowValue.textContent = formatNumber(workflows);
         apiValue.textContent = formatNumber(apiCalls);
         
-        // Determine recommended plan based on API calls (primary factor)
-        let plan = 'Free';
-        let cost = '$0.00';
+        // Use centralized recommendation logic
+        const tier = getRecommendedTier(workflows, apiCalls);
         
-        if (apiCalls <= 2000) {
-          plan = 'Free';
-          cost = '$0.00';
-        } else if (apiCalls <= 10000) {
-          plan = 'Hacker';
-          cost = '$29.99';
-        } else if (apiCalls <= 100000) {
-          plan = 'Starter';
-          cost = '$99.99';
-        } else if (apiCalls <= 1000000) {
-          plan = 'Professional';
-          cost = '$299.99';
+        if (tier === 'custom') {
+          totalCost.textContent = 'Contact Sales';
+          recommendedPlan.textContent = 'Custom';
         } else {
-          plan = 'Custom';
-          cost = 'Contact Sales';
+          const planData = PRICING[tier];
+          totalCost.textContent = formatPrice(planData.monthly);
+          recommendedPlan.textContent = planData.label;
         }
-        
-        totalCost.textContent = cost;
-        recommendedPlan.textContent = plan;
       }
 
-      // Update calculator when workflow slider changes (independent sliders)
-      workflowSlider.addEventListener('input', function() {
-        updateCalculator();
-      });
-
+      // Independent sliders - no coupling
+      workflowSlider.addEventListener('input', updateCalculator);
       apiSlider.addEventListener('input', updateCalculator);
 
       // Initialize
@@ -427,20 +415,21 @@
         window.location.href = url;
       }
 
-      // Wire up pricing buttons
+      // Make startCheckout globally available
+      window.startCheckout = startCheckout;
+
+      // Wire up pricing buttons with consistent plan mapping
       document.querySelectorAll("[data-price-id]").forEach(btn => {
         btn.addEventListener("click", async (e) => {
           e.preventDefault();
           btn.disabled = true;
           btn.textContent = "Loading...";
           
-          // Map price IDs to plan names
-          const priceToPlans = {
-            'price_1S0veEQpyOKlL3ogY1YodS3t': 'free',
-            'price_1S0veEQpyOKlL3ogFDWWkgg4': 'hacker', 
-            'price_1S0veEQpyOKlL3ogbaTnkWr3': 'starter',
-            'price_1S0veEQpyOKlL3ogbfGK3q76': 'pro'
-          };
+          // Map price IDs to plan names using PRICING constants
+          const priceToPlans = {};
+          Object.keys(PRICING).forEach(key => {
+            priceToPlans[PRICING[key].priceId] = key;
+          });
           
           const plan = priceToPlans[btn.dataset.priceId];
           if (plan) {
