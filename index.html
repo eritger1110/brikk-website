@@ -98,7 +98,7 @@
         <div class="container">
           <div class="grid-3">
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
@@ -113,7 +113,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -128,7 +128,7 @@
             </div>
             
             <div class="card text-center">
-              <div class="w-16 h-16 feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
                 <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                 </svg>
@@ -268,9 +268,9 @@
           loop 
           preload="metadata" 
           poster="./media/hero-poster.jpg"
-          style="width: 100%; border-radius: 8px;"
+          style="width: 100%; border-radius: 8px; position: relative;"
         >
-          <source src="./media/brikk-90s.mp4" type="video/mp4">
+          <source src="./media/brikk_demo_90s_proper.mp4" type="video/mp4">
           <track 
             kind="captions" 
             src="./media/brikk_demo_90s_proper.vtt" 
@@ -280,6 +280,13 @@
           >
           Your browser does not support the video tag.
         </video>
+        <button 
+          id="unmuteBtn" 
+          onclick="toggleMute()"
+          style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+        >
+          🔇 Unmute
+        </button>
       </div>
     </div>
 
@@ -343,6 +350,20 @@
         modal.classList.remove('active');
         video.pause();
         video.currentTime = 0;
+      }
+
+      // Toggle mute function for video
+      function toggleMute() {
+        const video = document.getElementById('demoVideo');
+        const btn = document.getElementById('unmuteBtn');
+        
+        if (video.muted) {
+          video.muted = false;
+          btn.textContent = '🔊 Mute';
+        } else {
+          video.muted = true;
+          btn.textContent = '🔇 Unmute';
+        }
       }
 
       // Close modal on ESC key

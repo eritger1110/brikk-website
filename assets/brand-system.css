@@ -49,6 +49,36 @@ body {
   object-fit: contain;
 }
 
+/* Icon Sizing - Consistent Specifications */
+.accordion-chevron, .chevron-icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px;
+}
+
+.feature-icon, .usecase-icon, .pricing-icon {
+  width: 64px !important;
+  height: 64px !important;
+  max-width: 64px;
+  max-height: 64px;
+}
+
+.security-hero-icon {
+  width: 120px !important;
+  height: 120px !important;
+  max-width: 28vw;
+}
+
+/* Responsive Icon Sizing */
+@media (max-width: 1024px) {
+  .feature-icon, .usecase-icon, .pricing-icon {
+    width: 56px !important;
+    height: 56px !important;
+    max-width: 56px;
+    max-height: 56px;
+  }
+}
+
 /* Icon sizing polish - NO layout regression */
 .icon, .icon-xl, .feature-icon, .usecase-icon {
   width: clamp(28px, 3vw, 48px);
