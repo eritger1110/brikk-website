@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Payment successful • Brikk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <main class="container">
+    <h1>You're in! 🎉</h1>
+    <p id="summary">Finalizing your account…</p>
+    <a id="cta" class="button" href="/">Go Home</a>
+  </main>
+  <script>
+    (async () => {
+      const sid = new URLSearchParams(location.search).get("session_id");
+      if (!sid) return;
+      try {
+        const r = await fetch(`/.netlify/functions/retrieve-session?session_id=${encodeURIComponent(sid)}`);
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        document.getElementById("summary").textContent =
+          `Thanks, ${data.name || data.email}! We’ve sent a confirmation to ${data.email}.`;
+        if (data.app_url) {
+          const cta = document.getElementById("cta");
+          cta.textContent = "Go to the app";
+          cta.href = data.app_url;
+          // Optional: auto-forward
+          // setTimeout(() => location.replace(data.app_url), 800);
+        }
+      } catch {}
+    })();
+  </script>
+</body>
+</html>
