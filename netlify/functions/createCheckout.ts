@@ -1,56 +1,73 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-06-20',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-06-20' });
 
-const PLAN_TO_PRICE: Record<string, string | undefined> = {
+const PLAN_TO_PRICE = {
   free:    process.env.PRICE_FREE,
   hacker:  process.env.PRICE_HACKER,
   starter: process.env.PRICE_STARTER,
   pro:     process.env.PRICE_PRO,
-};
+} as const;
 
-function json(statusCode: number, body: unknown) {
-  return { statusCode, body: JSON.stringify(body) };
+function res(status: number, body: any) {
+  return { statusCode: status, body: JSON.stringify(body) };
 }
 
 export async function handler(event: any) {
   try {
-    for (const k of ['STRIPE_SECRET_KEY','CHECKOUT_SUCCESS_URL','CHECKOUT_CANCEL_URL']) {
-      if (!process.env[k]) return json(500, { message: `Server not configured (${k}).` });
-    }
-    let plan: string | undefined;
-    try { plan = JSON.parse(event.body || '{}')?.plan; } catch { return json(400, { message: 'Invalid JSON body.' }); }
-    const price = plan ? PLAN_TO_PRICE[plan] : undefined;
-    if (!price) return json(400, { message: 'Unknown or missing plan.' });
+    // Basic env sanity
+    const missing: string[] = [];
+    if (!process.env.STRIPE_SECRET_KEY) missing.push('STRIPE_SECRET_KEY');
+    if (!process.env.CHECKOUT_SUCCESS_URL) missing.push('CHECKOUT_SUCCESS_URL');
+    if (!process.env.CHECKOUT_CANCEL_URL) missing.push('CHECKOUT_CANCEL_URL');
+    if (missing.length) return res(500, { message: `Missing env: ${missing.join(', ')}` });
+
+    // Request
+    const { plan } = JSON.parse(event.body || '{}');
+    if (!plan || !(plan in PLAN_TO_PRICE)) return res(400, { message: 'Plan is required or invalid.' });
+
+    const price = PLAN_TO_PRICE[plan as keyof typeof PLAN_TO_PRICE];
+    if (!price) return res(500, { message: `Price ID missing for plan '${plan}'.` });
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price, quantity: 1 }],
 
-      payment_method_collection: 'always',              // require card even for $0 plans
-      billing_address_collection: 'required',           // require billing address
-      phone_number_collection: { enabled: true },       // collect phone
+      // collect a card even on the $0 plan
+      payment_method_collection: 'always',
 
-      // Force a Full name field
+      // collect name + address on the built-in form (optional line; set 'auto' or 'required')
+      billing_address_collection: 'auto',
+
+      // Stripe collects email automatically in subscription mode.
+      // (If you have a logged-in user and want to prefill: customer_email: 'user@domain.tld')
+
+      // Add FIRST / LAST NAME as two required custom text fields:
       custom_fields: [
         {
-          key: 'full_name',
-          label: { type: 'custom', custom: 'Full name' },
+          key: 'first_name',
+          label: { type: 'custom', custom: 'First name' },
+          type: 'text',
+          optional: false,
+        },
+        {
+          key: 'last_name',
+          label: { type: 'custom', custom: 'Last name' },
           type: 'text',
           optional: false,
         },
       ],
 
-      success_url: process.env.CHECKOUT_SUCCESS_URL!,
-      cancel_url: process.env.CHECKOUT_CANCEL_URL!,
+      // (Optional) collect phone on the page as well
+      phone_number_collection: { enabled: true },
+
+      success_url: process.env.CHECKOUT_SUCCESS_URL, // include ?session_id={CHECKOUT_SESSION_ID}
+      cancel_url: process.env.CHECKOUT_CANCEL_URL,
     });
 
-    return json(200, { url: session.url });
+    return res(200, { url: session.url });
   } catch (err: any) {
-    const msg = err?.raw?.message || err?.message || 'Failed to create checkout session.';
-    console.error('createCheckout error:', err);
-    return json(400, { message: msg });
+    console.error('createCheckout error:', err?.message);
+    return res(500, { message: 'Failed to create checkout session.' });
   }
 }
