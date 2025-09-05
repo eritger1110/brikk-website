@@ -1,20 +1,17 @@
-<!doctype html><html lang="en"><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Thanks – Brikk</title>
-<style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;padding:40px;background:#0b0f1a;color:#e7eaf0}
-  .card{max-width:720px;margin:0 auto;background:#121826;border:1px solid #1e293b;border-radius:16px;padding:28px}
-  .actions{margin-top:18px}
-  a.btn{background:#4f46e5;padding:10px 16px;border-radius:10px;color:#fff;text-decoration:none}
-  code{background:#0f172a;padding:2px 6px;border-radius:6px}
-</style>
-<div class="card">
-  <h1>You're all set 🎉</h1>
-  <p>Thanks for subscribing to Brikk. We’ve emailed a receipt and account details.</p>
-  <p><small>Session: <code id="sid"></code></small></p>
-  <div class="actions"><a class="btn" href="/">Go to Home</a></div>
-</div>
 <script>
-  const sid = new URLSearchParams(location.search).get('session_id') || '–';
-  document.getElementById('sid').textContent = sid;
-</script></html>
+(async () => {
+  const sid = new URLSearchParams(location.search).get('session_id');
+  document.getElementById('sid').textContent = sid || '–';
+  if (!sid) return;
+
+  try {
+    const res = await fetch('/.netlify/functions/getCheckoutSession?id=' + encodeURIComponent(sid));
+    if (!res.ok) return;
+    const data = await res.json();
+    // Example: personalize the headline if we have a name
+    if (data.name) {
+      document.querySelector('h1').textContent = `You're all set, ${data.name} 🎉`;
+    }
+  } catch {}
+})();
+</script>
