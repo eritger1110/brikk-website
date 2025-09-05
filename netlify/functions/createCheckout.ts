@@ -37,7 +37,7 @@ export async function handler(event: any) {
       payment_method_collection: 'always',
 
       // collect name + address on the built-in form (optional line; set 'auto' or 'required')
-      billing_address_collection: 'auto',
+      billing_address_collection: 'required',
 
       // Stripe collects email automatically in subscription mode.
       // (If you have a logged-in user and want to prefill: customer_email: 'user@domain.tld')
