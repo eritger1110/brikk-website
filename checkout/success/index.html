@@ -1,121 +1,69 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Thanks — Brikk</title>
-  <meta name="robots" content="noindex">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Thanks – Brikk</title>
   <style>
     :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
-      background:#0b0f1a; color:#e7ecff;
-    }
-    .wrap {
-      min-height: 100svh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .card {
-      width: min(920px, 96vw);
-      background: #0f1629;
-      border: 1px solid #1C2541;
-      border-radius: 16px;
-      padding: 28px 32px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    h1 { font-size: 32px; margin: 0 0 10px; }
+    body { margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:#0b0f1a; color:#e7ecff; }
+    .wrap { min-height:100vh; display:grid; place-items:center; padding:32px; }
+    .card { width:min(920px, 96vw); background:#0f1629; border:1px solid #1C2541; border-radius:16px; padding:32px 28px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    h1 { font-size:32px; margin:0 0 10px; }
     .muted { color:#9fb0d9; }
-    .status { display:block; margin-top:6px; color:#9fb0d9; font-size:0.95rem; }
-    .btn {
-      display:inline-block;
-      margin-top: 18px;
-      padding: .75rem 1.25rem;
-      background:#635bff;
-      color:#fff;
-      text-decoration:none;
-      border-radius:12px;
-      font-weight:600;
-    }
-    code {
-      background:#0b1222;
-      padding:.12rem .35rem;
-      border-radius:6px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      font-size:.9rem;
-    }
+    .btn { display:inline-block; margin-top:18px; background:#635bff; color:white; text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600; }
+    code { background:#0b1222; padding:.12rem .35rem; border-radius:6px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card" role="status" aria-live="polite">
+    <div class="card">
       <h1>You're all set 🎉</h1>
-
       <p id="msg">
-        Thanks for subscribing to Brikk.
-        We’ve emailed a receipt and account details
-        <span id="emailWrap" class="muted" style="display:none">
-          to <strong id="email"></strong>.
-        </span>
+        Thanks for subscribing to Brikk. We’ve emailed a receipt and account details
+        <span id="emailWrap" class="muted" style="display:none">to <strong id="email"></strong></span>.
       </p>
-
-      <p class="muted">
-        Session: <code id="sid">—</code>
-        <span id="subStatus" class="status"></span>
-      </p>
-
-      <a class="btn" href="/">Go to Home</a>
+      <p class="muted">Session: <code id="sid">—</code></p>
+      <a id="cta" class="btn" href="/">Go to Home</a>
+      <p class="muted" id="note" style="display:none;margin-top:10px;">Redirecting you to your dashboard…</p>
     </div>
   </div>
 
   <script>
     (function () {
-      // Parse session id from the URL (?session_id=cs_live_...)
       const qs = new URLSearchParams(location.search);
-      const sid = qs.get('session_id') || qs.get('session') || '';
+      const sid = qs.get('session_id') || '';
       document.getElementById('sid').textContent = sid || '—';
 
-      // If we don't have a session id, just show the static message
+      // Always show the page gracefully even if we can't fetch details
       if (!sid) return;
 
-      // Look up the Session on our Netlify function (server side) to safely read details
-      fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid), {
-        headers: { 'Accept': 'application/json' }
-      })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
-      .then(data => {
-        // Prefer email from customer_details; fallback to customer.email when expanded
-        const email =
-          (data.customer_details && data.customer_details.email) ||
-          (data.customer && data.customer.email) || '';
+      // Show email (best effort)
+      fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          const email = (data.customer_details && data.customer_details.email) || (data.customer && data.customer.email) || '';
+          if (email) {
+            document.getElementById('email').textContent = email;
+            document.getElementById('emailWrap').style.display = 'inline';
+          }
+        })
+        .catch(() => { /* no-op */ });
 
-        if (email) {
-          document.getElementById('email').textContent = email;
-          document.getElementById('emailWrap').style.display = 'inline';
-        }
-
-        // Show subscription status if the function returns it
-        var sub = data.subscription || data.latest_invoice || null;
-        var status = '';
-
-        if (sub && typeof sub === 'object') {
-          // Some implementations return { subscription: { status: 'active' } }
-          if (sub.status) status = 'Subscription: ' + String(sub.status).replace(/_/g, ' ');
-        } else if (data.subscription_status) {
-          status = 'Subscription: ' + String(data.subscription_status).replace(/_/g, ' ');
-        }
-
-        if (status) {
-          document.getElementById('subStatus').textContent = status;
-        }
-      })
-      .catch(err => {
-        // Keep the page visible and usable even if the lookup fails
-        console.log('[success] session lookup failed:', err);
-      });
+      // Get a signed hand-off URL to the app
+      fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          if (data && data.url) {
+            const a = document.getElementById('cta');
+            a.href = data.url;
+            a.textContent = 'Go to your dashboard';
+            document.getElementById('note').style.display = 'block';
+            // Auto-redirect after 2.5s
+            setTimeout(() => location.href = data.url, 2500);
+          }
+        })
+        .catch(() => { /* keep default CTA back to home */ });
     })();
   </script>
 </body>
