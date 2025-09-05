@@ -1,6 +1,6 @@
 // netlify/functions/provision-link.ts
 import Stripe from 'stripe';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20',
