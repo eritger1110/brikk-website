@@ -20,15 +20,8 @@ export async function handler(event: any) {
     for (const k of ['STRIPE_SECRET_KEY','CHECKOUT_SUCCESS_URL','CHECKOUT_CANCEL_URL']) {
       if (!process.env[k]) return json(500, { message: `Server not configured (${k}).` });
     }
-
     let plan: string | undefined;
-    try {
-      const body = event.body ? JSON.parse(event.body) : {};
-      plan = body?.plan;
-    } catch {
-      return json(400, { message: 'Invalid JSON body.' });
-    }
-
+    try { plan = JSON.parse(event.body || '{}')?.plan; } catch { return json(400, { message: 'Invalid JSON body.' }); }
     const price = plan ? PLAN_TO_PRICE[plan] : undefined;
     if (!price) return json(400, { message: 'Unknown or missing plan.' });
 
@@ -36,14 +29,20 @@ export async function handler(event: any) {
       mode: 'subscription',
       line_items: [{ price, quantity: 1 }],
 
-      // require a card even for $0 plans
-      payment_method_collection: 'always',
+      payment_method_collection: 'always',              // require card even for $0 plans
+      billing_address_collection: 'required',           // require billing address
+      phone_number_collection: { enabled: true },       // collect phone
 
-      // collect user info
-      billing_address_collection: 'required',
-      phone_number_collection: { enabled: true },
+      // Force a Full name field
+      custom_fields: [
+        {
+          key: 'full_name',
+          label: { type: 'custom', custom: 'Full name' },
+          type: 'text',
+          optional: false,
+        },
+      ],
 
-      // removed: customer_update (only valid when providing `customer`)
       success_url: process.env.CHECKOUT_SUCCESS_URL!,
       cancel_url: process.env.CHECKOUT_CANCEL_URL!,
     });
