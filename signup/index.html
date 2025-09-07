@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sign up – Brikk</title>
+</head>
+<body>
+  <h1>Create your account</h1>
+  <form id="f">
+    <input name="username" placeholder="Username" required />
+    <input name="email" type="email" placeholder="Email" required />
+    <input name="password" type="password" placeholder="Password" required />
+    <button>Sign up</button>
+  </form>
+  <p id="msg"></p>
+<script>
+const API = 'https://api.getbrikk.com/api';
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+  const res = await fetch(`${API}/auth/register`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+    credentials: 'include'
+  });
+  const data = await res.json();
+  document.getElementById('msg').textContent = data.message || data.error || 'Done';
+});
+</script>
+</body>
+</html>
