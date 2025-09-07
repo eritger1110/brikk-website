@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Brikk – Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:#0b0f1a; color:#e7ecff; }
+    header { padding:16px 24px; border-bottom:1px solid #1c2541; display:flex; gap:16px; align-items:center; }
+    header .spacer { flex:1 }
+    main { padding:24px; max-width:1100px; margin:auto; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .card { background:#0f1629; border:1px solid #1c2541; border-radius:16px; padding:18px; }
+    .muted { color:#98b0d9 }
+    button { background:#635bff; color:#fff; border:none; padding:.6rem 1rem; border-radius:10px; font-weight:600; cursor:pointer; }
+    button.secondary { background:#142042; }
+    input, textarea { width:100%; background:#0B1222; border:1px solid #2a3450; color:#e7ecff; border-radius:10px; padding:.7rem .8rem; }
+    label { display:block; font-weight:600; margin:8px 0 6px; }
+    pre { white-space:pre-wrap; }
+    @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Brikk</strong>
+    <span class="muted">/ Dashboard</span>
+    <div class="spacer"></div>
+    <button id="logout" class="secondary">Logout</button>
+  </header>
+
+  <main>
+    <div id="auth" class="card">Checking your session…</div>
+
+    <div id="content" style="display:none">
+      <div class="grid">
+        <div class="card">
+          <h2>Welcome, <span id="name">—</span></h2>
+          <div class="muted">Plan: <span id="plan">—</span> • Email: <span id="email">—</span></div>
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="manageBilling">Manage billing</button>
+            <button id="revealKey" class="secondary">Reveal API key</button>
+            <span id="apiKey" class="muted" style="display:none; margin-left:8px"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Run an Agent</h3>
+          <label for="prompt">Prompt</label>
+          <textarea id="prompt" rows="4" placeholder="Ask your agent to do something…"></textarea>
+          <div style="margin-top:10px"><button id="run">Run</button></div>
+          <pre id="result" class="muted" style="margin-top:12px"></pre>
+        </div>
+
+        <div class="card">
+          <h3>Requests (last 10)</h3>
+          <canvas id="reqChart" height="140"></canvas>
+        </div>
+
+        <div class="card">
+          <h3>Latency (ms)</h3>
+          <canvas id="latChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+const API = 'https://api.getbrikk.com'; // Render service
+// Small helper
+async function j(url, opts={}) {
+  const r = await fetch(url, { credentials: 'include', ...opts });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+let reqChart, latChart;
+
+async function boot() {
+  try {
+    const me = await j(API + '/api/me');
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('name').textContent  = me.name || 'User';
+    document.getElementById('email').textContent = me.email || '—';
+    document.getElementById('plan').textContent  = me.plan  || 'free';
+
+    // Run
+    document.getElementById('run').onclick = async () => {
+      const prompt = document.getElementById('prompt').value.trim();
+      if (!prompt) return;
+      document.getElementById('result').textContent = 'Working…';
+      try {
+        const out = await j(API + '/api/coordination/run', {
+          method:'POST',
+          headers: { 'content-type':'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        document.getElementById('result').textContent =
+          (out.output ?? JSON.stringify(out, null, 2)) + `\n(latency ${out.latency_ms} ms)`;
+      } catch(e) {
+        document.getElementById('result').textContent = 'Error: ' + e.message;
+      }
+    };
+
+    // Billing portal
+    document.getElementById('manageBilling').onclick = async () => {
+      try {
+        const r = await j('/.netlify/functions/createPortal'); // your existing Netlify function
+        if (r.url) location.href = r.url;
+      } catch(e) { alert('Could not open billing portal'); }
+    };
+
+    // API key (placeholder – wire to a real endpoint if you have one)
+    document.getElementById('revealKey').onclick = async () => {
+      const span = document.getElementById('apiKey');
+      span.style.display = 'inline';
+      span.textContent = '(coming soon – add /api/key to backend)';
+    };
+
+    // Charts
+    function makeChart(ctx, label, data, color) {
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({length: data.length}, (_,i) => i+1),
+          datasets: [{ label, data, borderColor: color, fill:false, tension:.2 }]
+        },
+        options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
+      });
+    }
+
+    async function loadMetrics() {
+      try {
+        const m = await j(API + '/api/metrics');
+        if (!reqChart) {
+          reqChart = makeChart(document.getElementById('reqChart'), 'Requests', m.series.last10m, '#66a3ff');
+          latChart = makeChart(document.getElementById('latChart'), 'Latency',  m.series.latency, '#9f7cff');
+        } else {
+          reqChart.data.datasets[0].data = m.series.last10m;
+          latChart.data.datasets[0].data = m.series.latency;
+          reqChart.update(); latChart.update();
+        }
+      } catch(e) { /* ignore */ }
+    }
+    loadMetrics();
+    setInterval(loadMetrics, 15000);
+
+    // Logout
+    document.getElementById('logout').onclick = async () => {
+      await j(API + '/api/logout', { method:'POST' });
+      location.href = '/';
+    };
+
+  } catch(e) {
+    document.getElementById('auth').textContent =
+      'You are not signed in. Please finish checkout or contact support.';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
