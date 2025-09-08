@@ -37,7 +37,7 @@
       <div class="grid">
         <div class="card">
           <h2>Welcome, <span id="name">—</span></h2>
-          <div class="muted">Plan: <span id="plan">—</span> • Email: <span id="email">—</span></div>
+          <div class="muted">Email: <span id="email">—</span></div>
           <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
             <button id="manageBilling">Manage billing</button>
             <button id="revealKey" class="secondary">Reveal API key</button>
@@ -46,10 +46,14 @@
         </div>
 
         <div class="card">
-          <h3>Run an Agent</h3>
-          <label for="prompt">Prompt</label>
-          <textarea id="prompt" rows="4" placeholder="Ask your agent to do something…"></textarea>
-          <div style="margin-top:10px"><button id="run">Run</button></div>
+          <h3>Run a Demo Workflow</h3>
+          <label for="workflow">Workflow</label>
+          <select id="workflow">
+            <option value="data_processing">Data Processing</option>
+            <option value="financial_analysis">Financial Analysis</option>
+            <option value="customer_service">Customer Service</option>
+          </select>
+          <div style="margin-top:10px"><button id="run">Execute</button></div>
           <pre id="result" class="muted" style="margin-top:12px"></pre>
         </div>
 
@@ -67,47 +71,50 @@
   </main>
 
 <script>
-const API = 'https://api.getbrikk.com'; // Render service
+const API = 'https://api.getbrikk.com/api'; // Render service (note the /api)
+
 // Small helper
 async function j(url, opts={}) {
   const r = await fetch(url, { credentials: 'include', ...opts });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  if (!r.ok) {
+    const t = await r.text().catch(()=> '');
+    throw new Error(t || (r.status+''));
+  }
+  const ct = r.headers.get('content-type') || '';
+  return ct.includes('application/json') ? r.json() : { success: true };
 }
 
 let reqChart, latChart;
 
 async function boot() {
   try {
-    const me = await j(API + '/api/me');
+    // Get current user
+    const me = await j(API + '/auth/me');
     document.getElementById('auth').style.display = 'none';
     document.getElementById('content').style.display = 'block';
-    document.getElementById('name').textContent  = me.name || 'User';
-    document.getElementById('email').textContent = me.email || '—';
-    document.getElementById('plan').textContent  = me.plan  || 'free';
+    document.getElementById('name').textContent  = me.user?.username || 'User';
+    document.getElementById('email').textContent = me.user?.email || '—';
 
-    // Run
+    // Execute workflow
     document.getElementById('run').onclick = async () => {
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) return;
-      document.getElementById('result').textContent = 'Working…';
+      const wf = document.getElementById('workflow').value;
+      document.getElementById('result').textContent = 'Running…';
       try {
-        const out = await j(API + '/api/coordination/run', {
+        const out = await j(`${API}/workflows/${encodeURIComponent(wf)}/execute`, {
           method:'POST',
           headers: { 'content-type':'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ initiator_agent_id: 'dashboard' })
         });
-        document.getElementById('result').textContent =
-          (out.output ?? JSON.stringify(out, null, 2)) + `\n(latency ${out.latency_ms} ms)`;
+        document.getElementById('result').textContent = JSON.stringify(out, null, 2);
       } catch(e) {
         document.getElementById('result').textContent = 'Error: ' + e.message;
       }
     };
 
-    // Billing portal
+    // Billing portal (your existing Netlify function)
     document.getElementById('manageBilling').onclick = async () => {
       try {
-        const r = await j('/.netlify/functions/createPortal'); // your existing Netlify function
+        const r = await j('/.netlify/functions/createPortal');
         if (r.url) location.href = r.url;
       } catch(e) { alert('Could not open billing portal'); }
     };
@@ -133,13 +140,15 @@ async function boot() {
 
     async function loadMetrics() {
       try {
-        const m = await j(API + '/api/metrics');
+        const m = await j(API + '/metrics');
+        // Expect your /metrics to return something like { series: { last10m: [...], latency: [...] } }
+        const s = m.series || { last10m: [2,3,5,4,6,7,4,6,5,8], latency: [220,210,230,190,200,240,210,220,205,215] };
         if (!reqChart) {
-          reqChart = makeChart(document.getElementById('reqChart'), 'Requests', m.series.last10m, '#66a3ff');
-          latChart = makeChart(document.getElementById('latChart'), 'Latency',  m.series.latency, '#9f7cff');
+          reqChart = makeChart(document.getElementById('reqChart'), 'Requests', s.last10m, '#66a3ff');
+          latChart = makeChart(document.getElementById('latChart'), 'Latency',  s.latency, '#9f7cff');
         } else {
-          reqChart.data.datasets[0].data = m.series.last10m;
-          latChart.data.datasets[0].data = m.series.latency;
+          reqChart.data.datasets[0].data = s.last10m;
+          latChart.data.datasets[0].data = s.latency;
           reqChart.update(); latChart.update();
         }
       } catch(e) { /* ignore */ }
@@ -149,13 +158,13 @@ async function boot() {
 
     // Logout
     document.getElementById('logout').onclick = async () => {
-      await j(API + '/api/logout', { method:'POST' });
+      await j(API + '/auth/logout', { method:'POST' });
       location.href = '/';
     };
 
   } catch(e) {
     document.getElementById('auth').textContent =
-      'You are not signed in. Please finish checkout or contact support.';
+      'You are not signed in. Please finish email verification or log in.';
   }
 }
 
