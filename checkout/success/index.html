@@ -1,86 +1,100 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Thanks – Brikk</title>
   <style>
     :root { color-scheme: dark; }
-    body { margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:#0b0f1a; color:#e7ecff; }
-    .wrap { min-height:100vh; display:grid; place-items:center; padding:32px; }
-    .card { width:min(920px, 96vw); background:#0f1629; border:1px solid #1C2541; border-radius:16px; padding:32px 28px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-    h1 { font-size:32px; margin:0 0 10px; }
+    body {
+      margin: 0;
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      background: #0b0f1a; color: #e7ecff;
+    }
+    .wrap {
+      min-height: 100vh; display: grid; place-items: center; padding: 32px;
+    }
+    .card {
+      width: min(920px, 96vw); background:#0f1629; border:1px solid #1c2541;
+      border-radius:16px; padding: 32px 28px; box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    h1 { font-size: 32px; margin: 0 0 10px; }
     .muted { color:#98b0d9; }
-    .row { margin-top:14px }
-    .btn { display:inline-block; margin-top:18px; background:#635bff; color:white; text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600; }
-    .btn.secondary { background:#142042; }
-    code { background:#0B1222; padding:.18rem .35rem; border-radius:6px; }
-    #err { color:#ff8a8a; display:none; }
-    #dash[disabled] { opacity:.6; pointer-events:none; }
+    .row { margin-top: 12px; }
+    .btn {
+      display:inline-block; margin-top:18px; background:#635bff; color:white;
+      text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600;
+    }
+    .btn[disabled] {
+      opacity:.6; pointer-events:none;
+    }
+    code {
+      background:#0B1222; padding:.15rem .35rem; border-radius:6px; border:1px solid #2a3450;
+    }
+    .error { color:#ff8a8a; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>You’re all set 🎉</h1>
-      <p class="muted" id="msg">Thanks for subscribing to Brikk. We’ve emailed a receipt and account details<span id="emailWrap" style="display:none"> to <strong id="email">—</strong></span>.</p>
+      <p class="muted" id="msg">
+        Thanks for subscribing to Brikk. We’ve emailed a receipt and account details
+        <span id="emailWrap" style="display:none"> to <strong id="email">—</strong></span>.
+      </p>
+
       <p class="muted row">Session: <code id="sid">—</code></p>
 
       <div class="row">
-        <a id="dash" class="btn" rel="noopener">Go to your dashboard</a>
-        <a href="/" class="btn secondary">Go to Home</a>
+        <a id="dash" class="btn" rel="noopener" disabled>Preparing dashboard…</a>
       </div>
 
-      <p id="err" class="row"></p>
+      <p id="err" class="row error" style="display:none;"></p>
     </div>
   </div>
 
   <script>
+    // Read session_id from URL
     const qs  = new URLSearchParams(location.search);
     const sid = qs.get('session_id') || '';
     document.getElementById('sid').textContent = sid || '—';
-
     const dashBtn = document.getElementById('dash');
-    dashBtn.setAttribute('disabled', 'true');
-    dashBtn.textContent = 'Preparing dashboard…';
 
     function showError(msg) {
       const el = document.getElementById('err');
       el.style.display = 'block';
       el.textContent = msg;
       dashBtn.textContent = 'Go to your dashboard';
-      dashBtn.removeAttribute('href');   // leave disabled if we couldn't prepare the URL
+      dashBtn.removeAttribute('href');
       dashBtn.setAttribute('disabled', 'true');
     }
 
-    // Optional: fetch email for the nice message
-    if (sid) {
-      fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid))
-        .then(r => r.ok ? r.json() : Promise.reject())
-        .then(data => {
-          const email =
-            (data.customer_details && data.customer_details.email) ||
-            (data.customer && data.customer.email) || '';
-          if (email) {
-            document.getElementById('email').textContent = email;
-            document.getElementById('emailWrap').style.display = 'inline';
-          }
-        })
-        .catch(() => {/* ignore */});
+    // Fetch the checkout session to show email (optional, nice touch)
+    async function loadSessionEmail() {
+      if (!sid) return;
+      try {
+        const r = await fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid));
+        if (!r.ok) return; // keep silent if it fails
+        const data = await r.json();
+        const email =
+          (data.customer_details && data.customer_details.email) ||
+          (data.customer && data.customer.email) || '';
+        if (email) {
+          document.getElementById('email').textContent = email;
+          document.getElementById('emailWrap').style.display = 'inline';
+        }
+      } catch (_) { /* ignore */ }
     }
 
-    // Get the signed welcome URL and set it on the button – no auto-redirect
+    // Call provision-link to get the URL for the dashboard (welcome) page
     async function prepareLink() {
-      if (!sid) {
-        showError('Missing session_id on success URL.');
-        return;
-      }
+      if (!sid) return showError('Missing session_id on success URL.');
       try {
         const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
         if (!r.ok) throw new Error(await r.text());
-        const { url } = await r.json();
-        if (!url) throw new Error('No URL returned from provision-link');
-        dashBtn.href = url;
+        const data = await r.json();
+        if (!data || !data.url) throw new Error('No URL returned from provision-link');
+        dashBtn.href = data.url;
         dashBtn.textContent = 'Go to your dashboard';
         dashBtn.removeAttribute('disabled');
       } catch (e) {
@@ -88,6 +102,7 @@
       }
     }
 
+    loadSessionEmail();
     prepareLink();
   </script>
 </body>
