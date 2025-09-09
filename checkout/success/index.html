@@ -16,6 +16,7 @@
     .btn.secondary { background:#142042; }
     code { background:#0B1222; padding:.18rem .35rem; border-radius:6px; }
     #err { color:#ff8a8a; display:none; }
+    #dash[disabled] { opacity:.6; pointer-events:none; }
   </style>
 </head>
 <body>
@@ -26,28 +27,33 @@
       <p class="muted row">Session: <code id="sid">—</code></p>
 
       <div class="row">
-        <a id="dash" class="btn">Go to your dashboard</a>
+        <a id="dash" class="btn" rel="noopener">Go to your dashboard</a>
         <a href="/" class="btn secondary">Go to Home</a>
       </div>
 
       <p id="err" class="row"></p>
-      <p class="muted row" id="redir" style="display:none">Redirecting you to your dashboard…</p>
     </div>
   </div>
 
   <script>
-    // Helpers
     const qs  = new URLSearchParams(location.search);
     const sid = qs.get('session_id') || '';
     document.getElementById('sid').textContent = sid || '—';
 
-    // Always show something even if we can't fetch details
-    if (!sid) {
-      document.getElementById('err').style.display='block';
-      document.getElementById('err').textContent = 'Missing session_id on success URL.';
+    const dashBtn = document.getElementById('dash');
+    dashBtn.setAttribute('disabled', 'true');
+    dashBtn.textContent = 'Preparing dashboard…';
+
+    function showError(msg) {
+      const el = document.getElementById('err');
+      el.style.display = 'block';
+      el.textContent = msg;
+      dashBtn.textContent = 'Go to your dashboard';
+      dashBtn.removeAttribute('href');   // leave disabled if we couldn't prepare the URL
+      dashBtn.setAttribute('disabled', 'true');
     }
 
-    // (A) Fetch email just for a nice confirmation (optional)
+    // Optional: fetch email for the nice message
     if (sid) {
       fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid))
         .then(r => r.ok ? r.json() : Promise.reject())
@@ -60,48 +66,29 @@
             document.getElementById('emailWrap').style.display = 'inline';
           }
         })
-        .catch(() => {/* ignore, we still proceed */});
+        .catch(() => {/* ignore */});
     }
 
-    // (B) Get the signed welcome URL and redirect
-    const dashBtn = document.getElementById('dash');
-
-    async function getWelcomeUrl() {
-      const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
-      if (!r.ok) throw new Error(await r.text());
-      const { url } = await r.json();
-      if (!url) throw new Error('No URL returned from provision-link');
-      return url;
-    }
-
-    async function go() {
-      if (!sid) return;
+    // Get the signed welcome URL and set it on the button – no auto-redirect
+    async function prepareLink() {
+      if (!sid) {
+        showError('Missing session_id on success URL.');
+        return;
+      }
       try {
-        const url = await getWelcomeUrl();
-        // Update button href for users who prefer to click
+        const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
+        if (!r.ok) throw new Error(await r.text());
+        const { url } = await r.json();
+        if (!url) throw new Error('No URL returned from provision-link');
         dashBtn.href = url;
-        // Also auto-redirect after a short delay
-        document.getElementById('redir').style.display = 'block';
-        setTimeout(() => { location.href = url; }, 1000);
+        dashBtn.textContent = 'Go to your dashboard';
+        dashBtn.removeAttribute('disabled');
       } catch (e) {
-        document.getElementById('err').style.display='block';
-        document.getElementById('err').textContent = 'Could not create dashboard link. ' +
-          'Please copy your session id and contact support. Details: ' + (e.message || e);
-        // Make button a safe fallback (no-token) so the page doesn’t break
-        dashBtn.removeAttribute('href');
+        showError('Could not create dashboard link. Please copy your session id and contact support. Details: ' + (e.message || e));
       }
     }
 
-    dashBtn.addEventListener('click', async (ev) => {
-      // If we haven’t filled href yet, intercept and try again
-      if (!dashBtn.href || dashBtn.getAttribute('href') === '') {
-        ev.preventDefault();
-        await go();
-      }
-    });
-
-    // Kick it off
-    go();
+    prepareLink();
   </script>
 </body>
 </html>
