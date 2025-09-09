@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Thanks – Brikk</title>
   <style>
     :root { color-scheme: dark; }
@@ -11,65 +11,97 @@
     .card { width:min(920px, 96vw); background:#0f1629; border:1px solid #1C2541; border-radius:16px; padding:32px 28px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
     h1 { font-size:32px; margin:0 0 10px; }
     .muted { color:#98b0d9; }
-    .btn { display:inline-block; margin-top:18px; background:#635bff; color:#fff; text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600; }
-    .btn.secondary { background:#0B1222; border:1px solid #2a3450; margin-left:8px; }
-    code { background:#0B1222; padding:.12rem .35rem; border-radius:6px; }
-    .row { margin-top:12px }
+    .row { margin-top:14px }
+    .btn { display:inline-block; margin-top:18px; background:#635bff; color:white; text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600; }
+    .btn.secondary { background:#142042; }
+    code { background:#0B1222; padding:.18rem .35rem; border-radius:6px; }
+    #err { color:#ff8a8a; display:none; }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>You’re all set 🎉</h1>
-    <p id="msg">Thanks for subscribing to Brikk. We’ve emailed a receipt and account details<span id="emailWrap" class="muted" style="display:none"> to <strong id="email"></strong></span>.</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>You’re all set 🎉</h1>
+      <p class="muted" id="msg">Thanks for subscribing to Brikk. We’ve emailed a receipt and account details<span id="emailWrap" style="display:none"> to <strong id="email">—</strong></span>.</p>
+      <p class="muted row">Session: <code id="sid">—</code></p>
 
-    <div class="row muted">Session: <code id="sid">—</code></div>
+      <div class="row">
+        <a id="dash" class="btn">Go to your dashboard</a>
+        <a href="/" class="btn secondary">Go to Home</a>
+      </div>
 
-    <div class="row">
-      <a id="dashBtn" class="btn" href="/">Go to your dashboard</a>
-      <a class="btn secondary" href="/">Go to Home</a>
+      <p id="err" class="row"></p>
+      <p class="muted row" id="redir" style="display:none">Redirecting you to your dashboard…</p>
     </div>
   </div>
-</div>
 
-<script>
-(function () {
-  const qs = new URLSearchParams(location.search);
-  const sid = qs.get('session_id') || '';
-  document.getElementById('sid').textContent = sid || '—';
+  <script>
+    // Helpers
+    const qs  = new URLSearchParams(location.search);
+    const sid = qs.get('session_id') || '';
+    document.getElementById('sid').textContent = sid || '—';
 
-  if (!sid) return; // Show static success if we can’t identify the session
+    // Always show something even if we can't fetch details
+    if (!sid) {
+      document.getElementById('err').style.display='block';
+      document.getElementById('err').textContent = 'Missing session_id on success URL.';
+    }
 
-  // 1) Ask Netlify to mint a short-lived link and give us the redirect URL
-  fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid))
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      if (data && data.redirect) {
-        const btn = document.getElementById('dashBtn');
-        btn.href = data.redirect;
-        btn.textContent = 'Go to your dashboard';
-        // auto-redirect shortly
-        setTimeout(() => { window.location.href = data.redirect; }, 1200);
+    // (A) Fetch email just for a nice confirmation (optional)
+    if (sid) {
+      fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid))
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(data => {
+          const email =
+            (data.customer_details && data.customer_details.email) ||
+            (data.customer && data.customer.email) || '';
+          if (email) {
+            document.getElementById('email').textContent = email;
+            document.getElementById('emailWrap').style.display = 'inline';
+          }
+        })
+        .catch(() => {/* ignore, we still proceed */});
+    }
+
+    // (B) Get the signed welcome URL and redirect
+    const dashBtn = document.getElementById('dash');
+
+    async function getWelcomeUrl() {
+      const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
+      if (!r.ok) throw new Error(await r.text());
+      const { url } = await r.json();
+      if (!url) throw new Error('No URL returned from provision-link');
+      return url;
+    }
+
+    async function go() {
+      if (!sid) return;
+      try {
+        const url = await getWelcomeUrl();
+        // Update button href for users who prefer to click
+        dashBtn.href = url;
+        // Also auto-redirect after a short delay
+        document.getElementById('redir').style.display = 'block';
+        setTimeout(() => { location.href = url; }, 1000);
+      } catch (e) {
+        document.getElementById('err').style.display='block';
+        document.getElementById('err').textContent = 'Could not create dashboard link. ' +
+          'Please copy your session id and contact support. Details: ' + (e.message || e);
+        // Make button a safe fallback (no-token) so the page doesn’t break
+        dashBtn.removeAttribute('href');
       }
-    })
-    .catch(() => {
-      // keep graceful fallback (the Home button works)
+    }
+
+    dashBtn.addEventListener('click', async (ev) => {
+      // If we haven’t filled href yet, intercept and try again
+      if (!dashBtn.href || dashBtn.getAttribute('href') === '') {
+        ev.preventDefault();
+        await go();
+      }
     });
 
-  // 2) (Optional) Show the email from the session, if you kept checkout-session.ts
-  fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid))
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      const email =
-        (data.customer_details && data.customer_details.email) ||
-        (data.customer && data.customer.email) || '';
-      if (email) {
-        document.getElementById('email').textContent = email;
-        document.getElementById('emailWrap').style.display = 'inline';
-      }
-    })
-    .catch(() => {});
-})();
-</script>
+    // Kick it off
+    go();
+  </script>
 </body>
 </html>
