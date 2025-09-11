@@ -1,109 +1,157 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Thanks – Brikk</title>
   <style>
     :root { color-scheme: dark; }
-    body {
-      margin: 0;
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
-      background: #0b0f1a; color: #e7ecff;
-    }
-    .wrap {
-      min-height: 100vh; display: grid; place-items: center; padding: 32px;
-    }
-    .card {
-      width: min(920px, 96vw); background:#0f1629; border:1px solid #1c2541;
-      border-radius:16px; padding: 32px 28px; box-shadow:0 10px 30px rgba(0,0,0,.25);
-    }
-    h1 { font-size: 32px; margin: 0 0 10px; }
-    .muted { color:#98b0d9; }
-    .row { margin-top: 12px; }
-    .btn {
-      display:inline-block; margin-top:18px; background:#635bff; color:white;
-      text-decoration:none; padding:.75rem 1.25rem; border-radius:12px; font-weight:600;
-    }
-    .btn[disabled] {
-      opacity:.6; pointer-events:none;
-    }
-    code {
-      background:#0B1222; padding:.15rem .35rem; border-radius:6px; border:1px solid #2a3450;
-    }
-    .error { color:#ff8a8a; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif; background:#0b0f1a; color:#e7ecff; }
+    .wrap { min-height:100vh; display:grid; place-items:center; padding:32px; }
+    .card { width:min(920px, 96vw); background:#0f1629; border:1px solid #1C2541; border-radius:16px; padding:28px 28px 22px;
+            box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    h1 { font-size:32px; margin:0 0 8px; }
+    .muted { color:#98b0d9 }
+    .row { display:flex; gap:18px; flex-wrap:wrap; margin-top:18px; }
+    .btn { display:inline-block; background:#635bff; color:#fff; text-decoration:none; padding:.75rem 1.1rem; border-radius:12px; font-weight:650; border:none; cursor:pointer; }
+    .btn.secondary { background:#142042; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    code { background:#0B1222; padding:.15rem .45rem; border-radius:6px; border:1px solid #2a3450; }
+    .grid { display:grid; gap:18px; grid-template-columns: 1fr 1fr; margin-top:18px; }
+    .pane { background:#0B1222; border:1px solid #1C2541; border-radius:14px; padding:16px; }
+    label { display:block; font-weight:600; margin:8px 0 6px; }
+    input { width:100%; background:#0B1222; border:1px solid #2a3450; color:#e7ecff; border-radius:10px; padding:.7rem .8rem; }
+    small { color:#98b0d9 }
+    .ok { color:#7df29a }
+    .err { color:#ff8585 }
+    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>You’re all set 🎉</h1>
-      <p class="muted" id="msg">
-        Thanks for subscribing to Brikk. We’ve emailed a receipt and account details
-        <span id="emailWrap" style="display:none"> to <strong id="email">—</strong></span>.
-      </p>
+<div class="wrap">
+  <div class="card">
+    <h1>You’re all set 🎉</h1>
+    <p>Thanks for subscribing to Brikk. We’ve emailed a receipt and account details to
+      <strong id="email">—</strong>.</p>
 
-      <p class="muted row">Session: <code id="sid">—</code></p>
+    <p class="muted">Session: <code id="sid">—</code></p>
 
-      <div class="row">
-        <a id="dash" class="btn" rel="noopener" disabled>Preparing dashboard…</a>
+    <div class="row">
+      <button id="openDashboard" class="btn">Go to your dashboard</button>
+      <a class="btn secondary" href="/">Go to Home</a>
+    </div>
+
+    <div id="msg" class="muted" style="margin-top:12px;"></div>
+
+    <div class="grid">
+      <div class="pane">
+        <h3 style="margin:0 0 8px;">Quick sign-in (recommended)</h3>
+        <p class="muted" style="margin:0 0 12px;">
+          Click <em>Go to your dashboard</em> above. We’ll generate a fresh 1-click sign-in link and set your session on <code>app.getbrikk.com</code>.
+        </p>
+        <small>Tip: The link is created only when you click, so it won’t be expired by the time you arrive.</small>
       </div>
 
-      <p id="err" class="row error" style="display:none;"></p>
+      <div class="pane">
+        <h3 style="margin:0 0 8px;">Or create your account here</h3>
+        <form id="signupForm">
+          <div class="row" style="gap:12px">
+            <div style="flex:1 1 180px">
+              <label>First name</label>
+              <input id="first" autocomplete="given-name" required>
+            </div>
+            <div style="flex:1 1 180px">
+              <label>Last name</label>
+              <input id="last" autocomplete="family-name">
+            </div>
+          </div>
+          <label>Email</label>
+          <input id="emailInput" type="email" autocomplete="email" required readonly>
+          <label>Password</label>
+          <input id="pass1" type="password" autocomplete="new-password" minlength="8" required>
+          <label>Confirm password</label>
+          <input id="pass2" type="password" autocomplete="new-password" minlength="8" required>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="createBtn" type="submit">Create account</button>
+            <small id="signupStatus"></small>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Read session_id from URL
-    const qs  = new URLSearchParams(location.search);
-    const sid = qs.get('session_id') || '';
-    document.getElementById('sid').textContent = sid || '—';
-    const dashBtn = document.getElementById('dash');
+<script>
+const API = 'https://api.getbrikk.com'; // your Render service
+const qs  = new URLSearchParams(location.search);
+const sid = qs.get('session_id') || '';
+document.getElementById('sid').textContent = sid || '—';
 
-    function showError(msg) {
-      const el = document.getElementById('err');
-      el.style.display = 'block';
-      el.textContent = msg;
-      dashBtn.textContent = 'Go to your dashboard';
-      dashBtn.removeAttribute('href');
-      dashBtn.setAttribute('disabled', 'true');
+const msg = document.getElementById('msg');
+const emailSpan = document.getElementById('email');
+const emailInput = document.getElementById('emailInput');
+
+// fetch a friendly email (graceful if it fails)
+async function fetchEmail() {
+  try {
+    const r = await fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid));
+    if (!r.ok) return;
+    const data = await r.json();
+    const em = (data.customer_details && data.customer_details.email) || (data.customer && data.customer.email) || '';
+    if (em) { emailSpan.textContent = em; emailInput.value = em; }
+  } catch(_) {}
+}
+fetchEmail();
+
+// fresh welcome link only when the button is clicked
+document.getElementById('openDashboard').onclick = async () => {
+  msg.textContent = 'Preparing your dashboard link…';
+  try {
+    const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
+    const data = await r.json();
+    if (data.url) {
+      location.href = data.url; // e.g. https://app.getbrikk.com/welcome?token=...
+    } else {
+      msg.innerHTML = '<span class="err">Could not create dashboard link. Copy your session id above and contact support.</span>';
     }
+  } catch (e) {
+    msg.innerHTML = '<span class="err">Error creating dashboard link. Please try again.</span>';
+  }
+};
 
-    // Fetch the checkout session to show email (optional, nice touch)
-    async function loadSessionEmail() {
-      if (!sid) return;
-      try {
-        const r = await fetch('/.netlify/functions/checkout-session?session_id=' + encodeURIComponent(sid));
-        if (!r.ok) return; // keep silent if it fails
-        const data = await r.json();
-        const email =
-          (data.customer_details && data.customer_details.email) ||
-          (data.customer && data.customer.email) || '';
-        if (email) {
-          document.getElementById('email').textContent = email;
-          document.getElementById('emailWrap').style.display = 'inline';
-        }
-      } catch (_) { /* ignore */ }
-    }
+// inline signup that talks to the API directly (no token)
+document.getElementById('signupForm').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const f = document.getElementById('first').value.trim();
+  const l = document.getElementById('last').value.trim();
+  const p1 = document.getElementById('pass1').value;
+  const p2 = document.getElementById('pass2').value;
+  const status = document.getElementById('signupStatus');
+  status.textContent = '';
 
-    // Call provision-link to get the URL for the dashboard (welcome) page
-    async function prepareLink() {
-      if (!sid) return showError('Missing session_id on success URL.');
-      try {
-        const r = await fetch('/.netlify/functions/provision-link?session_id=' + encodeURIComponent(sid));
-        if (!r.ok) throw new Error(await r.text());
-        const data = await r.json();
-        if (!data || !data.url) throw new Error('No URL returned from provision-link');
-        dashBtn.href = data.url;
-        dashBtn.textContent = 'Go to your dashboard';
-        dashBtn.removeAttribute('disabled');
-      } catch (e) {
-        showError('Could not create dashboard link. Please copy your session id and contact support. Details: ' + (e.message || e));
-      }
-    }
+  if (!sid) { status.textContent = 'Missing session id.'; return; }
+  if (p1 !== p2) { status.textContent = 'Passwords do not match.'; return; }
 
-    loadSessionEmail();
-    prepareLink();
-  </script>
+  document.getElementById('createBtn').disabled = true;
+  status.textContent = 'Creating your account…';
+
+  try {
+    const r = await fetch(API + '/api/signup-from-stripe', {
+      method: 'POST',
+      headers: {'content-type':'application/json'},
+      credentials: 'include',
+      body: JSON.stringify({ session_id: sid, first_name: f, last_name: l, password: p1 })
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'Failed');
+    status.innerHTML = '<span class="ok">Account created. Opening your dashboard…</span>';
+    setTimeout(() => location.href = data.next || 'https://www.getbrikk.com/app/', 600);
+  } catch (e) {
+    status.innerHTML = '<span class="err">' + e.message + '</span>';
+  } finally {
+    document.getElementById('createBtn').disabled = false;
+  }
+});
+</script>
 </body>
 </html>
