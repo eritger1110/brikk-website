@@ -1,3 +1,4 @@
+// netlify/functions/provision-link.ts
 import Stripe from 'stripe';
 import * as jwt from 'jsonwebtoken';
 
@@ -6,11 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 function json(status: number, body: any) {
-  return {
-    statusCode: status,
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  };
+  return { statusCode: status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
 }
 
 export async function handler(event: any) {
@@ -22,7 +19,6 @@ export async function handler(event: any) {
     if (!session_id) return json(400, { error: 'Missing session_id' });
     if (!process.env.PROVISION_SECRET) return json(500, { error: 'Missing PROVISION_SECRET' });
 
-    // Fetch and expand so we can render a nice success page
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['customer', 'subscription'],
     });
@@ -38,38 +34,44 @@ export async function handler(event: any) {
       session.customer_details?.name ||
       (typeof session.customer === 'object' ? (session.customer.name as string) : undefined);
 
-    const customerId =
-      typeof session.customer === 'string' ? session.customer : (session.customer?.id as string);
-
-    const subscriptionId =
-      typeof session.subscription === 'string'
-        ? session.subscription
-        : (session.subscription?.id as string | undefined);
-
-    // Short-lived JWT for the welcome handshake
     const payload = {
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 600, // 10 minutes
+      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
       email,
       name,
-      customer: customerId,
-      subscription: subscriptionId || null,
+      customer:
+        typeof session.customer === 'string'
+          ? session.customer
+          : (session.customer?.id as string | undefined),
+      subscription:
+        typeof session.subscription === 'string'
+          ? session.subscription
+          : (session.subscription?.id as string | undefined),
       source: 'netlify-provision',
     };
 
     const token = jwt.sign(payload, process.env.PROVISION_SECRET as string, {
       algorithm: 'HS256',
       issuer: 'brikk-netlify',
-      subject: email || customerId || 'unknown',
+      subject: email || 'unknown',
     });
 
-    const base = (process.env.APP_WELCOME_URL || 'https://app.getbrikk.com').replace(/\/$/, '');
-    const url = `${base}/welcome?token=${encodeURIComponent(token)}`;
+    // Keep URL for backwards compat, but also return token/email/name explicitly
+    const base = process.env.APP_WELCOME_URL || 'https://app.getbrikk.com';
+    const url = `${base.replace(/\/$/, '')}/welcome?token=${encodeURIComponent(token)}`;
 
-    // IMPORTANT: return { url }
-    return json(200, { url });
+    // Split name into first/last if possible
+    let first = '';
+    let last = '';
+    if (name) {
+      const parts = name.split(' ');
+      first = parts.shift() || '';
+      last = parts.join(' ');
+    }
+
+    return json(200, { url, token, email, first, last });
   } catch (err: any) {
     console.error('provision-link error', err);
-    return json(500, { error: err?.message || 'Failed to make provision link' });
+    return json(500, { error: 'Failed to make provision link' });
   }
 }
