@@ -16,7 +16,7 @@
     .muted { color:#98b0d9 }
     button { background:#635bff; color:#fff; border:none; padding:.6rem 1rem; border-radius:10px; font-weight:600; cursor:pointer; }
     button.secondary { background:#142042; }
-    input, textarea { width:100%; background:#0B1222; border:1px solid #2a3450; color:#e7ecff; border-radius:10px; padding:.7rem .8rem; }
+    input, textarea, select { width:100%; background:#0B1222; border:1px solid #2a3450; color:#e7ecff; border-radius:10px; padding:.7rem .8rem; }
     label { display:block; font-weight:600; margin:8px 0 6px; }
     pre { white-space:pre-wrap; }
     @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
@@ -34,10 +34,19 @@
     <div id="auth" class="card">Checking your session…</div>
 
     <div id="content" style="display:none">
+      <div id="verifyBanner" class="card" style="display:none; margin-bottom:16px">
+        <strong>Email verification pending</strong>
+        <div class="muted" style="margin-top:6px">Please check your inbox for a verification email.</div>
+        <div style="margin-top:10px;"><button id="resendVerify" class="secondary">Resend verification email</button></div>
+      </div>
+
       <div class="grid">
         <div class="card">
           <h2>Welcome, <span id="name">—</span></h2>
-          <div class="muted">Email: <span id="email">—</span></div>
+          <div class="muted">
+            Email: <span id="email">—</span>
+            <span id="order" style="margin-left:12px"></span>
+          </div>
           <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
             <button id="manageBilling">Manage billing</button>
             <button id="revealKey" class="secondary">Reveal API key</button>
@@ -71,14 +80,14 @@
   </main>
 
 <script>
-const API = 'https://api.getbrikk.com/api'; // Render service (note the /api)
+const API = 'https://api.getbrikk.com/api';
 
-// Small helper
-async function j(url, opts={}) {
+// Helper with cookie credentials + sane error messages
+async function j(url, opts = {}) {
   const r = await fetch(url, { credentials: 'include', ...opts });
   if (!r.ok) {
     const t = await r.text().catch(()=> '');
-    throw new Error(t || (r.status+''));
+    throw new Error(t || (r.status + ''));
   }
   const ct = r.headers.get('content-type') || '';
   return ct.includes('application/json') ? r.json() : { success: true };
@@ -88,12 +97,34 @@ let reqChart, latChart;
 
 async function boot() {
   try {
-    // Get current user
-    const me = await j(API + '/auth/me');
+    // Either /api/me or /api/auth/me (both exist)
+    const me = await j(API + '/me');
+
     document.getElementById('auth').style.display = 'none';
     document.getElementById('content').style.display = 'block';
+
     document.getElementById('name').textContent  = me.user?.username || 'User';
     document.getElementById('email').textContent = me.user?.email || '—';
+
+    if (me.order_ref) {
+      document.getElementById('order').innerHTML = `• Order Ref: <strong>${me.order_ref}</strong>`;
+    }
+
+    if (!me.email_verified) {
+      document.getElementById('verifyBanner').style.display = 'block';
+      document.getElementById('resendVerify').onclick = async () => {
+        try {
+          await j(API + '/auth/resend-verification', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email: me.user?.email })
+          });
+          alert('Verification email sent.');
+        } catch (e) {
+          alert('Could not resend verification email.');
+        }
+      };
+    }
 
     // Execute workflow
     document.getElementById('run').onclick = async () => {
@@ -119,8 +150,8 @@ async function boot() {
       } catch(e) { alert('Could not open billing portal'); }
     };
 
-    // API key (placeholder – wire to a real endpoint if you have one)
-    document.getElementById('revealKey').onclick = async () => {
+    // API key (placeholder)
+    document.getElementById('revealKey').onclick = () => {
       const span = document.getElementById('apiKey');
       span.style.display = 'inline';
       span.textContent = '(coming soon – add /api/key to backend)';
@@ -141,7 +172,6 @@ async function boot() {
     async function loadMetrics() {
       try {
         const m = await j(API + '/metrics');
-        // Expect your /metrics to return something like { series: { last10m: [...], latency: [...] } }
         const s = m.series || { last10m: [2,3,5,4,6,7,4,6,5,8], latency: [220,210,230,190,200,240,210,220,205,215] };
         if (!reqChart) {
           reqChart = makeChart(document.getElementById('reqChart'), 'Requests', s.last10m, '#66a3ff');
@@ -158,7 +188,7 @@ async function boot() {
 
     // Logout
     document.getElementById('logout').onclick = async () => {
-      await j(API + '/auth/logout', { method:'POST' });
+      await j(API + '/auth/logout', { method:'POST' }).catch(()=>{});
       location.href = '/';
     };
 
