@@ -1,32 +1,100 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Thanks – Brikk</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;padding:40px;background:#0b0f1a;color:#e7eaf0}
-      .card{max-width:720px;margin:0 auto;background:#121826;border:1px solid #1e293b;border-radius:16px;padding:28px}
-      h1{margin:0 0 10px}
-      p{opacity:.9;line-height:1.5}
-      .actions{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
-      a.btn{background:#4f46e5;padding:10px 16px;border-radius:10px;color:#fff;text-decoration:none}
-      a.secondary{color:#9fb3c8}
-      code{background:#0f172a;padding:2px 6px;border-radius:6px}
-    </style>
-  </head>
-  <body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>You’re all set – Brikk</title>
+  <style>
+    body{background:#0b0f1a;color:#e7ecff;font:16px/1.5 system-ui;margin:0;padding:24px}
+    .container{max-width:1080px;margin:0 auto}
+    .card{background:#0f1526;border:1px solid #1f2a48;border-radius:16px;padding:20px;margin:18px 0;max-width:720px}
+    h1{margin:0 0 6px;font-weight:700}
+    .muted{opacity:.85}
+    label{display:block;font-size:14px;margin:14px 0 6px}
+    input{background:#0b1020;border:1px solid #233055;border-radius:10px;padding:12px 14px;color:#e7ecff;width:100%;box-sizing:border-box;min-width:0}
+    button{background:#6a5cff;border:none;border-radius:10px;padding:12px 16px;color:#fff;font-weight:600;cursor:pointer}
+    .row{display:flex;gap:18px;align-items:flex-start}
+    .col{flex:1}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .error{color:#ff7a7a;margin-top:8px}
+    @media (max-width:640px){.form-grid{grid-template-columns:1fr}}
+  </style>
+  <!-- Load API base (set in /public/config.js) -->
+  <script src="/config.js"></script>
+</head>
+<body>
+  <div class="container">
     <div class="card">
-      <h1>You're all set 🎉</h1>
-      <p>Thanks for subscribing to Brikk. We’ve emailed a receipt and account details.</p>
-      <p><small>Session: <code id="sid"></code></small></p>
-      <div class="actions">
-        <a class="btn" href="/">Go to Home</a>
+      <h1>You’re all set 🎉</h1>
+      <p class="muted">
+        Thanks for subscribing to Brikk. We’ve emailed you a <strong>receipt</strong>.
+        Next, create your account below.
+      </p>
+      <p class="muted">Reference: <span id="ref">—</span></p>
+    </div>
+
+    <div class="row">
+      <div class="card col" id="leftCard">
+        <h3>Create your account</h3>
+        <p class="muted">Finish setting your password to access your dashboard.</p>
+
+        <div class="form-grid">
+          <div>
+            <label>First name</label>
+            <input id="firstName" autocomplete="given-name" />
+          </div>
+          <div>
+            <label>Last name</label>
+            <input id="lastName" autocomplete="family-name" />
+          </div>
+        </div>
+
+        <label>Email</label>
+        <input id="email" type="email" autocomplete="email" />
+
+        <label>Password</label>
+        <input id="password" type="password" autocomplete="new-password" />
+        <small class="muted">Minimum 10 chars, at least one uppercase, one lowercase, one number, one symbol.</small>
+
+        <label>Confirm password</label>
+        <input id="confirm" type="password" autocomplete="new-password" />
+
+        <div class="error" id="err" hidden></div>
+        <div style="margin-top:16px">
+          <button id="submitBtn">Create account</button>
+        </div>
+      </div>
+
+      <div class="card col">
+        <h3>What happens next?</h3>
+        <ul>
+          <li>After creating your account you’ll be <strong>signed in automatically</strong>.</li>
+          <li>We’ll send a <strong>verification email</strong> (valid for 24h) to secure your account.</li>
+          <li>You can always manage billing from your dashboard.</li>
+        </ul>
       </div>
     </div>
-    <script>
-      const sid = new URLSearchParams(location.search).get('session_id') || '–';
-      document.getElementById('sid').textContent = sid;
-    </script>
-  </body>
-</html>
+  </div>
+
+  <script>
+    // Read session_id from Stripe success URL
+    const q = new URLSearchParams(location.search);
+    const sessionId = q.get("session_id");
+    const API_BASE = (window.__BRIKK_API__ || "").replace(/\/+$/,"") || "https://brikk-infrastructure.onrender.com";
+    const NETLIFY_FN = "/.netlify/functions/provision-link"; // returns { token, first, last, email, reference }
+    const $ = (id) => document.getElementById(id);
+    const err = $("err");
+
+    async function getProvision() {
+      if (!sessionId) throw new Error("Missing session_id");
+      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, { credentials: "include" });
+      if (!res.ok) throw new Error(`Provision error ${res.status}`);
+      return res.json();
+    }
+
+    async function createAccount(prov) {
+      const pw = $("password").value, cf = $("confirm").value;
+      if (pw.length < 10) throw new Error("Password does not meet requirements");
+      if (pw !== cf) throw new Error("Passwords do not match");
+
+      const payload = {
