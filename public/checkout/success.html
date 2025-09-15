@@ -98,3 +98,44 @@
       if (pw !== cf) throw new Error("Passwords do not match");
 
       const payload = {
+        token: prov.token,
+        first_name: $("firstName").value.trim(),
+        last_name:  $("lastName").value.trim(),
+        email:      $("email").value.trim().toLowerCase(),
+        password:   pw
+      };
+
+      const res = await fetch(`${API_BASE}/api/auth/complete-signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // set cookie!
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      // Signed in via cookie → bounce to app
+      location.assign("https://app.getbrikk.com/app/");
+    }
+
+    (async () => {
+      try {
+        const prov = await getProvision();
+        $("ref").textContent      = prov.reference || "—";
+        $("firstName").value      = prov.first || "";
+        $("lastName").value       = prov.last  || "";
+        $("email").value          = prov.email || "";
+        $("submitBtn").onclick    = async () => {
+          err.hidden = true;
+          try { await createAccount(prov); }
+          catch (e) { err.textContent = e.message || "Failed to fetch"; err.hidden = false; }
+        };
+      } catch (e) {
+        err.textContent = e.message || "Failed to fetch";
+        err.hidden = false;
+      }
+    })();
+  </script>
+</body>
+</html>
