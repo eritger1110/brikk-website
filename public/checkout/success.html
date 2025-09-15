@@ -84,4 +84,151 @@
     <div class="card hero">
       <h1>You’re all set 🎉</h1>
       <p class="muted">
-        Than
+        Thanks for subscribing to Brikk. We’ve emailed you a <strong>receipt</strong>.
+        Next, create your account below.
+      </p>
+      <p class="muted">Reference: <span id="ref">—</span></p>
+    </div>
+
+    <!-- Main content -->
+    <div class="two-col">
+      <!-- Left: account form -->
+      <div class="card">
+        <h3>Create your account</h3>
+        <p class="muted">Finish setting your password to access your dashboard.</p>
+
+        <form id="create-account-form" novalidate>
+          <div class="form-grid">
+            <div>
+              <label for="firstName">First name</label>
+              <input id="firstName" name="first_name" autocomplete="given-name" />
+            </div>
+            <div>
+              <label for="lastName">Last name</label>
+              <input id="lastName" name="last_name" autocomplete="family-name" />
+            </div>
+          </div>
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" />
+          <small class="help muted">
+            Minimum 10 chars, at least one uppercase, one lowercase, one number, one symbol.
+          </small>
+
+          <label for="confirm">Confirm password</label>
+          <input id="confirm" type="password" autocomplete="new-password" />
+
+          <div class="error" id="err" hidden></div>
+
+          <div style="margin-top:16px">
+            <button id="submitBtn" type="submit">Create account</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: what happens next -->
+      <div class="card">
+        <h3>What happens next?</h3>
+        <ul>
+          <li>After creating your account you’ll be <strong>signed in automatically</strong>.</li>
+          <li>We’ll send a <strong>verification email</strong> (valid for 24h) to secure your account.</li>
+          <li>You can always manage billing from your dashboard.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helpers
+    const $ = (id) => document.getElementById(id);
+    const q = new URLSearchParams(location.search);
+    const sessionId = q.get("session_id");
+    const err = $("err");
+    const btn = $("submitBtn");
+
+    // API base from /public/config.js (fallback kept just in case)
+    const API = (window.__BRIKK_API__ || (import.meta?.env?.VITE_API_URL || "")).replace(/\/+$/, "") ||
+                "https://brikk-infrastructure.onrender.com";
+
+    // Netlify function that returns { token, first, last, email, reference }
+    const NETLIFY_FN = "/.netlify/functions/provision-link";
+
+    function showError(msg){
+      err.textContent = msg || "Something went wrong. Please try again.";
+      err.hidden = false;
+    }
+
+    async function getProvision() {
+      if (!sessionId) throw new Error("Missing session_id");
+      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, {
+        credentials: "include"
+      });
+      if (!res.ok) throw new Error(`Provision error ${res.status}`);
+      return res.json();
+    }
+
+    async function createAccount({ token }) {
+      const pw = $("password").value;
+      const cf = $("confirm").value;
+      if (pw.length < 10) throw new Error("Password does not meet requirements");
+      if (pw !== cf) throw new Error("Passwords do not match");
+
+      const payload = {
+        token,
+        first_name: $("firstName").value.trim(),
+        last_name:  $("lastName").value.trim(),
+        email:      $("email").value.trim().toLowerCase(),
+        password:   pw
+      };
+
+      // NOTE: if your blueprint is NOT mounted at /api, change the path to /auth/complete-signup
+      const res = await fetch(`${API}/api/auth/complete-signup`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "include",         // <-- critical so the Set-Cookie is stored
+        body: JSON.stringify(payload)
+      });
+
+      let data = null;
+      try { data = await res.json(); } catch(_) {}
+
+      if (!res.ok) {
+        throw new Error((data && data.error) || `API ${res.status} ${res.statusText}`);
+      }
+
+      // Cookie issued → go to the dashboard route on the same site
+      location.assign("/app");
+    }
+
+    (async () => {
+      try {
+        const prov = await getProvision();
+
+        // Fill UI
+        $("ref").textContent = prov.reference || "—";
+        $("firstName").value = prov.first || "";
+        $("lastName").value  = prov.last  || "";
+        $("email").value     = prov.email || "";
+
+        // Hook submit
+        $("create-account-form").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          err.hidden = true;
+          btn.disabled = true;
+          try {
+            await createAccount(prov);
+          } catch (e) {
+            showError(e?.message || "Failed to create account. Please try again.");
+            btn.disabled = false;
+          }
+        });
+      } catch (e) {
+        showError(e?.message || "Failed to fetch");
+      }
+    })();
+  </script>
+</body>
+</html>
