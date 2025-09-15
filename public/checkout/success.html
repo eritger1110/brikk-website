@@ -4,27 +4,84 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>You’re all set – Brikk</title>
+
   <style>
-    body{background:#0b0f1a;color:#e7ecff;font:16px/1.5 system-ui;margin:0;padding:24px}
+    :root{
+      --bg: #0b0f1a;
+      --card: #0f1526;
+      --border: #1f2a48;
+      --ink: #e7ecff;
+      --muted: 0.85;
+      --accent: #6a5cff;
+      --input: #0b1020;
+      --input-border: #233055;
+      --danger: #ff7a7a;
+    }
+    *{box-sizing:border-box}
+    body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui;margin:0;padding:24px}
     .container{max-width:1080px;margin:0 auto}
-    .card{background:#0f1526;border:1px solid #1f2a48;border-radius:16px;padding:20px;margin:18px 0;max-width:720px}
+
+    /* Card */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+    }
+    /* Only the hero card is constrained */
+    .card.hero{max-width:720px;margin:18px auto}
+
     h1{margin:0 0 6px;font-weight:700}
-    .muted{opacity:.85}
+    h3{margin:0 0 8px}
+    .muted{opacity:var(--muted)}
     label{display:block;font-size:14px;margin:14px 0 6px}
-    input{background:#0b1020;border:1px solid #233055;border-radius:10px;padding:12px 14px;color:#e7ecff;width:100%;box-sizing:border-box;min-width:0}
-    button{background:#6a5cff;border:none;border-radius:10px;padding:12px 16px;color:#fff;font-weight:600;cursor:pointer}
-    .row{display:flex;gap:18px;align-items:flex-start}
-    .col{flex:1}
+
+    input{
+      background:var(--input);
+      border:1px solid var(--input-border);
+      border-radius:10px;
+      padding:12px 14px;
+      color:var(--ink);
+      width:100%;
+      min-width:0;
+    }
+
+    button{
+      background:var(--accent);
+      border:none;border-radius:10px;
+      padding:12px 16px;
+      color:#fff;font-weight:600;
+      cursor:pointer;
+    }
+    button[disabled]{opacity:.65;cursor:not-allowed}
+
+    /* Two-column layout that won't overflow */
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin:18px 0;
+    }
+    @media (max-width: 820px){
+      .two-col{grid-template-columns:1fr}
+    }
+
+    /* Form grid for first/last name */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .error{color:#ff7a7a;margin-top:8px}
     @media (max-width:640px){.form-grid{grid-template-columns:1fr}}
+
+    .error{color:var(--danger);margin-top:8px}
+    small.help{display:block;margin-top:6px;opacity:.8}
+    ul{margin:8px 0 0 18px}
   </style>
-  <!-- Load API base (set in /public/config.js) -->
+
+  <!-- Exposes window.__BRIKK_API__ = "https://api.getbrikk.com" -->
   <script src="/config.js"></script>
 </head>
 <body>
   <div class="container">
-    <div class="card">
+    <!-- Hero -->
+    <div class="card hero">
       <h1>You’re all set 🎉</h1>
       <p class="muted">
         Thanks for subscribing to Brikk. We’ve emailed you a <strong>receipt</strong>.
@@ -33,39 +90,47 @@
       <p class="muted">Reference: <span id="ref">—</span></p>
     </div>
 
-    <div class="row">
-      <div class="card col" id="leftCard">
+    <!-- Main content -->
+    <div class="two-col">
+      <!-- Left: account form -->
+      <div class="card">
         <h3>Create your account</h3>
         <p class="muted">Finish setting your password to access your dashboard.</p>
 
-        <div class="form-grid">
-          <div>
-            <label>First name</label>
-            <input id="firstName" autocomplete="given-name" />
+        <form id="create-account-form" novalidate>
+          <div class="form-grid">
+            <div>
+              <label for="firstName">First name</label>
+              <input id="firstName" name="first_name" autocomplete="given-name" />
+            </div>
+            <div>
+              <label for="lastName">Last name</label>
+              <input id="lastName" name="last_name" autocomplete="family-name" />
+            </div>
           </div>
-          <div>
-            <label>Last name</label>
-            <input id="lastName" autocomplete="family-name" />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" />
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" />
+          <small class="help muted">
+            Minimum 10 chars, at least one uppercase, one lowercase, one number, one symbol.
+          </small>
+
+          <label for="confirm">Confirm password</label>
+          <input id="confirm" type="password" autocomplete="new-password" />
+
+          <div class="error" id="err" hidden></div>
+
+          <div style="margin-top:16px">
+            <button id="submitBtn" type="submit">Create account</button>
           </div>
-        </div>
-
-        <label>Email</label>
-        <input id="email" type="email" autocomplete="email" />
-
-        <label>Password</label>
-        <input id="password" type="password" autocomplete="new-password" />
-        <small class="muted">Minimum 10 chars, at least one uppercase, one lowercase, one number, one symbol.</small>
-
-        <label>Confirm password</label>
-        <input id="confirm" type="password" autocomplete="new-password" />
-
-        <div class="error" id="err" hidden></div>
-        <div style="margin-top:16px">
-          <button id="submitBtn">Create account</button>
-        </div>
+        </form>
       </div>
 
-      <div class="card col">
+      <!-- Right: what happens next -->
+      <div class="card">
         <h3>What happens next?</h3>
         <ul>
           <li>After creating your account you’ll be <strong>signed in automatically</strong>.</li>
@@ -77,63 +142,91 @@
   </div>
 
   <script>
-    // Read session_id from Stripe success URL
+    // Helpers
+    const $ = (id) => document.getElementById(id);
     const q = new URLSearchParams(location.search);
     const sessionId = q.get("session_id");
-    const API_BASE = (window.__BRIKK_API__ || "").replace(/\/+$/,"") || "https://brikk-infrastructure.onrender.com";
-    const NETLIFY_FN = "/.netlify/functions/provision-link"; // returns { token, first, last, email, reference }
-    const $ = (id) => document.getElementById(id);
     const err = $("err");
+    const btn = $("submitBtn");
+
+    // API base from /public/config.js (fallback kept just in case)
+    const API = (window.__BRIKK_API__ || (import.meta?.env?.VITE_API_URL || "")).replace(/\/+$/, "") ||
+                "https://brikk-infrastructure.onrender.com";
+
+    // Netlify function that returns { token, first, last, email, reference }
+    const NETLIFY_FN = "/.netlify/functions/provision-link";
+
+    function showError(msg){
+      err.textContent = msg || "Something went wrong. Please try again.";
+      err.hidden = false;
+    }
 
     async function getProvision() {
       if (!sessionId) throw new Error("Missing session_id");
-      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, { credentials: "include" });
+      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, {
+        credentials: "include"
+      });
       if (!res.ok) throw new Error(`Provision error ${res.status}`);
       return res.json();
     }
 
-    async function createAccount(prov) {
-      const pw = $("password").value, cf = $("confirm").value;
+    async function createAccount({ token }) {
+      const pw = $("password").value;
+      const cf = $("confirm").value;
       if (pw.length < 10) throw new Error("Password does not meet requirements");
       if (pw !== cf) throw new Error("Passwords do not match");
 
       const payload = {
-        token: prov.token,
+        token,
         first_name: $("firstName").value.trim(),
         last_name:  $("lastName").value.trim(),
         email:      $("email").value.trim().toLowerCase(),
         password:   pw
       };
 
-      const res = await fetch(`${API_BASE}/api/auth/complete-signup`, {
+      const res = await fetch(`${API}/auth/complete-signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // set cookie!
-        body: JSON.stringify(payload),
+        headers: { "content-type": "application/json" },
+        credentials: "include",         // <-- critical so the Set-Cookie is stored
+        body: JSON.stringify(payload)
       });
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      // Try to read error details if any
+      let data = null;
+      try { data = await res.json(); } catch(_) {}
 
-      // Signed in via cookie → bounce to app
-      location.assign("https://app.getbrikk.com/app/");
+      if (!res.ok) {
+        throw new Error((data && data.error) || `API ${res.status} ${res.statusText}`);
+      }
+
+      // Cookie issued → go to the dashboard route on the same site
+      location.assign("/app");
     }
 
     (async () => {
       try {
         const prov = await getProvision();
-        $("ref").textContent      = prov.reference || "—";
-        $("firstName").value      = prov.first || "";
-        $("lastName").value       = prov.last  || "";
-        $("email").value          = prov.email || "";
-        $("submitBtn").onclick    = async () => {
+
+        // Fill UI
+        $("ref").textContent = prov.reference || "—";
+        $("firstName").value = prov.first || "";
+        $("lastName").value  = prov.last  || "";
+        $("email").value     = prov.email || "";
+
+        // Hook submit
+        $("create-account-form").addEventListener("submit", async (e) => {
+          e.preventDefault();
           err.hidden = true;
-          try { await createAccount(prov); }
-          catch (e) { err.textContent = e.message || "Failed to fetch"; err.hidden = false; }
-        };
+          btn.disabled = true;
+          try {
+            await createAccount(prov);
+          } catch (e) {
+            showError(e?.message || "Failed to create account. Please try again.");
+            btn.disabled = false;
+          }
+        });
       } catch (e) {
-        err.textContent = e.message || "Failed to fetch";
-        err.hidden = false;
+        showError(e?.message || "Failed to fetch");
       }
     })();
   </script>
