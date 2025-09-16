@@ -7,15 +7,8 @@
 
   <style>
     :root{
-      --bg: #0b0f1a;
-      --card: #0f1526;
-      --border: #1f2a48;
-      --ink: #e7ecff;
-      --muted: 0.85;
-      --accent: #6a5cff;
-      --input: #0b1020;
-      --input-border: #233055;
-      --danger: #ff7a7a;
+      --bg:#0b0f1a; --card:#0f1526; --border:#1f2a48; --ink:#e7ecff;
+      --muted:0.85; --accent:#6a5cff; --input:#0b1020; --input-border:#233055; --danger:#ff7a7a;
     }
     *{box-sizing:border-box}
     body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui;margin:0;padding:24px}
@@ -27,6 +20,7 @@
     .muted{opacity:var(--muted)}
     label{display:block;font-size:14px;margin:14px 0 6px}
     input{background:var(--input);border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;color:var(--ink);width:100%;min-width:0}
+    input[readonly]{opacity:.8}
     button{background:var(--accent);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-weight:600;cursor:pointer}
     button[disabled]{opacity:.65;cursor:not-allowed}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
@@ -70,6 +64,7 @@
           </div>
 
           <label for="email">Email</label>
+          <!-- editable by default; we toggle readonly in JS only if Stripe gave us one -->
           <input id="email" />
 
           <label for="password">Password</label>
@@ -107,7 +102,7 @@
 
     // API base from /public/config.js (fallback kept just in case)
     const API = (window.__BRIKK_API__ || (import.meta?.env?.VITE_API_URL || "")).replace(/\/+$/, "") ||
-                "https://brikk-infrastructure.onrender.com";
+                "https://api.getbrikk.com";
 
     // Netlify function that returns { token, first, last, email, reference }
     const NETLIFY_FN = "/.netlify/functions/provision-link";
@@ -140,7 +135,6 @@
         password:   pw
       };
 
-      // NOTE: /api prefix is required
       const res = await fetch(`${API}/api/auth/complete-signup`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -153,7 +147,7 @@
 
       if (!res.ok) throw new Error((data && data.error) || `API ${res.status} ${res.statusText}`);
 
-      // Cookie issued → go to the dashboard route on the same site
+      // Success → go to dashboard on same origin
       location.assign("/app");
     }
 
@@ -161,10 +155,20 @@
       try {
         const prov = await getProvision();
 
-        $("ref").textContent = prov.reference || "—";
-        $("firstName").value = prov.first || "";
-        $("lastName").value  = prov.last  || "";
-        $("email").value     = prov.email || "";
+        $("ref").textContent     = prov.reference || "—";
+        $("firstName").value     = prov.first || "";
+        $("lastName").value      = prov.last  || "";
+
+        // Email handling: lock only when we actually got it from Stripe
+        const emailEl = $("email");
+        if (prov.email) {
+          emailEl.value = prov.email;
+          emailEl.readOnly = true; // Stripe-sourced, keep consistent
+        } else {
+          emailEl.value = "";
+          emailEl.placeholder = "Enter the email you used at checkout";
+          emailEl.readOnly = false;
+        }
 
         $("create-account-form").addEventListener("submit", async (e) => {
           e.preventDefault();
