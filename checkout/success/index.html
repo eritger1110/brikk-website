@@ -31,7 +31,7 @@
     ul{margin:8px 0 0 18px}
   </style>
 
-  <!-- the config file in your repo lives under /public -->
+  <!-- Your config file lives at /public in this repo -->
   <script src="/public/config.js"></script>
 </head>
 <body>
@@ -98,9 +98,12 @@
     const err = $("err");
     const btn = $("submitBtn");
 
-    // Use config value if present; fall back to production API
+    // If config defines it, great; otherwise this is unused (we call Netlify)
     const API = ((window.__BRIKK_API__ || "https://api.getbrikk.com") + "").replace(/\/+$/, "");
-    const NETLIFY_FN = "/.netlify/functions/provision-link";
+
+    // Netlify functions
+    const FN_PROVISION = "/.netlify/functions/provision-link";
+    const FN_COMPLETE  = "/.netlify/functions/complete-signup";
 
     const setErr = (m) => { err.textContent = m || ""; };
 
@@ -112,16 +115,16 @@
 
     async function getProvision(){
       if (!sessionId) throw new Error("Missing session_id");
-      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, { credentials:"include" });
+      const res = await fetch(`${FN_PROVISION}?session_id=${encodeURIComponent(sessionId)}`, { credentials:"include" });
       if (!res.ok) throw new Error(`Provision error ${res.status}`);
-      return res.json();
+      return res.json(); // { token, email, first, last, reference }
     }
 
     function strong(pw){
       return !!pw && pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /\d/.test(pw) && /[^A-Za-z0-9]/.test(pw);
     }
 
-    async function createAccount(token){
+    async function createAccount({ token }){
       const first = $("firstName").value.trim();
       const last  = $("lastName").value.trim();
       const pw    = $("password").value;
@@ -131,10 +134,10 @@
       if (!strong(pw))       throw new Error("Password does not meet the requirements.");
       if (pw !== pw2)        throw new Error("Passwords do not match.");
 
-      // We rely on the token's email server-side; no need to send the email value from the form
+      // We do NOT send the email from the browser; API derives it from the token.
       const payload = { token, first_name:first, last_name:last, password:pw };
 
-      const r = await fetch(`${API}/api/auth/complete-signup`, {
+      const r = await fetch(FN_COMPLETE, {
         method:"POST",
         headers:{ "content-type":"application/json" },
         credentials:"include",
@@ -145,8 +148,8 @@
 
       if (!r.ok) throw new Error((data && (data.error || data.message)) || `API ${r.status}`);
 
-      // Success → cookie is set; go to dashboard
-      location.assign("/app");
+      // Success → cookies forwarded by the Netlify function → go to dashboard
+      location.assign("/app/");
     }
 
     (async () => {
@@ -155,20 +158,17 @@
       try {
         const prov = await getProvision();
 
-        // Pre-fill from Netlify function
+        // Pre-fill from Stripe via Netlify function
         $("firstName").value = prov.first || "";
         $("lastName").value  = prov.last  || "";
         $("email").value     = prov.email || "";
+        if (prov.email) $("email").readOnly = true; // lock to Stripe email if present
 
-        // Make email read-only only if we actually have it from Stripe
-        if (prov.email) $("email").readOnly = true;
-
-        // Attach submit
         $("create-account-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           setErr(""); btn.disabled = true;
           try {
-            await createAccount(prov.token);
+            await createAccount(prov);
           } catch (e) {
             setErr(e?.message || "Failed to create account.");
             btn.disabled = false;
