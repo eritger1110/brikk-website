@@ -1,54 +1,52 @@
 // netlify/functions/complete-signup.js
-// Forwards signup to the API and forwards Set-Cookie headers.
-// Do NOT require email here; backend derives it from the provision token.
-
-const API_BASE = process.env.API_BASE || "https://api.getbrikk.com/api";
-
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
+export const handler = async (event) => {
   try {
-    const { token, first_name, last_name, password } = JSON.parse(event.body || "{}");
-
-    if (!token)    return { statusCode: 400, body: JSON.stringify({ error: "missing token" }) };
-    if (!password) return { statusCode: 400, body: JSON.stringify({ error: "missing password" }) };
-    // NOTE: no email check here on purpose
-
-    const upstream = await fetch(`${API_BASE}/auth/complete-signup`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token, first_name, last_name, password }),
-      redirect: "manual",
-    });
-
-    // Body (json or text)
-    const ct = upstream.headers.get("content-type") || "";
-    let payload;
-    if (ct.includes("application/json")) {
-      payload = await upstream.json().catch(() => ({}));
-    } else {
-      payload = { message: await upstream.text().catch(() => "") };
+    if (event.httpMethod !== 'POST') {
+      return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    // Forward Set-Cookie to the browser
-    // Netlify/undici exposes headers.raw() with multiple cookies
-    // @ts-ignore
-    const rawCookies =
-      (upstream.headers.raw && upstream.headers.raw()["set-cookie"]) ||
-      (upstream.headers.get("set-cookie") ? [upstream.headers.get("set-cookie")] : undefined);
+    let bodyIn = {};
+    try {
+      bodyIn = JSON.parse(event.body || '{}');
+    } catch {
+      return { statusCode: 400, body: JSON.stringify({ error: 'invalid JSON' }) };
+    }
 
-    return {
-      statusCode: upstream.status,
-      headers: { "content-type": "application/json", "cache-control": "no-store" },
-      multiValueHeaders: rawCookies ? { "set-cookie": rawCookies } : undefined,
-      body: JSON.stringify(payload || {}),
+    const { token, email, password, first_name, last_name } = bodyIn || {};
+    if (!token || !email || !password) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'missing token/email/password' }),
+      };
+    }
+
+    const apiRes = await fetch('https://api.getbrikk.com/api/auth/complete-signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      // API currently expects email in the body alongside the token
+      body: JSON.stringify({ token, email, password, first_name, last_name }),
+      redirect: 'manual',
+    });
+
+    // Capture body (json or text)
+    const text = await apiRes.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    // Forward Set-Cookie so the browser gets the JWT from the API
+    const setCookies =
+      typeof apiRes.headers.raw === 'function'
+        ? apiRes.headers.raw()['set-cookie'] || []
+        : (apiRes.headers.get('set-cookie') ? [apiRes.headers.get('set-cookie')] : []);
+
+    const out = {
+      statusCode: apiRes.status,
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+      body: JSON.stringify(data),
     };
+    if (setCookies.length) out.multiValueHeaders = { 'Set-Cookie': setCookies };
+    return out;
   } catch (e) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "function_error", message: String(e && e.message || e) }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: String(e?.message || e) }) };
   }
 };
