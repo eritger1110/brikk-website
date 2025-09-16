@@ -1,3 +1,22 @@
+# brikk-website/netlify.toml
+
+[build]
+  publish = "public"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# Pretty URL for Netlify functions (server-side helpers)
+[[redirects]]
+  from = "/api/_h/*"
+  to   = "/.netlify/functions/:splat"
+  status = 200
+
+# (Optional but nice) proxy any other /api/* calls through Netlify to Render
+# so your browser requests are same-origin and dodge CORS.
+[[redirects]]
+  from = "/api/*"
+  to   = "https://api.getbrikk.com/:splat"
+  status = 200
+  force = true
