@@ -18,9 +18,12 @@ export const handler: Handler = async (event) => {
 
     // Grab Set-Cookie headers from the API response so the browser sets your JWT
     // Netlify needs multiValueHeaders to send multiple Set-Cookie headers.
-    // @ts-ignore - headers.raw exists in the Node/undici fetch that Netlify uses
-    const raw = (res.headers.raw && res.headers.raw()['set-cookie']) ||
-                (res.headers.get('set-cookie') ? [res.headers.get('set-cookie')] : []);
+    // @ts-ignore - undici Headers in Netlify exposes raw()
+    const rawCookies =
+      (typeof (res.headers as any).raw === 'function'
+        ? (res.headers as any).raw()['set-cookie']
+        : null) ||
+      (res.headers.get('set-cookie') ? [res.headers.get('set-cookie') as string] : []);
 
     return {
       statusCode: 302,
@@ -28,8 +31,7 @@ export const handler: Handler = async (event) => {
         Location: '/app',
         'Cache-Control': 'no-store',
       },
-      // Forward cookies through Netlify to the browser
-      multiValueHeaders: raw?.length ? { 'Set-Cookie': raw } : undefined,
+      multiValueHeaders: rawCookies?.length ? { 'Set-Cookie': rawCookies } : undefined,
     };
   } catch (e: any) {
     return { statusCode: 500, body: `Verify failed: ${e?.message || e}` };
