@@ -76,8 +76,9 @@
   </div>
 
 <script>
-const API = 'https://api.getbrikk.com';
-const qs = new URLSearchParams(location.search);
+const API = 'https://api.getbrikk.com/api';     // call API directly
+const FN  = '/.netlify/functions';               // for helper functions
+const qs  = new URLSearchParams(location.search);
 const sessionId = qs.get('session_id');
 const err = (m) => (document.getElementById('err').textContent = m || '');
 const ok  = (m) => (document.getElementById('ok').textContent  = m || '');
@@ -94,7 +95,7 @@ async function load() {
   document.getElementById('ref').textContent = orderRefFromSession(sessionId);
 
   // Ask Netlify function for a short-lived token + email/name
-  const r = await fetch(`/.netlify/functions/provision-link?session_id=${encodeURIComponent(sessionId)}`);
+  const r = await fetch(`${FN}/provision-link?session_id=${encodeURIComponent(sessionId)}`);
   if (!r.ok) { err('Could not initialize your session. Please refresh.'); return; }
   const out = await r.json();
   tokenFromNetlify = out.token;
@@ -102,7 +103,7 @@ async function load() {
   // Pre-fill fields (email read-only to avoid mismatch)
   if (out.email) document.getElementById('email').value = out.email;
   if (out.first) document.getElementById('first').value = out.first;
-  if (out.last) document.getElementById('last').value  = out.last;
+  if (out.last)  document.getElementById('last').value  = out.last;
   document.getElementById('emph-email').textContent = out.email || '(your email)';
 }
 
@@ -126,22 +127,25 @@ document.getElementById('create').onclick = async () => {
   if (pw !== pw2)       return err('Passwords do not match.');
 
   try {
-    const r = await fetch(`${API}/api/auth/complete-signup`, {
-      method:'POST',
-      credentials:'include',
-      headers:{'content-type':'application/json'},
-      body: JSON.stringify({ token: tokenFromNetlify, first_name:first, last_name:last, password:pw })
+    // IMPORTANT: send token via Authorization; keep body clean
+    const r = await fetch(`${API}/auth/complete-signup`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'content-type': 'application/json',
+        'authorization': `Bearer ${tokenFromNetlify}`
+      },
+      body: JSON.stringify({ first_name:first, last_name:last, password:pw })
     });
-    if (!r.ok) throw new Error(await r.text());
+
+    // Read a JSON body if provided (but don't blow up if it's empty)
+    let data = null;
+    try { data = await r.clone().json(); } catch {}
+
+    if (!r.ok) {
+      throw new Error((data && (data.error || data.message)) || await r.text() || 'Signup failed');
+    }
 
     ok('Account created! Redirecting to your dashboard…');
-    setTimeout(() => { location.href = 'https://www.getbrikk.com/app/'; }, 800);
-  } catch (e) {
-    err(e.message || 'Could not reach the API.');
+    setTimeout(() => { location.href = '/app/'; }, 800);
   }
-};
-
-load();
-</script>
-</body>
-</html>
