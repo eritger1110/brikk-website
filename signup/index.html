@@ -14,7 +14,7 @@
   </form>
   <p id="msg"></p>
 <script>
-const API = 'https://api.getbrikk.com/api';
+const API = '/api';  // ← use Netlify proxy
 document.getElementById('f').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fd = new FormData(e.target);
