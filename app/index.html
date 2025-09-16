@@ -80,7 +80,7 @@
   </main>
 
 <script>
-const API = 'https://api.getbrikk.com/api';
+const API = '/api';  // ← use Netlify proxy
 
 // Helper with cookie credentials + sane error messages
 async function j(url, opts = {}) {
@@ -97,7 +97,6 @@ let reqChart, latChart;
 
 async function boot() {
   try {
-    // Either /api/me or /api/auth/me (both exist)
     const me = await j(API + '/me');
 
     document.getElementById('auth').style.display = 'none';
@@ -126,7 +125,6 @@ async function boot() {
       };
     }
 
-    // Execute workflow
     document.getElementById('run').onclick = async () => {
       const wf = document.getElementById('workflow').value;
       document.getElementById('result').textContent = 'Running…';
@@ -142,7 +140,6 @@ async function boot() {
       }
     };
 
-    // Billing portal (your existing Netlify function)
     document.getElementById('manageBilling').onclick = async () => {
       try {
         const r = await j('/.netlify/functions/createPortal');
@@ -150,14 +147,12 @@ async function boot() {
       } catch(e) { alert('Could not open billing portal'); }
     };
 
-    // API key (placeholder)
     document.getElementById('revealKey').onclick = () => {
       const span = document.getElementById('apiKey');
       span.style.display = 'inline';
       span.textContent = '(coming soon – add /api/key to backend)';
     };
 
-    // Charts
     function makeChart(ctx, label, data, color) {
       return new Chart(ctx, {
         type: 'line',
@@ -186,7 +181,6 @@ async function boot() {
     loadMetrics();
     setInterval(loadMetrics, 15000);
 
-    // Logout
     document.getElementById('logout').onclick = async () => {
       await j(API + '/auth/logout', { method:'POST' }).catch(()=>{});
       location.href = '/';
