@@ -31,7 +31,7 @@
     ul{margin:8px 0 0 18px}
   </style>
 
-  <!-- Your config file lives at /public in this repo -->
+  <!-- Config lives at /public; safe if you need window.__BRIKK_API__ elsewhere -->
   <script src="/public/config.js"></script>
 </head>
 <body>
@@ -98,9 +98,6 @@
     const err = $("err");
     const btn = $("submitBtn");
 
-    // If config defines it, great; otherwise this is unused (we call Netlify)
-    const API = ((window.__BRIKK_API__ || "https://api.getbrikk.com") + "").replace(/\/+$/, "");
-
     // Netlify functions
     const FN_PROVISION = "/.netlify/functions/provision-link";
     const FN_COMPLETE  = "/.netlify/functions/complete-signup";
@@ -127,15 +124,17 @@
     async function createAccount({ token }){
       const first = $("firstName").value.trim();
       const last  = $("lastName").value.trim();
+      const email = $("email").value.trim().toLowerCase();
       const pw    = $("password").value;
       const pw2   = $("confirm").value;
 
       if (!first || !last)   throw new Error("Please enter your first and last name.");
+      if (!email)            throw new Error("Please enter your email.");
       if (!strong(pw))       throw new Error("Password does not meet the requirements.");
       if (pw !== pw2)        throw new Error("Passwords do not match.");
 
-      // We do NOT send the email from the browser; API derives it from the token.
-      const payload = { token, first_name:first, last_name:last, password:pw };
+      // Send email along with token; Netlify func will forward to API
+      const payload = { token, email, first_name:first, last_name:last, password:pw };
 
       const r = await fetch(FN_COMPLETE, {
         method:"POST",
@@ -144,11 +143,12 @@
         body: JSON.stringify(payload)
       });
 
-      let data = null; try { data = await r.json(); } catch(_) {}
+      const text = await r.text();
+      let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
 
-      if (!r.ok) throw new Error((data && (data.error || data.message)) || `API ${r.status}`);
+      if (!r.ok) throw new Error(data?.error || data?.message || `Signup failed (${r.status})`);
 
-      // Success → cookies forwarded by the Netlify function → go to dashboard
+      // Success → Netlify forwards Set-Cookie from API → land in dashboard
       location.assign("/app/");
     }
 
