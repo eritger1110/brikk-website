@@ -5,20 +5,13 @@
   <h1>Verifying…</h1>
   <p id="msg">Please wait</p>
 <script>
-const API = 'https://api.getbrikk.com/api';
-const params = new URLSearchParams(location.search);
-const token = params.get('token');
-(async () => {
-  if (!token) { document.getElementById('msg').textContent = 'Missing token'; return; }
-  // Hit backend to mark verified & set cookie (the auth.py /verify endpoint does redirect itself, but this works too)
-  const res = await fetch(`${API}/auth/verify?token=${encodeURIComponent(token)}`, {
-    credentials: 'include'
-  });
-  if (res.redirected) { location.href = res.url; return; }
-  const data = await res.json().catch(()=>({}));
-  if (data.success) location.href = '/app/';
-  else document.getElementById('msg').textContent = data.error || 'Verification failed';
-})();
+const token = new URLSearchParams(location.search).get('token');
+if (!token) {
+  document.getElementById('msg').textContent = 'Missing token';
+} else {
+  // Let the Netlify function call the API and forward Set-Cookie + redirect.
+  location.href = `/.netlify/functions/verify?token=${encodeURIComponent(token)}`;
+}
 </script>
 </body>
 </html>
