@@ -1,34 +1,33 @@
-// brikk-website/netlify/functions/complete-signup.js
-export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+// netlify/functions/complete-signup.js
+exports.handler = async function (event) {
+  try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
 
-  const secret = process.env.PROVISION_SECRET;
-  if (!secret) {
+    const API = "https://api.getbrikk.com/api/auth/complete-signup";
+    const secret = process.env.PROVISION_SECRET;
+    if (!secret) {
+      return { statusCode: 500, body: JSON.stringify({ error: "Missing PROVISION_SECRET" }) };
+    }
+
+    const res = await fetch(API, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        // secret never sent to browser
+        "authorization": `Bearer ${secret}`,
+      },
+      body: event.body, // { email, first_name, last_name, password }
+    });
+
+    const text = await res.text();
     return {
-      statusCode: 500,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ error: "missing PROVISION_SECRET" }),
+      statusCode: res.status,
+      headers: { "content-type": res.headers.get("content-type") || "application/json" },
+      body: text,
     };
+  } catch (e) {
+    return { statusCode: 500, body: JSON.stringify({ error: e.message || "proxy failed" }) };
   }
-
-  let body = {};
-  try { body = JSON.parse(event.body || "{}"); } catch {}
-
-  const res = await fetch("https://api.getbrikk.com/api/auth/complete-signup", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "authorization": `Bearer ${secret}`,   // <-- the important bit
-    },
-    body: JSON.stringify(body),
-  });
-
-  const text = await res.text();
-  return {
-    statusCode: res.status,
-    headers: { "content-type": "application/json" },
-    body: text,
-  };
 };
