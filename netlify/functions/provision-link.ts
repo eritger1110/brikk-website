@@ -1,77 +1,76 @@
 // netlify/functions/provision-link.ts
+import type { Handler } from '@netlify/functions';
+import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
-import * as jwt from 'jsonwebtoken';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20',
 });
 
-function json(status: number, body: any) {
-  return { statusCode: status, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) };
+const PROVISION_SECRET = process.env.PROVISION_SECRET;
+if (!PROVISION_SECRET) {
+  console.warn('WARNING: PROVISION_SECRET is not set in Netlify env.');
 }
 
-export async function handler(event: any) {
+export const handler: Handler = async (event) => {
   try {
-    const session_id =
-      (event.queryStringParameters && event.queryStringParameters.session_id) ||
-      new URLSearchParams(event.rawUrl?.split('?')[1] || '').get('session_id');
+    const sessionId = event.queryStringParameters?.session_id?.trim();
+    if (!sessionId) {
+      return { statusCode: 400, body: 'Missing session_id' };
+    }
 
-    if (!session_id) return json(400, { error: 'Missing session_id' });
-    if (!process.env.PROVISION_SECRET) return json(500, { error: 'Missing PROVISION_SECRET' });
-
-    const session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ['customer', 'subscription'],
+    // Expand so we can read customer details reliably
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['customer', 'customer_details'],
     });
 
-    if (session.mode !== 'subscription') return json(400, { error: 'Wrong mode' });
-    if (session.status !== 'complete') return json(400, { error: `Session not complete (status=${session.status})` });
+    // Best-effort extraction
+    const details = (session as any).customer_details || {};
+    const custObj = typeof session.customer === 'object' ? (session.customer as any) : null;
 
     const email =
-      session.customer_details?.email ||
-      (typeof session.customer === 'object' ? (session.customer.email as string) : undefined);
+      details.email ||
+      session.customer_email ||
+      (custObj?.email ?? '');
 
-    const name =
-      session.customer_details?.name ||
-      (typeof session.customer === 'object' ? (session.customer.name as string) : undefined);
+    // Try to get name from multiple places
+    const fullName: string =
+      details.name ||
+      (custObj?.name ?? '') ||
+      '';
 
-    const payload = {
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 15 * 60, // 15 minutes
-      email,
-      name,
-      customer:
-        typeof session.customer === 'string'
-          ? session.customer
-          : (session.customer?.id as string | undefined),
-      subscription:
-        typeof session.subscription === 'string'
-          ? session.subscription
-          : (session.subscription?.id as string | undefined),
-      source: 'netlify-provision',
-    };
-
-    const token = jwt.sign(payload, process.env.PROVISION_SECRET as string, {
-      algorithm: 'HS256',
-      issuer: 'brikk-netlify',
-      subject: email || 'unknown',
-    });
-
-    // Keep URL for backwards compat, but also return token/email/name explicitly
-    const base = process.env.APP_WELCOME_URL || 'https://app.getbrikk.com';
-    const url = `${base.replace(/\/$/, '')}/welcome?token=${encodeURIComponent(token)}`;
-
-    // Split name into first/last if possible
     let first = '';
     let last = '';
-    if (name) {
-      const parts = name.split(' ');
+    if (fullName) {
+      const parts = fullName.split(' ').filter(Boolean);
       first = parts.shift() || '';
       last = parts.join(' ');
     }
 
-    return json(200, { url, token, email, first, last });
-  } catch (err: any) {
-    console.error('provision-link error', err);
-    return json(500, { error: 'Failed to make provision link' });
+    // Build a short-lived token the API will verify
+    const token = jwt.sign(
+      {
+        email,
+        first_name: first,
+        last_name: last,
+        session_id: sessionId,
+        purpose: 'complete-signup',
+      },
+      PROVISION_SECRET as string,
+      {
+        algorithm: 'HS256',
+        issuer: 'brikk-netlify',
+        expiresIn: '15m',
+      }
+    );
+
+    return {
+      statusCode: 200,
+      headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
+      body: JSON.stringify({ token, email, first, last }),
+    };
+  } catch (e: any) {
+    console.error('provision-link error', e);
+    return { statusCode: 500, body: `provision-link failed: ${e?.message || e}` };
   }
-}
+};
