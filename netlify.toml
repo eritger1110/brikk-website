@@ -1,22 +1,21 @@
-# brikk-website/netlify.toml
-
 [build]
-  publish = "public"
+publish = "."
+command = ""
 
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-# Pretty URL for Netlify functions (server-side helpers)
+# Proxy all API calls to the Render API
 [[redirects]]
-  from = "/api/_h/*"
-  to   = "/.netlify/functions/:splat"
-  status = 200
+from = "/api/*"
+to   = "https://api.getbrikk.com/api/:splat"
+status = 200
+force  = true
 
-# (Optional but nice) proxy any other /api/* calls through Netlify to Render
-# so your browser requests are same-origin and dodge CORS.
+# Nice URLs for checkout helper pages if you keep them under /public/checkout
 [[redirects]]
-  from = "/api/*"
-  to   = "https://api.getbrikk.com/:splat"
-  status = 200
-  force = true
+from = "/checkout/success"
+to   = "/public/checkout/success.html"
+status = 200
+
+[[redirects]]
+from = "/checkout/cancel"
+to   = "/public/checkout/cancel.html"
+status = 200
