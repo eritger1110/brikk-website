@@ -20,20 +20,19 @@
     .muted{opacity:var(--muted)}
     label{display:block;font-size:14px;margin:14px 0 6px}
     input{background:var(--input);border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;color:var(--ink);width:100%;min-width:0}
-    input[readonly]{opacity:.8}
     button{background:var(--accent);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-weight:600;cursor:pointer}
     button[disabled]{opacity:.65;cursor:not-allowed}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
     @media (max-width:820px){.two-col{grid-template-columns:1fr}}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media (max-width:640px){.form-grid{grid-template-columns:1fr}}
-    .error{color:var(--danger);margin-top:8px}
+    .error{color:var(--danger);margin-top:8px;min-height:1.2em}
     small.help{display:block;margin-top:6px;opacity:.8}
     ul{margin:8px 0 0 18px}
   </style>
 
-  <!-- Exposes window.__BRIKK_API__ = "https://api.getbrikk.com" -->
-  <script src="/config.js"></script>
+  <!-- Your config file lives at /public in this repo -->
+  <script src="/public/config.js"></script>
 </head>
 <body>
   <div class="container">
@@ -64,7 +63,6 @@
           </div>
 
           <label for="email">Email</label>
-          <!-- editable by default; we toggle readonly in JS only if Stripe gave us one -->
           <input id="email" />
 
           <label for="password">Password</label>
@@ -74,7 +72,7 @@
           <label for="confirm">Confirm password</label>
           <input id="confirm" type="password" autocomplete="new-password" />
 
-          <div class="error" id="err" hidden></div>
+          <div class="error" id="err"></div>
 
           <div style="margin-top:16px">
             <button id="submitBtn" type="submit">Create account</button>
@@ -100,89 +98,84 @@
     const err = $("err");
     const btn = $("submitBtn");
 
-    // API base from /public/config.js (fallback kept just in case)
-    const API = (window.__BRIKK_API__ || (import.meta?.env?.VITE_API_URL || "")).replace(/\/+$/, "") ||
-                "https://api.getbrikk.com";
+    // If config defines it, great; otherwise this is unused (we call Netlify)
+    const API = ((window.__BRIKK_API__ || "https://api.getbrikk.com") + "").replace(/\/+$/, "");
 
-    // Netlify function that returns { token, first, last, email, reference }
-    const NETLIFY_FN = "/.netlify/functions/provision-link";
+    // Netlify functions
+    const FN_PROVISION = "/.netlify/functions/provision-link";
+    const FN_COMPLETE  = "/.netlify/functions/complete-signup";
 
-    function showError(msg){
-      err.textContent = msg || "Something went wrong. Please try again.";
-      err.hidden = false;
+    const setErr = (m) => { err.textContent = m || ""; };
+
+    function orderRefFromSession(id){
+      if (!id) return "—";
+      const tail = id.replace(/[^A-Za-z0-9]/g,"").slice(-6).toUpperCase();
+      return `BRK-${tail}`;
     }
 
-    async function getProvision() {
+    async function getProvision(){
       if (!sessionId) throw new Error("Missing session_id");
-      const res = await fetch(`${NETLIFY_FN}?session_id=${encodeURIComponent(sessionId)}`, {
-        credentials: "include"
-      });
+      const res = await fetch(`${FN_PROVISION}?session_id=${encodeURIComponent(sessionId)}`, { credentials:"include" });
       if (!res.ok) throw new Error(`Provision error ${res.status}`);
-      return res.json();
+      return res.json(); // { token, email, first, last, reference }
     }
 
-    async function createAccount({ token }) {
-      const pw = $("password").value;
-      const cf = $("confirm").value;
-      if (pw.length < 10) throw new Error("Password does not meet requirements");
-      if (pw !== cf) throw new Error("Passwords do not match");
+    function strong(pw){
+      return !!pw && pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /\d/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+    }
 
-      const payload = {
-        token,
-        first_name: $("firstName").value.trim(),
-        last_name:  $("lastName").value.trim(),
-        email:      $("email").value.trim().toLowerCase(),
-        password:   pw
-      };
+    async function createAccount({ token }){
+      const first = $("firstName").value.trim();
+      const last  = $("lastName").value.trim();
+      const pw    = $("password").value;
+      const pw2   = $("confirm").value;
 
-      const res = await fetch(`${API}/api/auth/complete-signup`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        credentials: "include",
+      if (!first || !last)   throw new Error("Please enter your first and last name.");
+      if (!strong(pw))       throw new Error("Password does not meet the requirements.");
+      if (pw !== pw2)        throw new Error("Passwords do not match.");
+
+      // We do NOT send the email from the browser; API derives it from the token.
+      const payload = { token, first_name:first, last_name:last, password:pw };
+
+      const r = await fetch(FN_COMPLETE, {
+        method:"POST",
+        headers:{ "content-type":"application/json" },
+        credentials:"include",
         body: JSON.stringify(payload)
       });
 
-      let data = null;
-      try { data = await res.json(); } catch (_) {}
+      let data = null; try { data = await r.json(); } catch(_) {}
 
-      if (!res.ok) throw new Error((data && data.error) || `API ${res.status} ${res.statusText}`);
+      if (!r.ok) throw new Error((data && (data.error || data.message)) || `API ${r.status}`);
 
-      // Success → go to dashboard on same origin
-      location.assign("/app");
+      // Success → cookies forwarded by the Netlify function → go to dashboard
+      location.assign("/app/");
     }
 
     (async () => {
+      $("ref").textContent = orderRefFromSession(sessionId);
+
       try {
         const prov = await getProvision();
 
-        $("ref").textContent     = prov.reference || "—";
-        $("firstName").value     = prov.first || "";
-        $("lastName").value      = prov.last  || "";
-
-        // Email handling: lock only when we actually got it from Stripe
-        const emailEl = $("email");
-        if (prov.email) {
-          emailEl.value = prov.email;
-          emailEl.readOnly = true; // Stripe-sourced, keep consistent
-        } else {
-          emailEl.value = "";
-          emailEl.placeholder = "Enter the email you used at checkout";
-          emailEl.readOnly = false;
-        }
+        // Pre-fill from Stripe via Netlify function
+        $("firstName").value = prov.first || "";
+        $("lastName").value  = prov.last  || "";
+        $("email").value     = prov.email || "";
+        if (prov.email) $("email").readOnly = true; // lock to Stripe email if present
 
         $("create-account-form").addEventListener("submit", async (e) => {
           e.preventDefault();
-          err.hidden = true;
-          btn.disabled = true;
+          setErr(""); btn.disabled = true;
           try {
             await createAccount(prov);
           } catch (e) {
-            showError(e?.message || "Failed to create account. Please try again.");
+            setErr(e?.message || "Failed to create account.");
             btn.disabled = false;
           }
         });
       } catch (e) {
-        showError(e?.message || "Failed to fetch");
+        setErr(e?.message || "Could not initialize your session. Please refresh this page.");
       }
     })();
   </script>
