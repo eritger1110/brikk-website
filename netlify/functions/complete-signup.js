@@ -1,6 +1,7 @@
-// forwards the checkout success form to the API
-exports.handler = async (event) => {
+// netlify/functions/complete-signup.ts
+export async function handler(event: any) {
   const { httpMethod } = event;
+
   if (httpMethod === "OPTIONS") {
     return {
       statusCode: 204,
@@ -17,11 +18,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const body = event.body || "{}";
   const res = await fetch("https://api.getbrikk.com/api/auth/complete-signup", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body,
+    body: event.body || "{}",
   });
 
   const text = await res.text();
@@ -35,4 +35,4 @@ exports.handler = async (event) => {
     },
     body: text,
   };
-};
+}
