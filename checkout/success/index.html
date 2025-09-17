@@ -31,7 +31,7 @@
     ul{margin:8px 0 0 18px}
   </style>
 
-  <!-- Config lives at /public; safe if you need window.__BRIKK_API__ elsewhere -->
+  <!-- Loads window.__BRIKK_API__ -->
   <script src="/public/config.js"></script>
 </head>
 <body>
@@ -63,7 +63,7 @@
           </div>
 
           <label for="email">Email</label>
-          <input id="email" />
+          <input id="email" inputmode="email" autocomplete="email" />
 
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="new-password" />
@@ -93,14 +93,15 @@
 
   <script>
     const $  = (id) => document.getElementById(id);
-    const q  = new URLSearchParams(location.search);
-    const sessionId = q.get("session_id");
+    const qp = new URLSearchParams(location.search);
+    const sessionId = qp.get("session_id");
     const err = $("err");
     const btn = $("submitBtn");
 
-    // Netlify functions
+    // Existing function you already deploy that reads Stripe session for prefill
     const FN_PROVISION = "/.netlify/functions/provision-link";
-    const FN_COMPLETE  = "/.netlify/functions/complete-signup";
+
+    const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
 
     const setErr = (m) => { err.textContent = m || ""; };
 
@@ -114,14 +115,14 @@
       if (!sessionId) throw new Error("Missing session_id");
       const res = await fetch(`${FN_PROVISION}?session_id=${encodeURIComponent(sessionId)}`, { credentials:"include" });
       if (!res.ok) throw new Error(`Provision error ${res.status}`);
-      return res.json(); // { token, email, first, last, reference }
+      return res.json(); // { email, first, last, reference? }
     }
 
     function strong(pw){
       return !!pw && pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /\d/.test(pw) && /[^A-Za-z0-9]/.test(pw);
     }
 
-    async function createAccount({ token }){
+    async function createAccountDirect(){
       const first = $("firstName").value.trim();
       const last  = $("lastName").value.trim();
       const email = $("email").value.trim().toLowerCase();
@@ -133,22 +134,22 @@
       if (!strong(pw))       throw new Error("Password does not meet the requirements.");
       if (pw !== pw2)        throw new Error("Passwords do not match.");
 
-      // Send email along with token; Netlify func will forward to API
-      const payload = { token, email, first_name:first, last_name:last, password:pw };
+      const payload = { email, first_name:first, last_name:last, password:pw };
 
-      const r = await fetch(FN_COMPLETE, {
+      const res = await fetch(`${API}/api/auth/complete-signup`, {
         method:"POST",
         headers:{ "content-type":"application/json" },
         credentials:"include",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
-      const text = await r.text();
+      // Accept JSON or text (API returns JSON)
+      const text = await res.text();
       let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
-
-      if (!r.ok) throw new Error(data?.error || data?.message || `Signup failed (${r.status})`);
-
-      // Success → Netlify forwards Set-Cookie from API → land in dashboard
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Signup failed (${res.status})`);
+      }
+      // Success: if the API sets cookies, you’ll already be authenticated.
       location.assign("/app/");
     }
 
@@ -157,25 +158,37 @@
 
       try {
         const prov = await getProvision();
-
-        // Pre-fill from Stripe via Netlify function
         $("firstName").value = prov.first || "";
         $("lastName").value  = prov.last  || "";
         $("email").value     = prov.email || "";
-        if (prov.email) $("email").readOnly = true; // lock to Stripe email if present
+        if (prov.email) $("email").readOnly = true;
 
         $("create-account-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           setErr(""); btn.disabled = true;
           try {
-            await createAccount(prov);
+            await createAccountDirect();
           } catch (e) {
+            console.error(e);
             setErr(e?.message || "Failed to create account.");
             btn.disabled = false;
           }
         });
       } catch (e) {
+        console.error(e);
         setErr(e?.message || "Could not initialize your session. Please refresh this page.");
+        // still allow manual entry + submit
+        $("create-account-form").addEventListener("submit", async (ev) => {
+          ev.preventDefault();
+          setErr(""); btn.disabled = true;
+          try {
+            await createAccountDirect();
+          } catch (e2) {
+            console.error(e2);
+            setErr(e2?.message || "Failed to create account.");
+            btn.disabled = false;
+          }
+        });
       }
     })();
   </script>
