@@ -80,9 +80,10 @@
   </main>
 
 <script>
-const API_BASE = 'https://api.getbrikk.com/api';
+const API_BASE = 'https://api.getbrikk.com/api';               // direct API (for non-auth stuff)
+const FN_ME     = '/.netlify/functions/me';                    // Netlify function – session
+const FN_RESEND = '/.netlify/functions/resend-verification';   // Netlify function – resend email
 
-// helper: fetch with cookies + nicer errors
 async function j(url, opts = {}) {
   const r = await fetch(url, { credentials: 'include', ...opts });
   if (!r.ok) {
@@ -96,13 +97,8 @@ async function j(url, opts = {}) {
 let reqChart, latChart;
 
 async function fetchMe() {
-  // Your backend exposes /auth/me; keep /me as a fallback just in case.
-  const paths = ['/auth/me', '/me'];
-  for (const p of paths) {
-    try { return await j(API_BASE + p); }
-    catch (e) { /* try next */ }
-  }
-  throw new Error('ME_FAILED');
+  // go through Netlify (same-origin; will forward cookies)
+  return j(FN_ME);
 }
 
 async function boot() {
@@ -122,11 +118,7 @@ async function boot() {
       document.getElementById('verifyBanner').style.display = 'block';
       document.getElementById('resendVerify').onclick = async () => {
         try {
-          await j(API_BASE + '/auth/resend-verification', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ email: me.user?.email })
-          });
+          await j(FN_RESEND, { method: 'POST' });
           alert('Verification email sent.');
         } catch (e) {
           alert('Could not resend verification email.');
