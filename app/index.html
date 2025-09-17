@@ -4,7 +4,10 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Brikk – Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Optional charts; will be blocked by CSP unless you update _headers below -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
   <style>
     :root { color-scheme: dark; }
     body { margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:#0b0f1a; color:#e7ecff; }
@@ -21,6 +24,9 @@
     pre { white-space:pre-wrap; }
     @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
   </style>
+
+  <!-- If present, this sets window.__BRIKK_API__ = "https://api.getbrikk.com" -->
+  <script src="/public/config.js"></script>
 </head>
 <body>
   <header>
@@ -80,9 +86,11 @@
   </main>
 
 <script>
-const API = '/api';  // ← use Netlify proxy
+/* ---------- API base (fixes your 404) ---------- */
+const API_ROOT = (window.__BRIKK_API__ || 'https://api.getbrikk.com').replace(/\/+$/, '');
+const API = API_ROOT + '/api';
 
-// Helper with cookie credentials + sane error messages
+/* Helper: cookie credentials + error text */
 async function j(url, opts = {}) {
   const r = await fetch(url, { credentials: 'include', ...opts });
   if (!r.ok) {
@@ -97,6 +105,7 @@ let reqChart, latChart;
 
 async function boot() {
   try {
+    // Try /api/me (authorized)
     const me = await j(API + '/me');
 
     document.getElementById('auth').style.display = 'none';
@@ -125,6 +134,7 @@ async function boot() {
       };
     }
 
+    // Execute workflow
     document.getElementById('run').onclick = async () => {
       const wf = document.getElementById('workflow').value;
       document.getElementById('result').textContent = 'Running…';
@@ -140,6 +150,7 @@ async function boot() {
       }
     };
 
+    // Billing portal (Netlify function)
     document.getElementById('manageBilling').onclick = async () => {
       try {
         const r = await j('/.netlify/functions/createPortal');
@@ -147,13 +158,16 @@ async function boot() {
       } catch(e) { alert('Could not open billing portal'); }
     };
 
+    // API key (placeholder)
     document.getElementById('revealKey').onclick = () => {
       const span = document.getElementById('apiKey');
       span.style.display = 'inline';
       span.textContent = '(coming soon – add /api/key to backend)';
     };
 
+    // Charts (no-op if Chart.js blocked by CSP)
     function makeChart(ctx, label, data, color) {
+      if (typeof Chart === 'undefined') return null;
       return new Chart(ctx, {
         type: 'line',
         data: {
@@ -168,10 +182,10 @@ async function boot() {
       try {
         const m = await j(API + '/metrics');
         const s = m.series || { last10m: [2,3,5,4,6,7,4,6,5,8], latency: [220,210,230,190,200,240,210,220,205,215] };
-        if (!reqChart) {
+        if (!reqChart && typeof Chart !== 'undefined') {
           reqChart = makeChart(document.getElementById('reqChart'), 'Requests', s.last10m, '#66a3ff');
           latChart = makeChart(document.getElementById('latChart'), 'Latency',  s.latency, '#9f7cff');
-        } else {
+        } else if (reqChart && latChart) {
           reqChart.data.datasets[0].data = s.last10m;
           latChart.data.datasets[0].data = s.latency;
           reqChart.update(); latChart.update();
@@ -181,6 +195,7 @@ async function boot() {
     loadMetrics();
     setInterval(loadMetrics, 15000);
 
+    // Logout
     document.getElementById('logout').onclick = async () => {
       await j(API + '/auth/logout', { method:'POST' }).catch(()=>{});
       location.href = '/';
