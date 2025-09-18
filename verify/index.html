@@ -1,17 +1,57 @@
 <!doctype html>
-<html>
-<head><meta charset="utf-8"/><title>Verify – Brikk</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Brikk – Verify Email</title>
+  <script src="/public/config.js"></script>
+  <style>
+    :root { color-scheme: dark }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif; background:#0b0f1a; color:#e7ecff; display:grid; place-items:center; min-height:100vh }
+    .card { background:#0f1629; border:1px solid #1c2541; border-radius:16px; padding:28px; max-width:560px }
+    .muted{color:#98b0d9}
+    a.btn { display:inline-block; background:#635bff; color:white; padding:.6rem 1rem; border-radius:10px; text-decoration:none; font-weight:600 }
+  </style>
+</head>
 <body>
-  <h1>Verifying…</h1>
-  <p id="msg">Please wait</p>
+  <div class="card">
+    <h2 id="title">Verifying…</h2>
+    <p id="desc" class="muted">Please wait while we verify your email.</p>
+    <p id="cta" style="display:none"><a class="btn" href="/app/">Go to Dashboard</a></p>
+  </div>
 <script>
-const token = new URLSearchParams(location.search).get('token');
-if (!token) {
-  document.getElementById('msg').textContent = 'Missing token';
-} else {
-  // Let the Netlify function call the API and forward Set-Cookie + redirect.
-  location.href = `/.netlify/functions/verify?token=${encodeURIComponent(token)}`;
-}
+const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
+const token = new URLSearchParams(location.search).get("token");
+
+(async () => {
+  const title = document.getElementById('title');
+  const desc  = document.getElementById('desc');
+  const cta   = document.getElementById('cta');
+
+  if (!token) {
+    title.textContent = "Missing token";
+    desc.textContent  = "This link is incomplete. Please request a new verification email.";
+    return;
+  }
+
+  try {
+    const r = await fetch(`${API}/api/auth/verify`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ token })
+    });
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok || !data.ok) throw new Error(data.error || `HTTP ${r.status}`);
+
+    title.textContent = "Email verified!";
+    desc.textContent  = "You're all set. You can continue to the dashboard.";
+    cta.style.display = 'block';
+  } catch (e) {
+    title.textContent = "Could not verify email";
+    desc.textContent  = (e && e.message) ? String(e.message) : "Unknown error";
+  }
+})();
 </script>
 </body>
 </html>
