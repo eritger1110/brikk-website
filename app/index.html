@@ -88,4 +88,109 @@
 <script>
 /* ---------- helpers ---------- */
 const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
-const api =
+const api = (p) => `${API}/api${p}`;
+
+async function j(url, opts = {}) {
+  const r = await fetch(url, { credentials: 'include', ...opts });
+  const text = await r.text();
+  let data; try { data = text ? JSON.parse(text) : {}; } catch { data = { raw:text }; }
+  if (!r.ok) throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+  return data;
+}
+
+/* ---------- charts ---------- */
+let reqChart, latChart;
+function makeChart(ctx, label, data) {
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=> i+1), datasets: [{ label, data, fill:false, tension:.2 }]},
+    options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
+  });
+}
+async function loadMetrics() {
+  try {
+    // Backend returns: { series: { last10m: [...], latency: [...] } }
+    const m = await j(api('/metrics'));
+    const last10 = m.series?.last10m ?? [2,3,5,4,6,7,4,6,5,8];
+    const latency = m.series?.latency ?? [220,210,230,190,200,240,210,220,205,215];
+    if (!reqChart) {
+      reqChart = makeChart(document.getElementById('reqChart'), 'Requests', last10);
+      latChart = makeChart(document.getElementById('latChart'), 'Latency', latency);
+    } else {
+      reqChart.data.datasets[0].data = last10;
+      latChart.data.datasets[0].data  = latency;
+      reqChart.update(); latChart.update();
+    }
+  } catch (_) { /* ignore */ }
+}
+
+/* ---------- boot ---------- */
+async function fetchMe() { return j(api('/auth/me')); }
+
+async function boot() {
+  try {
+    const me = await fetchMe();
+
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    const user = me.user || {};
+    document.getElementById('name').textContent  = user.username || 'User';
+    document.getElementById('email').textContent = user.email || '—';
+    if (me.order_ref) document.getElementById('order').innerHTML = `• Order Ref: <strong>${me.order_ref}</strong>`;
+
+    if (!user.email_verified) {
+      document.getElementById('verifyBanner').style.display = 'block';
+      document.getElementById('resendVerify').onclick = async () => {
+        try { await j(api('/auth/resend-verification'), { method: 'POST' }); alert('Verification email sent.'); }
+        catch { alert('Could not resend verification email.'); }
+      };
+    }
+
+    document.getElementById('run').onclick = async () => {
+      const wf = document.getElementById('workflow').value || 'data_processing';
+      const outEl = document.getElementById('result');
+      outEl.textContent = 'Running…';
+      try {
+        const out = await j(api(`/workflows/${encodeURIComponent(wf)}/execute`), {
+          method: 'POST',
+          headers: { 'content-type':'application/json' },
+          body: JSON.stringify({ demo: true })
+        });
+        outEl.textContent = JSON.stringify(out, null, 2);
+      } catch (e) { outEl.textContent = 'Error: ' + e.message; }
+    };
+
+    document.getElementById('manageBilling').onclick = async () => {
+      try {
+        const r = await j(api('/billing/portal'), { method: 'POST' });
+        if (r.url) location.assign(r.url); else throw new Error('No portal URL');
+      } catch (e) { console.error(e); alert('Could not open billing portal'); }
+    };
+
+    // NEW: show a real (demo) API key from the backend
+    document.getElementById('revealKey').onclick = async () => {
+      const span = document.getElementById('apiKey');
+      span.style.display = 'inline';
+      try { const r = await j(api('/key')); span.textContent = r.key || '(no key)'; }
+      catch { span.textContent = '(could not load key)'; }
+    };
+
+    loadMetrics();
+    setInterval(loadMetrics, 15000);
+
+    document.getElementById('logout').onclick = async () => {
+      await j(api('/auth/logout'), { method:'POST' }).catch(()=>{});
+      location.href = '/';
+    };
+
+  } catch {
+    document.getElementById('auth').textContent =
+      'You are not signed in. Please finish email verification or log in.';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
