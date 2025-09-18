@@ -4,7 +4,13 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Brikk – Dashboard</title>
+
+  <!-- Charts (source-map warning is harmless under current CSP) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Loads window.__BRIKK_API__ (e.g., https://api.getbrikk.com) -->
+  <script src="/public/config.js"></script>
+
   <style>
     :root { color-scheme: dark; }
     body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif; background:#0b0f1a; color:#e7ecff; }
@@ -48,7 +54,7 @@
             <span id="order" style="margin-left:12px"></span>
           </div>
           <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="manageBilling">Manage billing</button>
+            <button id="manageBilling" data-action="manage-billing">Manage billing</button>
             <button id="revealKey" class="secondary">Reveal API key</button>
             <span id="apiKey" class="muted" style="display:none; margin-left:8px"></span>
           </div>
@@ -57,12 +63,12 @@
         <div class="card">
           <h3>Run a Demo Workflow</h3>
           <label for="workflow">Workflow</label>
-          <select id="workflow">
+          <select id="workflow" name="workflow">
             <option value="data_processing">Data Processing</option>
             <option value="financial_analysis">Financial Analysis</option>
             <option value="customer_service">Customer Service</option>
           </select>
-          <div style="margin-top:10px"><button id="run">Execute</button></div>
+          <div style="margin-top:10px"><button id="run" data-action="execute-demo">Execute</button></div>
           <pre id="result" class="muted" style="margin-top:12px"></pre>
         </div>
 
@@ -80,114 +86,125 @@
   </main>
 
 <script>
-const API_BASE = 'https://api.getbrikk.com/api';               // direct API (for non-auth stuff)
-const FN_ME     = '/.netlify/functions/me';                    // Netlify function – session
-const FN_RESEND = '/.netlify/functions/resend-verification';   // Netlify function – resend email
+/* ---------- helpers ---------- */
+const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
+const api = (p) => `${API}/api${p}`;
 
 async function j(url, opts = {}) {
   const r = await fetch(url, { credentials: 'include', ...opts });
-  if (!r.ok) {
-    const t = await r.text().catch(()=> '');
-    throw new Error(t || String(r.status));
-  }
-  const ct = r.headers.get('content-type') || '';
-  return ct.includes('application/json') ? r.json() : { success: true };
+  const text = await r.text();
+  let data; try { data = text ? JSON.parse(text) : {}; } catch { data = { raw:text }; }
+  if (!r.ok) throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+  return data;
 }
 
+/* ---------- charts ---------- */
 let reqChart, latChart;
+function makeChart(ctx, label, data) {
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=> i+1), datasets: [{ label, data, fill:false, tension:.2 }]},
+    options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
+  });
+}
+async function loadMetrics() {
+  try {
+    // API returns { requests: [], latency_ms: [] }
+    const m = await j(api('/metrics'));
+    const last10 = m.requests?.length ? m.requests : [2,3,5,4,6,7,4,6,5,8];
+    const latency = m.latency_ms?.length ? m.latency_ms : [220,210,230,190,200,240,210,220,205,215];
+    if (!reqChart) {
+      reqChart = makeChart(document.getElementById('reqChart'), 'Requests', last10);
+      latChart = makeChart(document.getElementById('latChart'), 'Latency', latency);
+    } else {
+      reqChart.data.datasets[0].data = last10;
+      latChart.data.datasets[0].data  = latency;
+      reqChart.update(); latChart.update();
+    }
+  } catch (_) { /* ignore */ }
+}
 
+/* ---------- boot ---------- */
 async function fetchMe() {
-  // go through Netlify (same-origin; will forward cookies)
-  return j(FN_ME);
+  // Direct API who-am-I
+  return j(api('/auth/me'));
 }
 
 async function boot() {
   try {
     const me = await fetchMe();
 
+    // show/hide shells
     document.getElementById('auth').style.display = 'none';
     document.getElementById('content').style.display = 'block';
 
-    document.getElementById('name').textContent  = me.user?.username || 'User';
-    document.getElementById('email').textContent = me.user?.email || '—';
-    if (me.order_ref) {
-      document.getElementById('order').innerHTML = `• Order Ref: <strong>${me.order_ref}</strong>`;
-    }
+    // populate header card
+    const user = me.user || {};
+    document.getElementById('name').textContent  = user.username || 'User';
+    document.getElementById('email').textContent = user.email || '—';
+    if (me.order_ref) document.getElementById('order').innerHTML = `• Order Ref: <strong>${me.order_ref}</strong>`;
 
-    if (!me.email_verified) {
+    // verification banner (stubbed server-side ok:true)
+    if (!user.email_verified) {
       document.getElementById('verifyBanner').style.display = 'block';
       document.getElementById('resendVerify').onclick = async () => {
         try {
-          await j(FN_RESEND, { method: 'POST' });
+          await j(api('/auth/resend-verification'), { method: 'POST' });
           alert('Verification email sent.');
-        } catch (e) {
+        } catch {
           alert('Could not resend verification email.');
         }
       };
     }
 
+    // Demo workflow
     document.getElementById('run').onclick = async () => {
-      const wf = document.getElementById('workflow').value;
-      document.getElementById('result').textContent = 'Running…';
+      const wf = document.getElementById('workflow').value || 'data_processing';
+      const outEl = document.getElementById('result');
+      outEl.textContent = 'Running…';
       try {
-        const out = await j(`${API_BASE}/workflows/${encodeURIComponent(wf)}/execute`, {
-          method:'POST',
+        const out = await j(api(`/workflows/${encodeURIComponent(wf)}/execute`), {
+          method: 'POST',
           headers: { 'content-type':'application/json' },
-          body: JSON.stringify({ initiator_agent_id: 'dashboard' })
+          body: JSON.stringify({ demo: true })
         });
-        document.getElementById('result').textContent = JSON.stringify(out, null, 2);
-      } catch(e) {
-        document.getElementById('result').textContent = 'Error: ' + e.message;
+        outEl.textContent = JSON.stringify(out, null, 2);
+      } catch (e) {
+        outEl.textContent = 'Error: ' + e.message;
       }
     };
 
+    // Billing portal
     document.getElementById('manageBilling').onclick = async () => {
       try {
-        const r = await j('/.netlify/functions/createPortal');
-        if (r.url) location.href = r.url;
-      } catch(e) { alert('Could not open billing portal'); }
+        const r = await j(api('/billing/portal'), { method: 'POST' });
+        if (r.url) location.assign(r.url);
+        else throw new Error('No portal URL');
+      } catch (e) {
+        console.error(e);
+        alert('Could not open billing portal');
+      }
     };
 
+    // API key (placeholder until we add backend)
     document.getElementById('revealKey').onclick = () => {
       const span = document.getElementById('apiKey');
       span.style.display = 'inline';
       span.textContent = '(coming soon – add /api/key to backend)';
     };
 
-    function makeChart(ctx, label, data) {
-      return new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: Array.from({length: data.length}, (_,i) => i+1),
-          datasets: [{ label, data, fill:false, tension:.2 }]
-        },
-        options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
-      });
-    }
-
-    async function loadMetrics() {
-      try {
-        const m = await j(API_BASE + '/metrics');
-        const s = m.series || { last10m: [2,3,5,4,6,7,4,6,5,8], latency: [220,210,230,190,200,240,210,220,205,215] };
-        if (!reqChart) {
-          reqChart = makeChart(document.getElementById('reqChart'), 'Requests', s.last10m);
-          latChart = makeChart(document.getElementById('latChart'), 'Latency',  s.latency);
-        } else {
-          reqChart.data.datasets[0].data = s.last10m;
-          latChart.data.datasets[0].data = s.latency;
-          reqChart.update(); latChart.update();
-        }
-      } catch(e) { /* ignore */ }
-    }
+    // charts
     loadMetrics();
     setInterval(loadMetrics, 15000);
 
+    // logout
     document.getElementById('logout').onclick = async () => {
-      await j(API_BASE + '/auth/logout', { method:'POST' }).catch(()=>{});
+      await j(api('/auth/logout'), { method:'POST' }).catch(()=>{});
       location.href = '/';
     };
 
-  } catch(e) {
+  } catch (e) {
+    // not logged in
     document.getElementById('auth').textContent =
       'You are not signed in. Please finish email verification or log in.';
   }
