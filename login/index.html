@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"/><title>Log in – Brikk</title></head>
+<body>
+  <h1>Log in</h1>
+  <form id="f">
+    <input name="user_or_email" placeholder="Email or username" required />
+    <input name="password" type="password" placeholder="Password" required />
+    <button>Log in</button>
+  </form>
+  <p id="msg"></p>
+<script>
+const API = '/api';  // ← use Netlify proxy
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const payload = Object.fromEntries(fd.entries());
+  const res = await fetch(`${API}/auth/login`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload),
+    credentials: 'include'
+  });
+  const data = await res.json();
+  if (data.success) {
+    location.href = '/app/';
+  } else {
+    document.getElementById('msg').textContent = data.error || 'Login failed';
+  }
+});
+</script>
+</body>
+</html>

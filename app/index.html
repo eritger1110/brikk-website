@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Brikk – Dashboard</title>
+
+  <!-- Charts (source-map warning is harmless under current CSP) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Loads window.__BRIKK_API__ (e.g., https://api.getbrikk.com) -->
+  <script src="/public/config.js"></script>
+
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif; background:#0b0f1a; color:#e7ecff; }
+    header { padding:16px 24px; border-bottom:1px solid #1c2541; display:flex; gap:16px; align-items:center; }
+    header .spacer { flex:1 }
+    main { padding:24px; max-width:1100px; margin:auto; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .card { background:#0f1629; border:1px solid #1c2541; border-radius:16px; padding:18px; }
+    .muted { color:#98b0d9 }
+    button { background:#635bff; color:#fff; border:none; padding:.6rem 1rem; border-radius:10px; font-weight:600; cursor:pointer; }
+    button.secondary { background:#142042; }
+    input, textarea, select { width:100%; background:#0B1222; border:1px solid #2a3450; color:#e7ecff; border-radius:10px; padding:.7rem .8rem; }
+    label { display:block; font-weight:600; margin:8px 0 6px; }
+    pre { white-space:pre-wrap; }
+    @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Brikk</strong>
+    <span class="muted">/ Dashboard</span>
+    <div class="spacer"></div>
+    <button id="logout" class="secondary">Logout</button>
+  </header>
+
+  <main>
+    <div id="auth" class="card">Checking your session…</div>
+
+    <div id="content" style="display:none">
+      <div id="verifyBanner" class="card" style="display:none; margin-bottom:16px">
+        <strong>Email verification pending</strong>
+        <div class="muted" style="margin-top:6px">Please check your inbox for a verification email.</div>
+        <div style="margin-top:10px;"><button id="resendVerify" class="secondary">Resend verification email</button></div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Welcome, <span id="name">—</span></h2>
+          <div class="muted">
+            Email: <span id="email">—</span>
+            <span id="order" style="margin-left:12px"></span>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="manageBilling" data-action="manage-billing">Manage billing</button>
+            <button id="revealKey" class="secondary">Reveal API key</button>
+            <span id="apiKey" class="muted" style="display:none; margin-left:8px"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Run a Demo Workflow</h3>
+          <label for="workflow">Workflow</label>
+          <select id="workflow" name="workflow">
+            <option value="data_processing">Data Processing</option>
+            <option value="financial_analysis">Financial Analysis</option>
+            <option value="customer_service">Customer Service</option>
+          </select>
+          <div style="margin-top:10px"><button id="run" data-action="execute-demo">Execute</button></div>
+          <pre id="result" class="muted" style="margin-top:12px"></pre>
+        </div>
+
+        <div class="card">
+          <h3>Requests (last 10)</h3>
+          <canvas id="reqChart" height="140"></canvas>
+        </div>
+
+        <div class="card">
+          <h3>Latency (ms)</h3>
+          <canvas id="latChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+/* ---------- helpers ---------- */
+const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
+const api = (p) => `${API}/api${p}`;
+
+async function j(url, opts = {}) {
+  const r = await fetch(url, { credentials: 'include', ...opts });
+  const text = await r.text();
+  let data; try { data = text ? JSON.parse(text) : {}; } catch { data = { raw:text }; }
+  if (!r.ok) throw new Error(data?.error || data?.message || `HTTP ${r.status}`);
+  return data;
+}
+
+/* ---------- charts ---------- */
+let reqChart, latChart;
+function makeChart(ctx, label, data) {
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=> i+1), datasets: [{ label, data, fill:false, tension:.2 }]},
+    options: { plugins:{legend:{display:false}}, scales:{x:{display:false}} }
+  });
+}
+async function loadMetrics() {
+  try {
+    // Backend returns: { series: { last10m: [...], latency: [...] } }
+    const m = await j(api('/metrics'));
+    const last10 = m.series?.last10m ?? [2,3,5,4,6,7,4,6,5,8];
+    const latency = m.series?.latency ?? [220,210,230,190,200,240,210,220,205,215];
+    if (!reqChart) {
+      reqChart = makeChart(document.getElementById('reqChart'), 'Requests', last10);
+      latChart = makeChart(document.getElementById('latChart'), 'Latency', latency);
+    } else {
+      reqChart.data.datasets[0].data = last10;
+      latChart.data.datasets[0].data  = latency;
+      reqChart.update(); latChart.update();
+    }
+  } catch (_) { /* ignore */ }
+}
+
+/* ---------- boot ---------- */
+async function fetchMe() { return j(api('/auth/me')); }
+
+async function boot() {
+  try {
+    const me = await fetchMe();
+
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    const user = me.user || {};
+    document.getElementById('name').textContent  = user.username || 'User';
+    document.getElementById('email').textContent = user.email || '—';
+    if (me.order_ref) document.getElementById('order').innerHTML = `• Order Ref: <strong>${me.order_ref}</strong>`;
+
+    if (!user.email_verified) {
+      document.getElementById('verifyBanner').style.display = 'block';
+      document.getElementById('resendVerify').onclick = async () => {
+        try { await j(api('/auth/resend-verification'), { method: 'POST' }); alert('Verification email sent.'); }
+        catch { alert('Could not resend verification email.'); }
+      };
+    }
+
+    document.getElementById('run').onclick = async () => {
+      const wf = document.getElementById('workflow').value || 'data_processing';
+      const outEl = document.getElementById('result');
+      outEl.textContent = 'Running…';
+      try {
+        const out = await j(api(`/workflows/${encodeURIComponent(wf)}/execute`), {
+          method: 'POST',
+          headers: { 'content-type':'application/json' },
+          body: JSON.stringify({ demo: true })
+        });
+        outEl.textContent = JSON.stringify(out, null, 2);
+      } catch (e) { outEl.textContent = 'Error: ' + e.message; }
+    };
+
+    document.getElementById('manageBilling').onclick = async () => {
+      try {
+        const r = await j(api('/billing/portal'), { method: 'POST' });
+        if (r.url) location.assign(r.url); else throw new Error('No portal URL');
+      } catch (e) { console.error(e); alert('Could not open billing portal'); }
+    };
+
+    // NEW: show a real (demo) API key from the backend
+    document.getElementById('revealKey').onclick = async () => {
+      const span = document.getElementById('apiKey');
+      span.style.display = 'inline';
+      try { const r = await j(api('/key')); span.textContent = r.key || '(no key)'; }
+      catch { span.textContent = '(could not load key)'; }
+    };
+
+    loadMetrics();
+    setInterval(loadMetrics, 15000);
+
+    document.getElementById('logout').onclick = async () => {
+      await j(api('/auth/logout'), { method:'POST' }).catch(()=>{});
+      location.href = '/';
+    };
+
+  } catch {
+    document.getElementById('auth').textContent =
+      'You are not signed in. Please finish email verification or log in.';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

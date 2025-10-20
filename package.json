@@ -1,0 +1,22 @@
+{
+  "name": "brikk-netlify-functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Netlify Functions for Brikk Stripe integration",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo \"Netlify auto-bundles functions; nothing to build\"",
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/functions": "^2.6.0",
+    "stripe": "^16.0.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.11.0",
+    "netlify-cli": "^17.10.1",
+    "typescript": "^5.3.3"
+  }
+}

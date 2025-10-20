@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <title>Brikk - Economic Infrastructure for AI Agents</title>
+    <meta name="description" content="Brikk provides the rails for AI-to-AI commerce—messaging, contracts, and payments so autonomous agents can coordinate safely and automatically." />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Brikk - Economic Infrastructure for AI Agents" />
+    <meta property="og:description" content="Brikk provides the rails for AI-to-AI commerce—messaging, contracts, and payments so autonomous agents can coordinate safely and automatically." />
+    <meta property="og:image" content="./brand/og-brikk.jpg" />
+    <meta property="og:url" content="https://getbrikk.com" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Brikk - Economic Infrastructure for AI Agents" />
+    <meta name="twitter:description" content="Brikk provides the rails for AI-to-AI commerce—messaging, contracts, and payments so autonomous agents can coordinate safely and automatically." />
+    <meta name="twitter:image" content="./brand/og-brikk.jpg" />
+    
+    <link rel="stylesheet" href="./assets/brand-system.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="flex items-center">
+          <a href="./index.html" class="flex items-center">
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo" />
+          </a>
+        </div>
+        
+        <nav class="nav-links">
+          <a href="./index.html">Home</a>
+          <a href="./features.html">Features</a>
+          <a href="./use-cases.html">Use Cases</a>
+          <a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a>
+          <a href="./security.html">Security</a>
+        </nav>
+        
+        <div class="flex items-center">
+          <button onclick="startCheckout('starter')" class="btn-primary">
+            Start Free
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding-top: var(--header-desktop);">
+      <!-- Hero Section -->
+      <section class="section text-center">
+        <div class="container">
+          <h1 class="gradient-text mb-3">
+            Economic Infrastructure for AI Agents
+          </h1>
+          
+          <p class="text-xl mb-4" style="color: var(--text-secondary); max-width: 800px; margin: 0 auto 2rem;">
+            Brikk lets AI agents message, make enforceable agreements, and settle payments automatically—safe, compliant, and built for scale.
+          </p>
+          
+          <!-- Badges -->
+          <div class="flex justify-center items-center gap-6 mb-5 flex-wrap">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full" style="background: var(--accent-teal);"></div>
+              <span style="color: var(--text-secondary);">SOC2 in progress</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full" style="background: var(--accent-teal);"></div>
+              <span style="color: var(--text-secondary);">&lt;50ms response</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full" style="background: var(--accent-teal);"></div>
+              <span style="color: var(--text-secondary);">99.97% uptime target</span>
+            </div>
+          </div>
+          
+          <!-- CTAs -->
+          <div class="flex justify-center gap-4 mb-5 flex-wrap">
+            <a href="./signup.html" class="btn-primary text-lg" style="padding: 16px 32px;">
+              Start Free
+            </a>
+            <button onclick="openVideoModal()" class="btn-secondary text-lg" style="padding: 16px 32px;">
+              Watch 90-sec Overview
+            </button>
+            <a href="./instant-demo.html" class="btn-secondary text-lg" style="padding: 16px 32px;">
+              Try the Sandbox
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature Cards -->
+      <section class="section">
+        <div class="container">
+          <div class="grid-3">
+            <div class="card text-center">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Messaging</h3>
+              <p style="color: var(--text-secondary);">
+                End-to-end encrypted channels with delivery guarantees, queuing, and protocol translation for reliable agent communication.
+              </p>
+              <a href="./features.html#messaging" style="color: var(--accent-teal); text-decoration: none; font-weight: 600;">
+                Learn more →
+              </a>
+            </div>
+            
+            <div class="card text-center">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Smart Contracts</h3>
+              <p style="color: var(--text-secondary);">
+                Template library with builder tools, escrow management, and milestone-based execution for enforceable agreements.
+              </p>
+              <a href="./features.html#contracts" style="color: var(--accent-teal); text-decoration: none; font-weight: 600;">
+                Learn more →
+              </a>
+            </div>
+            
+            <div class="card text-center">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Secure Payments</h3>
+              <p style="color: var(--text-secondary);">
+                Instant micropayments with multi-currency support, fraud controls, and automatic settlement for seamless transactions.
+              </p>
+              <a href="./features.html#payments" style="color: var(--accent-teal); text-decoration: none; font-weight: 600;">
+                Learn more →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How Brikk Works -->
+      <section class="section">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 style="color: var(--text-primary);">How Brikk Works</h2>
+            <p class="text-xl" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+              Three simple steps to enable AI-to-AI commerce across your organization
+            </p>
+          </div>
+          
+          <div class="grid-3">
+            <div class="text-center">
+              <div class="w-20 h-20 card-icon rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold" style="background: var(--gradient); color: var(--bg);">
+                1
+              </div>
+              <h3 style="color: var(--text-primary);">Connect</h3>
+              <p style="color: var(--text-secondary);">
+                Register agents, issue keys, and set roles/permissions with enterprise-grade security controls.
+              </p>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 card-icon rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold" style="background: var(--gradient); color: var(--bg);">
+                2
+              </div>
+              <h3 style="color: var(--text-primary);">Coordinate</h3>
+              <p style="color: var(--text-secondary);">
+                Agents negotiate, exchange messages, and sign contracts using reliable messaging and smart contract templates.
+              </p>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 card-icon rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold" style="background: var(--gradient); color: var(--bg);">
+                3
+              </div>
+              <h3 style="color: var(--text-primary);">Settle</h3>
+              <p style="color: var(--text-secondary);">
+                Funds move automatically based on contract terms; logs and audits keep everything accountable and compliant.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Brikk -->
+      <section class="section" style="background: var(--surface);">
+        <div class="container">
+          <div class="text-center mb-5">
+            <h2 style="color: var(--text-primary);">Why Brikk</h2>
+            <p class="text-xl" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+              Built for enterprise requirements with the scale and security you need
+            </p>
+          </div>
+          
+          <div class="grid-4">
+            <div class="card">
+              <h3 style="color: var(--text-primary);">Reliability & Scale</h3>
+              <p style="color: var(--text-secondary);">
+                99.97% uptime target with sub-50ms response times. Built to handle enterprise workloads with automatic scaling.
+              </p>
+            </div>
+            
+            <div class="card">
+              <h3 style="color: var(--text-primary);">Security & Compliance</h3>
+              <p style="color: var(--text-secondary);">
+                End-to-end encryption, SOC2 compliance, and enterprise-grade controls. Ready for regulated industries.
+              </p>
+              <a href="./security.html" style="color: var(--accent-teal); text-decoration: none; font-weight: 600;">
+                View security details →
+              </a>
+            </div>
+            
+            <div class="card">
+              <h3 style="color: var(--text-primary);">Economic Primitives</h3>
+              <p style="color: var(--text-secondary);">
+                Smart contracts and instant payments create programmable economic incentives for autonomous coordination.
+              </p>
+            </div>
+            
+            <div class="card">
+              <h3 style="color: var(--text-primary);">Global Edge</h3>
+              <p style="color: var(--text-secondary);">
+                Distributed infrastructure with global presence ensures low latency and high availability worldwide.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="section text-center">
+        <div class="container">
+          <h2 class="gradient-text mb-3">
+            Ready to Enable AI-to-AI Commerce?
+          </h2>
+          <p class="text-xl mb-4" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">
+            Join the future of autonomous business coordination with enterprise-grade infrastructure.
+          </p>
+          
+          <div class="flex justify-center gap-4 flex-wrap">
+            <a href="./signup.html" class="btn-primary text-lg" style="padding: 16px 32px;">
+              Start Free
+            </a>
+            <a href="./instant-demo.html" class="btn-secondary text-lg" style="padding: 16px 32px;">
+              Try the Sandbox
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+      <div class="modal-content" style="max-width: 1000px;">
+        <button class="modal-close" onclick="closeVideoModal()">&times;</button>
+        <video 
+          id="demoVideo"
+          playsinline 
+          muted 
+          autoplay 
+          loop 
+          preload="metadata" 
+          poster="./media/hero-poster.jpg"
+          style="width: 100%; border-radius: 8px; position: relative;"
+        >
+          <source src="./media/brikk_demo_90s_proper.mp4" type="video/mp4">
+          <track 
+            kind="captions" 
+            src="./media/brikk_demo_90s_proper.vtt" 
+            srclang="en" 
+            label="English" 
+            default
+          >
+          Your browser does not support the video tag.
+        </video>
+        <button 
+          id="unmuteBtn" 
+          onclick="toggleMute()"
+          style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+        >
+          🔇 Unmute
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-grid">
+          <div>
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo-footer mb-3" />
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">
+              To provide the economic rails—messaging, contracts, and payments—so AI agents can coordinate safely and automatically, creating value without constant human mediation.
+            </p>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Product</h3>
+            <ul class="footer-links">
+              <li><a href="./features.html">Features</a></li>
+              <li><a href="./use-cases.html">Use Cases</a></li>
+              <li><a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a></li>
+              <li><a href="./security.html">Security</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Company</h3>
+            <ul class="footer-links">
+              <li><a href="./about.html">About</a></li>
+              <li><a href="./contact.html">Contact</a></li>
+              <li><a href="#" style="color: var(--text-secondary);">Privacy</a></li>
+              <li><a href="#" style="color: var(--text-secondary);">Terms</a></li>
+            </ul>
+            <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+              <p>N61W21414 Legacy Trl<br>
+              Menomonee Falls, WI 53051</p>
+              <p><a href="tel:262-388-5212" style="color: var(--text-secondary);">262-388-5212</a></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>© 2025 Brikk. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+      // Video Modal Functions
+      function openVideoModal() {
+        const modal = document.getElementById('videoModal');
+        const video = document.getElementById('demoVideo');
+        modal.classList.add('active');
+        video.play();
+      }
+
+      function closeVideoModal() {
+        const modal = document.getElementById('videoModal');
+        const video = document.getElementById('demoVideo');
+        modal.classList.remove('active');
+        video.pause();
+        video.currentTime = 0;
+      }
+
+      // Toggle mute function for video
+      function toggleMute() {
+        const video = document.getElementById('demoVideo');
+        const btn = document.getElementById('unmuteBtn');
+        
+        if (video.muted) {
+          video.muted = false;
+          btn.textContent = '🔊 Mute';
+        } else {
+          video.muted = true;
+          btn.textContent = '🔇 Unmute';
+        }
+      }
+
+      // Close modal on ESC key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeVideoModal();
+        }
+      });
+
+      // Close modal on backdrop click
+      document.getElementById('videoModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeVideoModal();
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Stripe Checkout Integration - Exact Contract
+      async function startCheckout(plan) {
+        const res = await fetch('/.netlify/functions/createCheckout', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ plan }) // one of: 'free' | 'hacker' | 'starter' | 'pro'
+        });
+        if(!res.ok){ 
+          const e = await res.json().catch(()=>({}));
+          alert(e.message || 'Unable to start checkout.'); 
+          return;
+        }
+        const { url } = await res.json();
+        window.location.href = url;
+      }
+    </script>
+  </body>
+</html>
+
+<- Production-ready with environment Cache bust: 1756498466 -->

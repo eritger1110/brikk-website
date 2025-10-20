@@ -1,55 +1,105 @@
-# Brikk Website
+# Brikk Website - Production Ready
 
-This repository contains the static websites for Brikk AI, including the beta landing page.
+This repository contains the production-ready Brikk website with complete Stripe integration and beta landing page.
 
-## Structure
+## 🚀 Features
 
-- `/beta` - Beta program landing page
+- **Complete Stripe Integration**: Checkout, billing portal, webhooks, and admin dashboard
+- **Beta Landing Page**: Application form with backend integration
+- **Responsive Design**: Works perfectly on desktop and mobile
+- **Security Hardened**: Fort Knox security headers and CSP
+- **Production Ready**: Optimized for performance and SEO
 
-## Deployment
+## 📁 Structure
 
-### Netlify
+```
+/
+├── assets/           # CSS and styling
+├── brand/           # Logo and brand assets
+├── media/           # Videos and images
+├── netlify/         # Netlify Functions for Stripe
+├── beta/            # Beta program landing page
+├── signup/          # Success/cancel pages
+├── *.html           # All website pages
+├── _headers         # Security headers
+├── _redirects       # URL redirects
+├── package.json     # Dependencies
+└── favicon.ico      # Site icon
+```
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/eritger1110/brikk-website)
+## 🔧 Netlify Setup
 
-1. Connect this repository to Netlify
-2. Set the publish directory to `.` (root)
-3. No build command needed (static site)
-4. Configure custom domain: `beta.getbrikk.com`
+### Environment Variables Required:
+```
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+SITE_URL=https://www.getbrikk.com
+CHECKOUT_SUCCESS_URL=https://www.getbrikk.com/thanks?session_id={CHECKOUT_SESSION_ID}
+CHECKOUT_CANCEL_URL=https://www.getbrikk.com/pricing
+PRICE_FREE=price_1S0veEQpyOKlL3ogY1YodS3t
+PRICE_HACKER=price_1S0veEQpyOKlL3ogFDWWkgg4
+PRICE_STARTER=price_1S0veEQpyOKlL3ogbaTnkWr3
+PRICE_PRO=price_1S0veEQpyOKlL3ogbfGK3q76
+OWNER_ADMIN_PASSWORD=Effect-0adc1
+API_BASE=https://brikk-infrastructure.onrender.com
+```
 
-### Render
+### Build Settings:
+- **Build command**: `npm install`
+- **Publish directory**: `/` (root)
+- **Functions directory**: `netlify/functions`
 
-1. Create a new Static Site on Render
-2. Connect this repository
-3. Set the publish directory to `.` (root)
-4. No build command needed
-5. Configure custom domain: `beta.getbrikk.com`
+## 🎯 Stripe Integration
 
-## Cache Control
+### Netlify Functions:
+- `/netlify/functions/createCheckout` - Creates Stripe checkout sessions
+- `/netlify/functions/createPortal` - Customer billing portal
+- `/netlify/functions/webhook` - Handles Stripe webhooks
+- `/netlify/functions/adminListCustomers` - Owner admin dashboard
 
+### Webhook URL:
+`https://www.getbrikk.com/.netlify/functions/webhook`
+
+## 📋 Pages
+
+- **/** - Homepage with hero and features
+- **/features** - Feature details and benefits
+- **/use-cases** - Real-world use cases
+- **/pricing** - Plans and pricing calculator
+- **/security** - Security and compliance
+- **/about** - Company information
+- **/contact** - Contact form and information
+- **/signup** - Plan selection and Stripe checkout
+- **/thanks** - Post-checkout success page
+- **/owner** - Admin dashboard (password protected)
+- **/beta** - Beta program application page
+
+## 🧪 Beta Landing Page
+
+The `/beta` directory contains the beta program landing page with:
+- Application form with backend integration
+- Proper cache control headers
+- Error handling and validation
+- Thank you message with application details
+
+### Cache Control:
 - `index.html`: `no-store, must-revalidate` (always fetch latest)
 - JS/CSS: `public, max-age=31536000, immutable` (cache forever with versioning)
 
-## Environment Variables
-
-- `API_BASE`: Backend API URL (default: `https://brikk-infrastructure.onrender.com`)
-
-## Local Development
-
-Simply open `beta/index.html` in a browser, or use a local server:
-
-```bash
-python3 -m http.server 8000
-# Visit http://localhost:8000/beta/
-```
-
-## DNS Configuration
-
+### DNS Configuration:
 Point `beta.getbrikk.com` to your deployment:
+- **Netlify**: CNAME `beta.getbrikk.com` → `<your-site>.netlify.app`
+- **Render**: CNAME `beta.getbrikk.com` → `<your-site>.onrender.com`
 
-**Netlify:**
-- CNAME: `beta.getbrikk.com` → `<your-site>.netlify.app`
+## 🔒 Security
 
-**Render:**
-- CNAME: `beta.getbrikk.com` → `<your-site>.onrender.com`
+- Content Security Policy (CSP) configured for Stripe
+- Security headers for production
+- HTTPS enforcement
+- XSS protection
+
+## 📞 Support
+
+For technical support: support@getbrikk.com
 

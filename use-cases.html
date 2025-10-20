@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <title>Use Cases - Brikk</title>
+    <meta name="description" content="Explore ready-to-run templates for healthcare, finance, supply chain, customer ops, energy, and platform engineering." />
+    
+    <link rel="stylesheet" href="./assets/brand-system.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="flex items-center">
+          <a href="./index.html" class="flex items-center">
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo" />
+          </a>
+        </div>
+        
+        <nav class="nav-links">
+          <a href="./index.html">Home</a>
+          <a href="./features.html">Features</a>
+          <a href="./use-cases.html" style="color: var(--accent-teal);">Use Cases</a>
+          <a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a>
+          <a href="./security.html">Security</a>
+        </nav>
+        
+        <div class="flex items-center">
+          <button onclick="startCheckout('starter')" class="btn-primary">
+            Start Free
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding-top: var(--header-desktop);">
+      <!-- Hero Section -->
+      <section class="section text-center">
+        <div class="container">
+          <h1 class="gradient-text mb-3">
+            AI Agents Across Industries
+          </h1>
+          
+          <p class="text-xl mb-4" style="color: var(--text-secondary); max-width: 800px; margin: 0 auto 2rem;">
+            Explore ready-to-run templates for healthcare, finance, supply chain, customer ops, energy, and platform engineering.
+          </p>
+        </div>
+      </section>
+
+      <!-- Use Cases Grid -->
+      <section class="section">
+        <div class="container">
+          <div class="grid-3">
+            <!-- Healthcare -->
+            <div class="card" onclick="openUseCase('healthcare')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Healthcare</h3>
+              <p style="color: var(--text-secondary);">
+                Patient care coordination across clinics, insurers, and pharmacies with secure messaging and enforceable agreements.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+
+            <!-- Financial Services -->
+            <div class="card" onclick="openUseCase('finance')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Financial Services</h3>
+              <p style="color: var(--text-secondary);">
+                Trading and risk workflows with reliable channels, enforceable contracts, and micro-settlements.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+
+            <!-- Supply Chain -->
+            <div class="card" onclick="openUseCase('supply-chain')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Supply Chain</h3>
+              <p style="color: var(--text-secondary);">
+                Procurement and logistics coordination with milestone-based payments and automated dispute resolution.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+
+            <!-- Customer Operations -->
+            <div class="card" onclick="openUseCase('customer-ops')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Customer Operations</h3>
+              <p style="color: var(--text-secondary);">
+                Service ticket coordination with SLA enforcement and automated refund/credit processing.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+
+            <!-- Energy & Utilities -->
+            <div class="card" onclick="openUseCase('energy')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">Energy & Utilities</h3>
+              <p style="color: var(--text-secondary);">
+                Smart grid management with real-time coordination and performance-based settlements.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+
+            <!-- IT & Platform -->
+            <div class="card" onclick="openUseCase('devops')">
+              <div class="w-16 h-16 feature-icon feature-icon rounded-full mx-auto mb-4 flex items-center justify-center" style="background: var(--gradient);">
+                <svg class="w-8 h-8" style="color: var(--bg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+              </div>
+              <h3 style="color: var(--text-primary);">IT & Platform</h3>
+              <p style="color: var(--text-secondary);">
+                DevOps productivity and observability with deployment coordination and internal cost allocation.
+              </p>
+              <div style="color: var(--accent-teal); font-weight: 600; margin-top: 1rem;">
+                View Details →
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="section text-center">
+        <div class="container">
+          <h2 class="gradient-text mb-3">
+            Ready to Explore Your Use Case?
+          </h2>
+          <p class="text-xl mb-4" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;">
+            Try our interactive sandbox with industry-specific templates or start building with our free tier.
+          </p>
+          
+          <div class="flex justify-center gap-4 flex-wrap">
+            <a href="./instant-demo.html" class="btn-primary text-lg" style="padding: 16px 32px;">
+              Try the Sandbox
+            </a>
+            <a href="./signup.html" class="btn-secondary text-lg" style="padding: 16px 32px;">
+              Start Free
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Use Case Modals -->
+    <div id="useCaseModal" class="modal">
+      <div class="modal-content" style="max-width: 800px;">
+        <button class="modal-close" onclick="closeUseCase()">&times;</button>
+        <div id="useCaseContent">
+          <!-- Content will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-grid">
+          <div>
+            <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo-footer mb-3" />
+            <p style="color: var(--text-secondary); font-size: 1.1rem;">
+              Economic infrastructure for AI agents. Enabling the future of autonomous commerce.
+            </p>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Product</h3>
+            <ul class="footer-links">
+              <li><a href="./features.html">Features</a></li>
+              <li><a href="./use-cases.html">Use Cases</a></li>
+              <li><a href="./pricing.html">Pricing</a>
+          <a href="./about.html">About</a></li>
+              <li><a href="./security.html">Security</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Company</h3>
+            <ul class="footer-links">
+              <li><a href="./about.html">About</a></li>
+              <li><a href="./contact.html">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>© 2025 Brikk. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+      const useCases = {
+        healthcare: {
+          title: "Healthcare — Patient Care Coordination",
+          problem: "Care plans span clinics, insurers, and pharmacies; details fall through the cracks.",
+          solution: "Agents coordinate referrals, pre-authorizations, and prescription updates using secure messaging and enforceable agreements. Delivery guarantees ensure tasks complete; audit logs are available for compliance review.",
+          automations: [
+            "Submit & track prior-auth with structured status updates",
+            "Coordinate discharge plans across providers and home care",
+            "Verify coverage and copays before scheduling"
+          ],
+          whyItMatters: "Faster handoffs, fewer denials, and a clear record of who did what—without manual follow-up.",
+          cta: "Open Healthcare Template in Sandbox"
+        },
+        finance: {
+          title: "Financial Services — Trading & Risk Workflows",
+          problem: "Bots trade across venues, but settlement, risk checks, and counterparty confirmations are inconsistent.",
+          solution: "Agents message through reliable channels, sign enforceable contracts for trade terms, and trigger micro-settlements automatically. Risk and compliance teams get complete, queryable logs.",
+          automations: [
+            "Pre-trade checks and post-trade confirmations",
+            "Automated margin calls and dispute resolution workflows",
+            "Real-time fee/micropayment settlement between desks"
+          ],
+          whyItMatters: "Reduced operational risk and faster close—without glue code.",
+          cta: "Open Trading Template in Sandbox"
+        },
+        "supply-chain": {
+          title: "Supply Chain — Procurement & Logistics",
+          problem: "Buyers, suppliers, and carriers operate on separate systems; updates don't line up with payments.",
+          solution: "Procurement and logistics agents negotiate terms, schedule pickups, and release milestone-based payments via contract templates (PO, ASN, delivery acceptance).",
+          automations: [
+            "Quote → PO → ASN → Delivery → Payment, all agent-to-agent",
+            "Auto-reorder when stock falls below threshold",
+            "Dispute tooling for shortages/damage with evidence exchange"
+          ],
+          whyItMatters: "Fewer emails, fewer chargebacks, and faster supplier cycles.",
+          cta: "Open Procurement Template in Sandbox"
+        },
+        "customer-ops": {
+          title: "Customer Operations — Service Tickets",
+          problem: "Bots can create tickets, but routing, updates, and refunds still require human orchestration.",
+          solution: "Support agents coordinate troubleshooting across systems, escalate with SLAs, and trigger refunds or credits via signed micro-contracts.",
+          automations: [
+            "Intelligent triage and assignment with guaranteed updates",
+            "SLA timers with automatic escalation",
+            "Refund/credit issuance on resolution with audit trail"
+          ],
+          whyItMatters: "Shorter time-to-resolution and consistent customer experiences.",
+          cta: "Open Service Tickets Template in Sandbox"
+        },
+        energy: {
+          title: "Energy & Utilities — Smart Grid Management",
+          problem: "Power optimization requires real-time coordination between distributed assets and markets.",
+          solution: "Agents balance load, bid into markets, and settle micro-transactions securely. Contracts define curtailment and performance payouts; payments release on telemetry.",
+          automations: [
+            "Demand-response events with verified fulfillment",
+            "Automated market bids/offers and settlement",
+            "Rolling performance audits and penalties/bonuses"
+          ],
+          whyItMatters: "Better grid stability and revenue capture with less manual intervention.",
+          cta: "Open Smart Grid Template in Sandbox"
+        },
+        devops: {
+          title: "IT & Platform — Dev Productivity & Observability",
+          problem: "Agents can open PRs and run jobs, but coordination across CI/CD, incidents, and change windows is chaotic.",
+          solution: "Platform agents coordinate deployments, change approvals, and incident handoffs with structured messaging; contracts encode guardrails; post-incident payments/credits can be automated for internal chargeback.",
+          automations: [
+            "Safe deploy orchestration with change approvals",
+            "Incident collaboration with role-based updates",
+            "Internal cost allocation via micro-settlements per service"
+          ],
+          whyItMatters: "Fewer failed deploys, faster incident MTTR, and clean accountability.",
+          cta: "Open DevOps Template in Sandbox"
+        }
+      };
+
+      function openUseCase(useCaseId) {
+        const useCase = useCases[useCaseId];
+        if (!useCase) return;
+
+        const content = `
+          <h2 style="color: var(--text-primary); margin-bottom: 1.5rem;">${useCase.title}</h2>
+          
+          <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent-teal); margin-bottom: 0.5rem;">Problem</h3>
+            <p style="color: var(--text-secondary);">${useCase.problem}</p>
+          </div>
+          
+          <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent-teal); margin-bottom: 0.5rem;">Solution with Brikk</h3>
+            <p style="color: var(--text-secondary);">${useCase.solution}</p>
+          </div>
+          
+          <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent-teal); margin-bottom: 0.5rem;">Typical Automations</h3>
+            <ul style="color: var(--text-secondary); list-style: none; padding: 0;">
+              ${useCase.automations.map(automation => `<li style="margin-bottom: 0.5rem;">• ${automation}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent-teal); margin-bottom: 0.5rem;">Why it matters</h3>
+            <p style="color: var(--text-secondary);">${useCase.whyItMatters}</p>
+          </div>
+          
+          <div class="text-center">
+            <a href="./instant-demo.html" class="btn-primary" style="padding: 12px 24px;">
+              ${useCase.cta}
+            </a>
+          </div>
+        `;
+
+        document.getElementById('useCaseContent').innerHTML = content;
+        document.getElementById('useCaseModal').classList.add('active');
+      }
+
+      function closeUseCase() {
+        document.getElementById('useCaseModal').classList.remove('active');
+      }
+
+      // Close modal on ESC key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeUseCase();
+        }
+      });
+
+      // Close modal on backdrop click
+      document.getElementById('useCaseModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeUseCase();
+        }
+      });
+    </script>
+  </body>
+</html>
+

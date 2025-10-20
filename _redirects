@@ -1,0 +1,16 @@
+# Redirect old signup to pricing per technical brief
+/signup  /pricing  301
+
+# Redirect common paths
+/demo /instant-demo.html 200
+/docs https://docs.getbrikk.com 302
+/status https://status.getbrikk.com 302
+/github https://github.com/brikk-platform 302
+
+# Handle form submissions
+/contact /contact.html 200
+
+# 404 fallback
+/* /404.html 404
+
+/signup /pricing 301
