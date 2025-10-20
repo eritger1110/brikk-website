@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brikk AI - Private Beta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: -webkit-linear-gradient(45deg, #4D82E8, #A355E8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .form-container {
+            background: #1E1E1E;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #B0B0B0;
+        }
+        
+        .required {
+            color: #FF6B6B;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #252525;
+            color: #E0E0E0;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4D82E8;
+        }
+        
+        input.error, textarea.error {
+            border-color: #FF6B6B;
+        }
+        
+        .error-message {
+            color: #FF6B6B;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4D82E8, #A355E8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            width: 100%;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #FF6B6B;
+            color: #FF6B6B;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid #FFC107;
+            color: #FFC107;
+        }
+        
+        #thankYouMessage {
+            display: none;
+            margin-top: 20px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1E3A1E 0%, #2A4A2A 100%);
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+        }
+        
+        #thankYouMessage.show {
+            display: block;
+        }
+        
+        #thankYouMessage h3 {
+            color: #4CAF50;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        #thankYouMessage p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        #thankYouMessage a {
+            color: #4D82E8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        #thankYouMessage a:hover {
+            text-decoration: underline;
+        }
+        
+        .info-box {
+            background: rgba(77, 130, 232, 0.1);
+            border-left: 4px solid #4D82E8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .info-box strong {
+            color: #4D82E8;
+        }
+        
+        .next-steps {
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .next-steps h4 {
+            color: #4CAF50;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        
+        .next-steps ol {
+            padding-left: 20px;
+        }
+        
+        .next-steps li {
+            margin-bottom: 10px;
+        }
+        
+        .discord-button {
+            display: inline-block;
+            background: #5865F2;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 15px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .discord-button:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+        
+        .benefits {
+            margin-top: 40px;
+            text-align: left;
+        }
+        
+        .benefits h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .benefits li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .benefits li::before {
+            content: "✓";
+            color: #4D82E8;
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Join the Brikk AI Private Beta</h1>
+        <p>Be among the first to build the future of AI agent coordination. We are inviting a select group of developers to help us shape the Brikk platform and define the next generation of AI infrastructure.</p>
+        
+        <div class="form-container">
+            <h2>Apply for Access</h2>
+            
+            <!-- Global alert messages -->
+            <div id="alertBox" class="alert"></div>
+            
+            <form id="betaForm">
+                <div class="form-group">
+                    <label for="name">Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required maxlength="120">
+                    <div id="nameError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                    <div id="emailError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company">Company</label>
+                    <input type="text" id="company" name="company" maxlength="200">
+                    <div id="companyError" class="error-message"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="use_case">What are you building? <span class="required">*</span></label>
+                    <textarea id="use_case" name="use_case" rows="4" required maxlength="1000"></textarea>
+                    <div id="useCaseError" class="error-message"></div>
+                </div>
+                
+                <button type="submit" id="submitBtn">Request Invitation</button>
+            </form>
+            
+            <div id="thankYouMessage">
+                <h3>🎉 Application Received!</h3>
+                <p>Thank you for applying to the Brikk AI private beta! Your application has been submitted successfully.</p>
+                
+                <div class="info-box">
+                    <strong>Application ID:</strong> <span id="applicationId"></span><br>
+                    <strong>Queue Position:</strong> <span id="queuePosition"></span><br>
+                    <strong>Email:</strong> <span id="userEmail"></span><br>
+                    <strong>Estimated Review Time:</strong> 24-48 hours
+                </div>
+                
+                <div class="next-steps">
+                    <h4>What Happens Next?</h4>
+                    <ol>
+                        <li><strong>Review:</strong> Our team will review your application within 24-48 hours</li>
+                        <li><strong>Email Notification:</strong> You'll receive an email with your decision</li>
+                        <li><strong>API Key:</strong> If approved, your email will include your API key and quickstart guide</li>
+                        <li><strong>Build:</strong> Start building amazing AI agent applications with Brikk!</li>
+                    </ol>
+                </div>
+                
+                <div class="next-steps">
+                    <h4>Join Our Community</h4>
+                    <p>While you wait, join our Discord community to connect with other developers and the Brikk team:</p>
+                    <a href="https://discord.gg/brikk-ai" target="_blank" class="discord-button">Join Discord →</a>
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 0.95rem;">Check out our <a href="https://brikk-infrastructure.onrender.com/docs" target="_blank">API documentation</a> to see what you can build with Brikk!</p>
+            </div>
+        </div>
+
+        <div class="benefits">
+            <h2>Beta Program Benefits</h2>
+            <ul>
+                <li>Free, unlimited API access during the beta period.</li>
+                <li>Direct access to the founding team for support and feedback.</li>
+                <li>Early access to new features before public release.</li>
+                <li>Recognition as a founding developer in our community.</li>
+                <li>Shape the future of the Brikk platform and our public roadmap.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'https://brikk-infrastructure.onrender.com';
+        
+        // Clear all error states
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+            document.querySelectorAll('input, textarea').forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+        
+        // Show field-specific error
+        function showFieldError(fieldName, message) {
+            const input = document.getElementById(fieldName);
+            const errorDiv = document.getElementById(fieldName + 'Error');
+            
+            if (input && errorDiv) {
+                input.classList.add('error');
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+            }
+        }
+        
+        // Show global alert
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+            
+            // Scroll to alert
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Auto-hide success/warning alerts after 5 seconds
+            if (type !== 'error') {
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        // Hide alert
+        function hideAlert() {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.classList.remove('show');
+        }
+        
+        // Show validation errors
+        function showValidationErrors(errors) {
+            if (!errors) return;
+            
+            // Map API field names to form field names
+            const fieldMap = {
+                'name': 'name',
+                'email': 'email',
+                'company': 'company',
+                'use_case': 'use_case'
+            };
+            
+            Object.keys(errors).forEach(field => {
+                const formField = fieldMap[field];
+                if (formField) {
+                    showFieldError(formField, errors[field]);
+                }
+            });
+        }
+        
+        // Show thank you panel
+        function showThankYou(data) {
+            const form = document.getElementById('betaForm');
+            const thankYouMessage = document.getElementById('thankYouMessage');
+            
+            // Populate data
+            document.getElementById('applicationId').textContent = '#' + data.application_id;
+            document.getElementById('queuePosition').textContent = data.queue_position ? '#' + data.queue_position : 'N/A';
+            document.getElementById('userEmail').textContent = document.getElementById('email').value;
+            
+            // Hide form, show thank you
+            form.style.display = 'none';
+            thankYouMessage.classList.add('show');
+            
+            // Scroll to thank you message
+            thankYouMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Submit form
+        async function submitBetaForm(payload) {
+            let res, data;
+            
+            try {
+                res = await fetch(`${API_BASE}/api/v1/beta/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Try to parse JSON response (works for both success and error)
+                try {
+                    data = await res.json();
+                } catch (jsonError) {
+                    console.error('Failed to parse JSON response:', jsonError);
+                    data = null;
+                }
+                
+            } catch (networkError) {
+                console.error('Network error:', networkError);
+                showAlert('Network error. Please check your connection and try again.', 'error');
+                return false;
+            }
+            
+            // Handle response based on status code
+            if (res.ok) {
+                // Success (2xx)
+                if (data && data.code === 'application_exists') {
+                    // Duplicate submission - show friendly message
+                    showAlert('We already have your application! Check your email for updates.', 'warning');
+                    showThankYou({
+                        application_id: data.application_id,
+                        queue_position: data.queue_position
+                    });
+                } else {
+                    // New application
+                    showThankYou({
+                        application_id: data.application_id,
+                        queue_position: data.queue_position
+                    });
+                }
+                return true;
+            } else if (res.status === 422) {
+                // Validation error
+                const message = (data && data.message) || 'Please correct the highlighted fields.';
+                showAlert(message, 'error');
+                showValidationErrors(data && data.errors);
+                return false;
+            } else if (res.status === 429) {
+                // Rate limited
+                const message = (data && data.message) || 'Too many requests. Please try again in a few minutes.';
+                showAlert(message, 'warning');
+                return false;
+            } else {
+                // Other error
+                const message = (data && data.message) || `Request failed (${res.status}). Please try again.`;
+                showAlert(message, 'error');
+                return false;
+            }
+        }
+        
+        // Form submission handler
+        document.getElementById('betaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Clear previous errors
+            clearErrors();
+            hideAlert();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                company: document.getElementById('company').value.trim() || null,
+                use_case: document.getElementById('use_case').value.trim(),
+                referrer: window.location.href
+            };
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                await submitBetaForm(formData);
+            } finally {
+                // Re-enable submit button (unless form was hidden by success)
+                if (document.getElementById('betaForm').style.display !== 'none') {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Request Invitation';
+                }
+            }
+        });
+        
+        // Clear field error on input
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+                const errorDiv = document.getElementById(this.id + 'Error');
+                if (errorDiv) {
+                    errorDiv.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

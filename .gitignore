@@ -1,0 +1,20 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local env files
+.env
+.env.local
+
+# Build artifacts
+dist/
+build/
+*.log
+

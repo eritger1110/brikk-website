@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: brikk-beta-landing
+    env: static
+    buildCommand: echo "Static site - no build needed"
+    staticPublishPath: .
+    headers:
+      - path: /beta/index.html
+        name: Cache-Control
+        value: no-store, must-revalidate
+      - path: /beta/*.js
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /beta/*.css
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /beta/*
+        destination: /beta/index.html
+    envVars:
+      - key: API_BASE
+        value: https://brikk-infrastructure.onrender.com
+
