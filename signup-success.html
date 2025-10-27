@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Success - Brikk</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 0; }
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+        }
+        h1 { color: #4dff4d; margin-bottom: 20px; }
+        p { font-size: 18px; line-height: 1.6; margin-bottom: 15px; }
+        .loading { color: #aaa; }
+        .api-key-box {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #0056b3; }
+        .error { color: #ff4d4d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Welcome to Brikk!</h1>
+        
+        <div id="loading" class="loading">
+            <p>Setting up your account...</p>
+            <p>Please wait while we create your API key.</p>
+        </div>
+        
+        <div id="success" style="display: none;">
+            <p>Your subscription is active and your API key has been created!</p>
+            <p><strong>Save this key - you won't see it again:</strong></p>
+            <div class="api-key-box" id="api-key-display"></div>
+            <p>You can now start making API calls to Brikk.</p>
+            <button onclick="window.location.href='/playground.html'">Try the Playground</button>
+            <button onclick="window.location.href='/dashboard.html'">Go to Dashboard</button>
+        </div>
+        
+        <div id="error" style="display: none;">
+            <p class="error">There was an error setting up your account.</p>
+            <p id="error-message"></p>
+            <button onclick="window.location.href='/contact.html'">Contact Support</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://api.getbrikk.com";
+        
+        async function completeSignup() {
+            // Get session_id from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (!sessionId) {
+                showError("No session ID found. Please contact support.");
+                return;
+            }
+            
+            try {
+                // Call backend to complete signup
+                const response = await fetch(`${API_BASE_URL}/api/signup-from-stripe`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        password: prompt("Please create a password for your account (min 8 characters):") || "changeme123"
+                    }),
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // The webhook should have created the API key
+                    // For now, show a success message
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("success").style.display = "block";
+                    document.getElementById("api-key-display").textContent = "Your API key will be available in your dashboard.";
+                } else {
+                    throw new Error(data.error || "Signup failed");
+                }
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("error").style.display = "block";
+            document.getElementById("error-message").textContent = message;
+        }
+        
+        // Start signup process
+        completeSignup();
+    </script>
+</body>
+</html>
+
