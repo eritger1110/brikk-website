@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <title>API Playground - Brikk</title>
+    <meta name="description" content="Test Brikk's live API with OpenAI and Mistral endpoints. Try real AI agent communication." />
+    
+    <link rel="stylesheet" href="./assets/brand-system.css" />
+    <style>
+      .playground-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: calc(100vh - var(--header-desktop));
+      }
+      
+      .playground-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      
+      .playground-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .api-key-section {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+      }
+      
+      .api-key-input-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      
+      .api-key-input {
+        flex: 1;
+        padding: 0.75rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+      }
+      
+      .api-key-input:focus {
+        outline: none;
+        border-color: var(--accent-teal);
+      }
+      
+      .btn-save-key {
+        padding: 0.75rem 1.5rem;
+        background: var(--accent-teal);
+        color: var(--bg);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      
+      .btn-save-key:hover {
+        background: var(--accent-teal-bright);
+        transform: translateY(-2px);
+      }
+      
+      .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      
+      .status-badge.connected {
+        background: rgba(0, 255, 0, 0.1);
+        color: #00ff00;
+        border: 1px solid #00ff00;
+      }
+      
+      .status-badge.disconnected {
+        background: rgba(255, 100, 100, 0.1);
+        color: #ff6464;
+        border: 1px solid #ff6464;
+      }
+      
+      .playground-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .endpoint-card {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+      
+      .endpoint-card h3 {
+        margin-bottom: 1rem;
+        color: var(--accent-teal);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .provider-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        background: var(--accent-purple);
+        color: white;
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+      
+      .form-input, .form-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      
+      .form-textarea {
+        min-height: 100px;
+        font-family: 'Courier New', monospace;
+        resize: vertical;
+      }
+      
+      .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent-teal);
+      }
+      
+      .btn-send {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s;
+      }
+      
+      .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+      }
+      
+      .btn-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .response-section {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #000;
+        border-radius: 8px;
+        min-height: 150px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      
+      .response-text {
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      
+      .response-error {
+        color: #ff6464;
+      }
+      
+      .response-loading {
+        color: #ffaa00;
+      }
+      
+      .usage-panel {
+        background: var(--surface);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+      
+      .usage-panel h3 {
+        margin-bottom: 1rem;
+        color: var(--accent-purple);
+      }
+      
+      .usage-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .usage-stat {
+        text-align: center;
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: 8px;
+      }
+      
+      .usage-stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--accent-teal);
+      }
+      
+      .usage-stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+      }
+      
+      .info-box {
+        background: rgba(0, 255, 255, 0.05);
+        border: 1px solid var(--accent-teal);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .info-box p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+      
+      .info-box a {
+        color: var(--accent-teal);
+        text-decoration: none;
+      }
+      
+      .info-box a:hover {
+        text-decoration: underline;
+      }
+      
+      @media (max-width: 968px) {
+        .playground-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .usage-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- Header (from your existing site) -->
+    <header style="background: var(--bg); border-bottom: 1px solid var(--border); padding: 1rem 2rem;">
+      <nav style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <a href="/" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+          <img src="./assets/logo.svg" alt="Brikk" style="height: 32px;" onerror="this.style.display='none'" />
+          <span style="font-size: 1.5rem; font-weight: bold; color: var(--text);">Brikk</span>
+        </a>
+        <div style="display: flex; gap: 2rem; align-items: center;">
+          <a href="/" style="color: var(--text-muted); text-decoration: none;">Home</a>
+          <a href="/instant-demo.html" style="color: var(--text-muted); text-decoration: none;">Sandbox</a>
+          <a href="https://api.getbrikk.com/docs" target="_blank" style="color: var(--text-muted); text-decoration: none;">API Docs</a>
+          <a href="/playground.html" style="color: var(--accent-teal); text-decoration: none; font-weight: 600;">Playground</a>
+        </div>
+      </nav>
+    </header>
+
+    <div class="playground-container">
+      <!-- Header -->
+      <div class="playground-header">
+        <h1>🚀 Live API Playground</h1>
+        <p style="color: var(--text-muted); font-size: 1.125rem;">Test Brikk's production API with real OpenAI and Mistral endpoints</p>
+      </div>
+
+      <!-- API Key Section -->
+      <div class="api-key-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin: 0;">🔑 API Key</h3>
+          <span id="connectionStatus" class="status-badge disconnected">Not Connected</span>
+        </div>
+        
+        <div class="info-box">
+          <p>
+            <strong>Note:</strong> Authentication is currently optional. You can test without an API key, or use one for usage tracking. 
+            Get your API key from the <a href="https://api.getbrikk.com/docs" target="_blank">API documentation</a>.
+          </p>
+        </div>
+        
+        <div class="api-key-input-group">
+          <input 
+            type="password" 
+            id="apiKeyInput" 
+            class="api-key-input" 
+            placeholder="brikk_your_api_key_here (optional)"
+          />
+          <button class="btn-save-key" onclick="saveApiKey()">Save Key</button>
+          <button class="btn-save-key" onclick="clearApiKey()" style="background: var(--text-muted);">Clear</button>
+        </div>
+      </div>
+
+      <!-- Playground Grid -->
+      <div class="playground-grid">
+        <!-- OpenAI Card -->
+        <div class="endpoint-card">
+          <h3>
+            <span class="provider-badge">OpenAI</span>
+            GPT-4o-mini
+          </h3>
+          
+          <div class="form-group">
+            <label>Your Message</label>
+            <textarea 
+              id="openaiMessage" 
+              class="form-textarea" 
+              placeholder="What is the capital of France?"
+            >What is the capital of France?</textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Max Tokens</label>
+            <input 
+              type="number" 
+              id="openaiMaxTokens" 
+              class="form-input" 
+              value="100"
+            />
+          </div>
+          
+          <button class="btn-send" onclick="sendOpenAI()">
+            Send to OpenAI
+          </button>
+          
+          <div class="response-section">
+            <div id="openaiResponse" class="response-text">Response will appear here...</div>
+          </div>
+        </div>
+
+        <!-- Mistral Card -->
+        <div class="endpoint-card">
+          <h3>
+            <span class="provider-badge" style="background: var(--accent-orange);">Mistral</span>
+            mistral-small-latest
+          </h3>
+          
+          <div class="form-group">
+            <label>Your Message</label>
+            <textarea 
+              id="mistralMessage" 
+              class="form-textarea" 
+              placeholder="Explain quantum computing in one sentence"
+            >Explain quantum computing in one sentence</textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Max Tokens</label>
+            <input 
+              type="number" 
+              id="mistralMaxTokens" 
+              class="form-input" 
+              value="100"
+            />
+          </div>
+          
+          <button class="btn-send" onclick="sendMistral()">
+            Send to Mistral
+          </button>
+          
+          <div class="response-section">
+            <div id="mistralResponse" class="response-text">Response will appear here...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Panel -->
+      <div class="usage-panel">
+        <h3>📊 Usage Tracking (Today)</h3>
+        
+        <div class="info-box">
+          <p>
+            Usage tracking requires an API key. <a href="javascript:void(0)" onclick="document.getElementById('apiKeyInput').focus()">Add your API key above</a> to see your usage stats.
+          </p>
+        </div>
+        
+        <div class="usage-stats">
+          <div class="usage-stat">
+            <div class="usage-stat-value" id="totalRequests">-</div>
+            <div class="usage-stat-label">Total Requests</div>
+          </div>
+          <div class="usage-stat">
+            <div class="usage-stat-value" id="totalCost">-</div>
+            <div class="usage-stat-label">Total Cost (USD)</div>
+          </div>
+          <div class="usage-stat">
+            <div class="usage-stat-value" id="totalTokens">-</div>
+            <div class="usage-stat-label">Total Tokens</div>
+          </div>
+        </div>
+        
+        <button class="btn-send" onclick="refreshUsage()" style="background: var(--accent-purple);">
+          Refresh Usage Stats
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE_URL = 'https://api.getbrikk.com';
+      
+      // Load saved API key from localStorage
+      window.addEventListener('DOMContentLoaded', () => {
+        const savedKey = localStorage.getItem('brikk_api_key');
+        if (savedKey) {
+          document.getElementById('apiKeyInput').value = savedKey;
+          updateConnectionStatus(true);
+        }
+      });
+      
+      function saveApiKey() {
+        const key = document.getElementById('apiKeyInput').value.trim();
+        if (key) {
+          localStorage.setItem('brikk_api_key', key);
+          updateConnectionStatus(true);
+          alert('API key saved! You can now track usage.');
+          refreshUsage();
+        } else {
+          alert('Please enter an API key');
+        }
+      }
+      
+      function clearApiKey() {
+        localStorage.removeItem('brikk_api_key');
+        document.getElementById('apiKeyInput').value = '';
+        updateConnectionStatus(false);
+        clearUsageStats();
+      }
+      
+      function updateConnectionStatus(connected) {
+        const status = document.getElementById('connectionStatus');
+        if (connected) {
+          status.textContent = 'Connected';
+          status.className = 'status-badge connected';
+        } else {
+          status.textContent = 'Not Connected';
+          status.className = 'status-badge disconnected';
+        }
+      }
+      
+      function getApiKey() {
+        return localStorage.getItem('brikk_api_key') || '';
+      }
+      
+      async function sendOpenAI() {
+        const message = document.getElementById('openaiMessage').value.trim();
+        const maxTokens = parseInt(document.getElementById('openaiMaxTokens').value);
+        const responseEl = document.getElementById('openaiResponse');
+        
+        if (!message) {
+          responseEl.className = 'response-text response-error';
+          responseEl.textContent = 'Error: Please enter a message';
+          return;
+        }
+        
+        responseEl.className = 'response-text response-loading';
+        responseEl.textContent = 'Sending request to OpenAI...';
+        
+        try {
+          const headers = {
+            'Content-Type': 'application/json'
+          };
+          
+          const apiKey = getApiKey();
+          if (apiKey) {
+            headers['X-Brikk-API-Key'] = apiKey;
+          }
+          
+          const response = await fetch(`${API_BASE_URL}/agents/openai/chat`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                { role: 'user', content: message }
+              ],
+              max_tokens: maxTokens
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok && data.ok) {
+            responseEl.className = 'response-text';
+            responseEl.textContent = `✓ Success!\n\nResponse:\n${data.output}`;
+            
+            // Refresh usage if API key is set
+            if (apiKey) {
+              setTimeout(refreshUsage, 500);
+            }
+          } else {
+            responseEl.className = 'response-text response-error';
+            responseEl.textContent = `✗ Error: ${data.error || 'Unknown error'}`;
+          }
+        } catch (error) {
+          responseEl.className = 'response-text response-error';
+          responseEl.textContent = `✗ Network Error: ${error.message}`;
+        }
+      }
+      
+      async function sendMistral() {
+        const message = document.getElementById('mistralMessage').value.trim();
+        const maxTokens = parseInt(document.getElementById('mistralMaxTokens').value);
+        const responseEl = document.getElementById('mistralResponse');
+        
+        if (!message) {
+          responseEl.className = 'response-text response-error';
+          responseEl.textContent = 'Error: Please enter a message';
+          return;
+        }
+        
+        responseEl.className = 'response-text response-loading';
+        responseEl.textContent = 'Sending request to Mistral...';
+        
+        try {
+          const headers = {
+            'Content-Type': 'application/json'
+          };
+          
+          const apiKey = getApiKey();
+          if (apiKey) {
+            headers['X-Brikk-API-Key'] = apiKey;
+          }
+          
+          const response = await fetch(`${API_BASE_URL}/agents/mistral/chat`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+              model: 'mistral-small-latest',
+              messages: [
+                { role: 'user', content: message }
+              ],
+              max_tokens: maxTokens
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok && data.ok) {
+            responseEl.className = 'response-text';
+            responseEl.textContent = `✓ Success!\n\nResponse:\n${data.output}`;
+            
+            // Refresh usage if API key is set
+            if (apiKey) {
+              setTimeout(refreshUsage, 500);
+            }
+          } else {
+            responseEl.className = 'response-text response-error';
+            responseEl.textContent = `✗ Error: ${data.error || 'Unknown error'}`;
+          }
+        } catch (error) {
+          responseEl.className = 'response-text response-error';
+          responseEl.textContent = `✗ Network Error: ${error.message}`;
+        }
+      }
+      
+      async function refreshUsage() {
+        const apiKey = getApiKey();
+        if (!apiKey) {
+          clearUsageStats();
+          return;
+        }
+        
+        try {
+          const response = await fetch(`${API_BASE_URL}/v2/usage/me?period=today`, {
+            headers: {
+              'X-Brikk-API-Key': apiKey
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            document.getElementById('totalRequests').textContent = data.total_requests || 0;
+            document.getElementById('totalCost').textContent = `$${(data.total_cost_usd || 0).toFixed(6)}`;
+            document.getElementById('totalTokens').textContent = (data.total_tokens || 0).toLocaleString();
+          } else {
+            clearUsageStats();
+          }
+        } catch (error) {
+          console.error('Failed to fetch usage:', error);
+          clearUsageStats();
+        }
+      }
+      
+      function clearUsageStats() {
+        document.getElementById('totalRequests').textContent = '-';
+        document.getElementById('totalCost').textContent = '-';
+        document.getElementById('totalTokens').textContent = '-';
+      }
+    </script>
+  </body>
+</html>
+
