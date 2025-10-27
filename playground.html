@@ -564,19 +564,15 @@
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
-              model: 'mistral-small-latest',
-              messages: [
-                { role: 'user', content: message }
-              ],
-              max_tokens: maxTokens
+              message: message
             })
           });
           
           const data = await response.json();
           
-          if (response.ok && data.ok) {
+          if (response.ok && data.message) {
             responseEl.className = 'response-text';
-            responseEl.textContent = `✓ Success!\n\nResponse:\n${data.output}`;
+            responseEl.textContent = `✓ Success!\n\nResponse:\n${data.message}`;
             
             // Refresh usage if API key is set
             if (apiKey) {
