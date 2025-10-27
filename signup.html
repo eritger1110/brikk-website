@@ -86,7 +86,7 @@
 
             try {
                 // Create a Stripe Checkout session
-                const response = await fetch(`${API_BASE_URL}/api/billing/create-checkout-session`, {
+                const response = await fetch(`${API_BASE_URL}/api/checkout/create-session`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
