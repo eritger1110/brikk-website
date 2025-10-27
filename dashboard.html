@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Brikk</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: #fff; }
+        .container { max-width: 800px; margin: 50px auto; padding: 30px; }
+        h1 { margin-bottom: 30px; }
+        .card { background-color: #1a1a1a; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card h2 { margin-top: 0; }
+        .api-key-display { background-color: #2a2a2a; padding: 10px; border-radius: 4px; font-family: monospace; word-break: break-all; }
+        .usage-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
+        .stat h3 { margin: 0 0 10px; font-size: 16px; color: #aaa; }
+        .stat p { margin: 0; font-size: 24px; font-weight: bold; }
+        button { padding: 10px 15px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Brikk Dashboard</h1>
+
+        <div class="card">
+            <h2>API Key</h2>
+            <div id="api-key-info">
+                <p>Loading your API key...</p>
+            </div>
+            <button id="rotate-key-btn" style="margin-top: 15px;">Rotate API Key</button>
+        </div>
+
+        <div class="card">
+            <h2>Usage This Month</h2>
+            <div id="usage-stats" class="usage-stats">
+                <div class="stat">
+                    <h3>Total Requests</h3>
+                    <p id="total-requests">-</p>
+                </div>
+                <div class="stat">
+                    <h3>Total Cost</h3>
+                    <p id="total-cost">-</p>
+                </div>
+                <div class="stat">
+                    <h3>Total Tokens</h3>
+                    <p id="total-tokens">-</p>
+                </div>
+            </div>
+            <button id="refresh-usage-btn" style="margin-top: 20px;">Refresh Usage</button>
+        </div>
+
+        <div class="card">
+            <h2>Billing</h2>
+            <div id="billing-info">
+                <p>Loading your subscription details...</p>
+            </div>
+            <button id="manage-billing-btn" style="margin-top: 15px;">Manage Billing</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://api.getbrikk.com";
+        let currentApiKey = null; // Store the key for usage refresh
+
+        async function getApiKey() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/keys/me`, {
+                    headers: { "Authorization": `Bearer ${getAuthToken()}` }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentApiKey = data.key_prefix; // Store for usage
+                    const apiKeyInfo = document.getElementById("api-key-info");
+                    apiKeyInfo.innerHTML = `
+                        <p><strong>Key:</strong> <span class="api-key-display">${data.key_prefix}****************</span></p>
+                        <p><strong>Tier:</strong> ${data.tier.charAt(0).toUpperCase() + data.tier.slice(1)}</p>
+                        <p><strong>Created:</strong> ${new Date(data.created_at).toLocaleDateString()}</p>
+                    `;
+                    refreshUsage(); // Initial usage refresh
+                } else {
+                    document.getElementById("api-key-info").innerHTML = `<p>Could not load API key. Please log in.</p>`;
+                }
+            } catch (error) {
+                document.getElementById("api-key-info").innerHTML = `<p>Error loading API key.</p>`;
+            }
+        }
+
+        async function refreshUsage() {
+            if (!currentApiKey) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/v2/usage/me`, {
+                    headers: { "X-Brikk-API-Key": currentApiKey } 
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById("total-requests").textContent = data.total_requests_today;
+                    document.getElementById("total-cost").textContent = `$${data.total_cost_usd_today.toFixed(4)}`;
+                    document.getElementById("total-tokens").textContent = data.total_tokens_today;
+                } else {
+                    console.error("Failed to refresh usage");
+                }
+            } catch (error) {
+                console.error("Error refreshing usage:", error);
+            }
+        }
+
+        async function getBillingInfo() {
+            // Implement logic to get subscription details from your backend
+            document.getElementById("billing-info").innerHTML = `<p>Plan: Starter ($29/month)</p><p>Next invoice: November 27, 2025</p>`;
+        }
+
+        document.getElementById("rotate-key-btn").addEventListener("click", async () => {
+            if (!confirm("Are you sure you want to rotate your API key? Your old key will be immediately disabled.")) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/keys/rotate`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${getAuthToken()}` }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`Your new API key is:\n\n${data.new_api_key}\n\nPlease save it somewhere safe!`);
+                    getApiKey(); // Refresh display
+                } else {
+                    alert(`Error rotating key: ${data.error}`);
+                }
+            } catch (error) {
+                alert("A network error occurred.");
+            }
+        });
+
+        document.getElementById("manage-billing-btn").addEventListener("click", async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/billing/portal`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${getAuthToken()}` }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.url) {
+                    window.location.href = data.url;
+                } else {
+                    alert(`Could not open billing portal: ${data.error}`);
+                }
+            } catch (error) {
+                alert("A network error occurred.");
+            }
+        });
+        
+        document.getElementById("refresh-usage-btn").addEventListener("click", refreshUsage);
+
+        function getAuthToken() {
+            // Replace with your actual auth token retrieval logic (e.g., from cookie)
+            return localStorage.getItem("brikk_auth_token");
+        }
+
+        // Initial data load
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!getAuthToken()) {
+                window.location.href = "/login.html";
+            } else {
+                getApiKey();
+                getBillingInfo();
+            }
+        });
+
+    </script>
+</body>
+</html>
