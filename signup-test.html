@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Signup - Brikk</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: #fff; margin: 0; padding: 0; }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+        }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background-color: #2a2a2a; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #error-message { color: #ff4d4d; margin-top: 15px; text-align: center; }
+        #success-message { color: #4dff4d; margin-top: 15px; text-align: center; }
+        .hidden { display: none; }
+        .api-key-box { background-color: #2a2a2a; padding: 15px; border-radius: 4px; margin-top: 20px; word-break: break-all; font-family: monospace; }
+        .note { font-size: 14px; color: #aaa; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Test API Key</h1>
+        <p class="note">This is a simplified signup for testing. No payment required.</p>
+        
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="name">API Key Name</label>
+                <input type="text" id="name" value="My Test Key" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="tier">Tier</label>
+                <select id="tier" required>
+                    <option value="free">Free</option>
+                    <option value="starter">Starter</option>
+                    <option value="pro">Pro</option>
+                    <option value="hacker">Hacker</option>
+                </select>
+            </div>
+            
+            <div id="error-message"></div>
+            <div id="success-message" class="hidden"></div>
+            
+            <button type="submit" id="submit-button">Create API Key</button>
+        </form>
+        
+        <div id="result" class="hidden">
+            <h2>✅ API Key Created!</h2>
+            <p><strong>Save this key - you won't see it again!</strong></p>
+            <div class="api-key-box" id="api-key-display"></div>
+            <p class="note">Use this key in the playground by adding it to the "API Key" field.</p>
+            <button onclick="window.location.href='/playground.html'" style="margin-top: 20px;">Go to Playground</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://api.getbrikk.com";
+        
+        const form = document.getElementById("signup-form");
+        const emailInput = document.getElementById("email");
+        const nameInput = document.getElementById("name");
+        const tierSelect = document.getElementById("tier");
+        const submitButton = document.getElementById("submit-button");
+        const errorMessage = document.getElementById("error-message");
+        const successMessage = document.getElementById("success-message");
+        const resultDiv = document.getElementById("result");
+        const apiKeyDisplay = document.getElementById("api-key-display");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            errorMessage.textContent = "";
+            errorMessage.classList.add("hidden");
+            successMessage.classList.add("hidden");
+
+            try {
+                // For testing, we'll create an API key directly without user creation
+                // In production, you'd create a user first, then create the key
+                
+                // This is a mock request - you'll need to implement the actual endpoint
+                const response = await fetch(`${API_BASE_URL}/api/keys/create-test`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        name: nameInput.value,
+                        tier: tierSelect.value
+                    }),
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.api_key) {
+                    form.classList.add("hidden");
+                    resultDiv.classList.remove("hidden");
+                    apiKeyDisplay.textContent = data.api_key;
+                } else {
+                    throw new Error("No API key returned");
+                }
+            } catch (err) {
+                errorMessage.textContent = `Error: ${err.message}`;
+                errorMessage.classList.remove("hidden");
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
