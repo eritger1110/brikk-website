@@ -85,6 +85,7 @@
             errorMessage.textContent = "";
 
             try {
+                console.log('Creating checkout session...');
                 // Create a Stripe Checkout session
                 const response = await fetch(`${API_BASE_URL}/api/checkout/create-session`, {
                     method: "POST",
@@ -101,15 +102,24 @@
                     throw new Error(data.error || `HTTP ${response.status}`);
                 }
 
-                const { session_id } = await response.json();
+                const data = await response.json();
+                console.log('Checkout session created:', data);
+                const { session_id } = data;
                 
+                if (!session_id) {
+                    throw new Error('No session_id in response');
+                }
+                
+                console.log('Redirecting to Stripe with session_id:', session_id);
                 // Redirect to Stripe Checkout
                 const { error } = await stripe.redirectToCheckout({ sessionId: session_id });
+                console.log('Redirect result:', error);
                 
                 if (error) {
                     throw new Error(error.message);
                 }
             } catch (err) {
+                console.error('Signup error:', err);
                 errorMessage.textContent = `Error: ${err.message}`;
                 submitButton.disabled = false;
             }
