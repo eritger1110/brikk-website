@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <title>Privacy Policy - Brikk</title>
-    <meta name="description" content="Privacy Policy for Brikk - Economic infrastructure for AI agents" />
+    <meta name="description" content="Privacy Policy for Brikk - AI routing and orchestration platform" />
     
     <link rel="stylesheet" href="./assets/brand-system.css" />
   </head>
@@ -29,7 +29,7 @@
         </nav>
         
         <div class="flex items-center">
-          <a href="./pricing.html" class="btn-primary">
+          <a href="https://app.getbrikk.com" class="btn-primary">
             Start Free
           </a>
         </div>
@@ -38,35 +38,89 @@
 
     <!-- Main Content -->
     <main style="padding-top: var(--header-desktop);">
-      <section class="section text-center">
-        <div class="container">
-          <div style="max-width: 600px; margin: 0 auto;">
-            <h1 style="color: var(--text-primary); margin-bottom: 2rem;">Privacy Policy</h1>
-            
-            <div class="card" style="text-align: left;">
-              <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Coming Soon</h2>
-              <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                Our Privacy Policy is currently being finalized. For questions about data privacy, 
-                information handling, or your privacy rights, please contact our team directly.
+      <section class="section">
+        <div class="container" style="max-width: 800px;">
+          <h1 style="color: var(--text-primary); margin-bottom: 1rem; text-align: center;">Privacy Policy</h1>
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 3rem;"><em>Last updated: November 5, 2025</em></p>
+          
+          <div class="card" style="text-align: left;">
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Who we are</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              Brikk ("we", "us") provides an AI routing and orchestration platform at <strong>app.getbrikk.com</strong> and <strong>api.getbrikk.com</strong>.
+            </p>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">What we collect</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li><strong>Account & Org info:</strong> name, email, organization, role.</li>
+              <li><strong>Usage & telemetry:</strong> timestamps, latency, errors, models/providers used, token counts, approximate cost.</li>
+              <li><strong>Immutable request logs (customer-controlled):</strong> request/response metadata and optional <code>audit_context</code> you send us.</li>
+              <li><strong>Provider credentials (BYO keys):</strong> stored encrypted; never logged in plaintext.</li>
+              <li><strong>Website analytics:</strong> pseudonymous analytics and cookie data to improve the service.</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">What we don't do</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li>We <strong>do not</strong> sell personal data.</li>
+              <li>We <strong>do not</strong> train models on your request content or logs.</li>
+              <li>We <strong>do not</strong> access your providers except to fulfill routing you initiate.</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">How we use data</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li>Provide and improve the service (routing, fallback, flows, logs).</li>
+              <li>Security, fraud prevention, support, and compliance.</li>
+              <li>Product analytics (aggregate/anonymous).</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Data retention</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li>Log storage is <strong>tier-based</strong> by call volume (last N calls) or by policy; see your plan details in the dashboard.</li>
+              <li>You can export logs (CSV/S3 on supported tiers).</li>
+              <li>We purge data beyond the plan's retention.</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Subprocessors</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li><strong>Hosting/infra:</strong> Amazon Web Services (compute, network, storage).</li>
+              <li><strong>Auth:</strong> Auth0 (identity).</li>
+              <li><strong>Email:</strong> Amazon SES (transactional).</li>
+            </ul>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8; font-style: italic;">
+              (We will update this list as needed.)
+            </p>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Security</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li>TLS 1.3 in transit; AES-256 at rest for provider credentials; API keys hashed (scrypt/argon2).</li>
+              <li>Principle of least privilege; secrets never logged.</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Your choices</h2>
+            <ul style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <li>Access, update, or delete your account data via the app or by emailing <a href="mailto:support@getbrikk.com" style="color: var(--accent-teal);">support@getbrikk.com</a>.</li>
+              <li>Opt out of non-essential cookies via the cookie banner.</li>
+            </ul>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">International transfers</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              We may process data in the United States. Appropriate safeguards are applied.
+            </p>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Children</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              The service is not for individuals under 16.
+            </p>
+
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Contact</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.8;">
+              <a href="mailto:privacy@getbrikk.com" style="color: var(--accent-teal);">privacy@getbrikk.com</a>, 
+              <a href="mailto:security@getbrikk.com" style="color: var(--accent-teal);">security@getbrikk.com</a>
+            </p>
+
+            <div style="background: var(--surface); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-top: 2rem;">
+              <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+                <strong>Note:</strong> This is a starter template and not legal advice. Please have counsel review before relying on it for compliance purposes.
               </p>
-              
-              <div style="background: var(--surface); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border);">
-                <h3 style="color: var(--accent-teal); margin-bottom: 1rem;">Contact Information</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
-                  <strong>Email:</strong> <a href="mailto:security@getbrikk.com" style="color: var(--accent-teal);">security@getbrikk.com</a>
-                </p>
-                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
-                  <strong>Address:</strong> N61W21414 Legacy Trl, Menomonee Falls, WI 53051
-                </p>
-                <p style="color: var(--text-secondary);">
-                  <strong>Phone:</strong> <a href="tel:262-388-5212" style="color: var(--accent-teal);">262-388-5212</a>
-                </p>
-              </div>
-            </div>
-            
-            <div style="margin-top: 2rem;">
-              <a href="./contact.html" class="btn-primary">Contact Us</a>
-              <a href="./index.html" class="btn-secondary" style="margin-left: 1rem;">Back to Home</a>
             </div>
           </div>
         </div>
@@ -80,7 +134,7 @@
           <div>
             <img src="./brand/brikklogo.png2" alt="Brikk" class="brikk-logo-footer mb-3" />
             <p style="color: var(--text-secondary); font-size: 1.1rem;">
-              To provide the economic rails—messaging, contracts, and payments—so AI agents can coordinate safely and automatically, creating value without constant human mediation.
+              AI routing and orchestration for production. Multi-provider routing, automatic fallback, cost optimization, and full audit logs.
             </p>
           </div>
           
@@ -89,9 +143,20 @@
             <ul class="footer-links">
               <li><a href="./features.html">Features</a></li>
               <li><a href="./use-cases.html">Use Cases</a></li>
-              <li><a href="./pricing.html">Pricing</a>
-          <a href="./about.html">About</a></li>
+              <li><a href="./pricing.html">Pricing</a></li>
+              <li><a href="./about.html">About</a></li>
               <li><a href="./security.html">Security</a></li>
+              <li><a href="https://docs.getbrikk.com">Docs</a></li>
+              <li><a href="https://status.getbrikk.com">Status</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Legal</h3>
+            <ul class="footer-links">
+              <li><a href="./privacy.html">Privacy</a></li>
+              <li><a href="./terms.html">Terms</a></li>
+              <li><a href="./data-use.html">Data Use</a></li>
             </ul>
           </div>
           
@@ -114,6 +179,19 @@
         </div>
       </div>
     </footer>
+
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;padding:16px;background:#111;color:#fff;display:none;z-index:9999;border-top:1px solid #333;">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <p style="margin:0;flex:1;min-width:300px;">
+          We use cookies for essential functionality and analytics. <a href="/privacy.html" style="color:#9cf;text-decoration:underline;">Learn more</a>.
+        </p>
+        <button onclick="localStorage.setItem('cookie_ok','1');document.getElementById('cookie-banner').style.display='none';" style="background:#667eea;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:600;">Accept</button>
+      </div>
+    </div>
+    <script>
+      if(!localStorage.getItem('cookie_ok')) document.getElementById('cookie-banner').style.display='block';
+    </script>
   </body>
 </html>
 
