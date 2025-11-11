@@ -3,107 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>You’re all set – Brikk</title>
+  <title>You're all set – Brikk</title>
 
   <style>
     :root{
       --bg:#0b0f1a; --card:#0f1526; --border:#1f2a48; --ink:#e7ecff;
-      --muted:0.85; --accent:#6a5cff; --input:#0b1020; --input-border:#233055; --danger:#ff7a7a;
+      --muted:0.85; --accent:#6a5cff; --success:#4ade80; --input:#0b1020; 
+      --input-border:#233055; --danger:#ff7a7a;
     }
     *{box-sizing:border-box}
     body{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui;margin:0;padding:24px}
     .container{max-width:1080px;margin:0 auto}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
-    .card.hero{max-width:720px;margin:18px auto}
+    .card.hero{max-width:720px;margin:18px auto;text-align:center}
     h1{margin:0 0 6px;font-weight:700}
     h3{margin:0 0 8px}
     .muted{opacity:var(--muted)}
-    label{display:block;font-size:14px;margin:14px 0 6px}
-    input{background:var(--input);border:1px solid var(--input-border);border-radius:10px;padding:12px 14px;color:var(--ink);width:100%;min-width:0}
-    button{background:var(--accent);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-weight:600;cursor:pointer}
+    .success-icon{font-size:64px;margin-bottom:16px}
+    button{background:var(--accent);border:none;border-radius:10px;padding:14px 24px;color:#fff;font-weight:600;cursor:pointer;font-size:16px}
+    button:hover{opacity:0.9}
     button[disabled]{opacity:.65;cursor:not-allowed}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
-    @media (max-width:820px){.two-col{grid-template-columns:1fr}}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media (max-width:640px){.form-grid{grid-template-columns:1fr}}
-    .error{color:var(--danger);margin-top:8px;min-height:1.2em}
-    small.help{display:block;margin-top:6px;opacity:.8}
-    ul{margin:8px 0 0 18px}
+    .loading{text-align:center;padding:40px}
+    .spinner{border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 16px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error{color:var(--danger);margin-top:8px}
+    .hidden{display:none}
+    ul{margin:8px 0 0 18px;text-align:left}
+    .info-box{background:rgba(106,92,255,0.1);border:1px solid rgba(106,92,255,0.3);border-radius:12px;padding:16px;margin:20px 0}
   </style>
-
-  <!-- Loads window.__BRIKK_API__ -->
-  <script src="/public/config.js"></script>
 </head>
 <body>
   <div class="container">
-    <div class="card hero">
-      <h1>You’re all set 🎉</h1>
-      <p class="muted">
-        Thanks for subscribing to Brikk. We’ve emailed you a <strong>receipt</strong>.
-        Next, create your account below.
-      </p>
-      <p class="muted">Reference: <span id="ref">—</span></p>
+    <!-- Loading State -->
+    <div id="loading-state" class="card hero">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p class="muted">Setting up your account...</p>
+      </div>
     </div>
 
-    <div class="two-col">
-      <div class="card">
-        <h3>Create your account</h3>
-        <p class="muted">Finish setting your password to access your dashboard.</p>
+    <!-- Success State (Provisioned) -->
+    <div id="success-state" class="hidden">
+      <div class="card hero">
+        <div class="success-icon">🎉</div>
+        <h1>Welcome to Brikk!</h1>
+        <p class="muted">
+          Your account has been created successfully. You're all set to start building!
+        </p>
+        <p class="muted">Reference: <span id="ref-success">—</span></p>
+        
+        <div class="info-box">
+          <p><strong>✅ Account Created</strong></p>
+          <p class="muted" style="margin:8px 0 0">We've sent a welcome email to <strong id="user-email">—</strong></p>
+        </div>
 
-        <form id="create-account-form" novalidate>
-          <div class="form-grid">
-            <div>
-              <label for="firstName">First name</label>
-              <input id="firstName" name="first_name" autocomplete="given-name" />
-            </div>
-            <div>
-              <label for="lastName">Last name</label>
-              <input id="lastName" name="last_name" autocomplete="family-name" />
-            </div>
-          </div>
-
-          <label for="email">Email</label>
-          <input id="email" inputmode="email" autocomplete="email" />
-
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="new-password" />
-          <small class="help muted">Minimum 10 chars, at least one uppercase, one lowercase, one number, one symbol.</small>
-
-          <label for="confirm">Confirm password</label>
-          <input id="confirm" type="password" autocomplete="new-password" />
-
-          <div class="error" id="err"></div>
-
-          <div style="margin-top:16px">
-            <button id="submitBtn" type="submit">Create account</button>
-          </div>
-        </form>
+        <div style="margin-top:24px">
+          <button id="go-to-dashboard" onclick="goToDashboard()">
+            Go to Dashboard →
+          </button>
+        </div>
       </div>
 
-      <div class="card">
+      <div class="card" style="max-width:720px;margin:24px auto">
         <h3>What happens next?</h3>
         <ul>
-          <li>After creating your account you’ll be <strong>signed in automatically</strong>.</li>
-          <li>We’ll send a <strong>verification email</strong> (valid for 24h) to secure your account.</li>
-          <li>You can always manage billing from your dashboard.</li>
+          <li>Click "Go to Dashboard" to access your account</li>
+          <li>Sign in with <strong>Auth0</strong> using your email</li>
+          <li>Your API keys are ready to use</li>
+          <li>Start building with Brikk immediately!</li>
         </ul>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden">
+      <div class="card hero">
+        <h1>⚠️ Setup Incomplete</h1>
+        <p class="muted">
+          We're still setting up your account. This usually takes a few seconds.
+        </p>
+        <p class="error" id="error-message"></p>
+        
+        <div style="margin-top:24px">
+          <button onclick="location.reload()">
+            Refresh Page
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const $  = (id) => document.getElementById(id);
     const qp = new URLSearchParams(location.search);
     const sessionId = qp.get("session_id");
-    const err = $("err");
-    const btn = $("submitBtn");
-
-    // Existing function you already deploy that reads Stripe session for prefill
-    const FN_PROVISION = "/.netlify/functions/provision-link";
-
-    const API = (window.__BRIKK_API__ || "https://api.getbrikk.com").replace(/\/+$/, "");
-
-    const setErr = (m) => { err.textContent = m || ""; };
+    
+    let dashboardUrl = "https://dashboard.getbrikk.com";
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 2000; // 2 seconds
 
     function orderRefFromSession(id){
       if (!id) return "—";
@@ -111,86 +108,71 @@
       return `BRK-${tail}`;
     }
 
-    async function getProvision(){
-      if (!sessionId) throw new Error("Missing session_id");
-      const res = await fetch(`${FN_PROVISION}?session_id=${encodeURIComponent(sessionId)}`, { credentials:"include" });
-      if (!res.ok) throw new Error(`Provision error ${res.status}`);
-      return res.json(); // { email, first, last, reference? }
-    }
-
-    function strong(pw){
-      return !!pw && pw.length >= 10 && /[a-z]/.test(pw) && /[A-Z]/.test(pw) && /\d/.test(pw) && /[^A-Za-z0-9]/.test(pw);
-    }
-
-    async function createAccountDirect(){
-      const first = $("firstName").value.trim();
-      const last  = $("lastName").value.trim();
-      const email = $("email").value.trim().toLowerCase();
-      const pw    = $("password").value;
-      const pw2   = $("confirm").value;
-
-      if (!first || !last)   throw new Error("Please enter your first and last name.");
-      if (!email)            throw new Error("Please enter your email.");
-      if (!strong(pw))       throw new Error("Password does not meet the requirements.");
-      if (pw !== pw2)        throw new Error("Passwords do not match.");
-
-      const payload = { email, first_name:first, last_name:last, password:pw };
-
-      const res = await fetch(`${API}/api/auth/complete-signup`, {
-        method:"POST",
-        headers:{ "content-type":"application/json" },
-        credentials:"include",
-        body: JSON.stringify(payload),
-      });
-
-      // Accept JSON or text (API returns JSON)
-      const text = await res.text();
-      let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
-      if (!res.ok) {
-        throw new Error(data?.error || data?.message || `Signup failed (${res.status})`);
+    function showSuccess(data) {
+      document.getElementById("loading-state").classList.add("hidden");
+      document.getElementById("success-state").classList.remove("hidden");
+      document.getElementById("ref-success").textContent = orderRefFromSession(sessionId);
+      document.getElementById("user-email").textContent = data.email || "your email";
+      
+      if (data.app_url) {
+        dashboardUrl = data.app_url;
       }
-      // Success: if the API sets cookies, you’ll already be authenticated.
-      location.assign("/app/");
     }
 
-    (async () => {
-      $("ref").textContent = orderRefFromSession(sessionId);
+    function showError(message) {
+      document.getElementById("loading-state").classList.add("hidden");
+      document.getElementById("error-state").classList.remove("hidden");
+      document.getElementById("error-message").textContent = message;
+    }
+
+    function goToDashboard() {
+      window.location.href = dashboardUrl;
+    }
+
+    async function checkProvisionStatus() {
+      if (!sessionId) {
+        showError("Missing session ID. Please contact support.");
+        return;
+      }
 
       try {
-        const prov = await getProvision();
-        $("firstName").value = prov.first || "";
-        $("lastName").value  = prov.last  || "";
-        $("email").value     = prov.email || "";
-        if (prov.email) $("email").readOnly = true;
+        const res = await fetch(`/.netlify/functions/check-provision?session_id=${encodeURIComponent(sessionId)}`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
-        $("create-account-form").addEventListener("submit", async (e) => {
-          e.preventDefault();
-          setErr(""); btn.disabled = true;
-          try {
-            await createAccountDirect();
-          } catch (e) {
-            console.error(e);
-            setErr(e?.message || "Failed to create account.");
-            btn.disabled = false;
+        const data = await res.json();
+
+        if (data.provisioned && data.app_url) {
+          // Success! Account is provisioned
+          showSuccess(data);
+        } else {
+          // Not provisioned yet - retry
+          if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            console.log(`Provision not ready yet. Retry ${retryCount}/${MAX_RETRIES}...`);
+            setTimeout(checkProvisionStatus, RETRY_DELAY);
+          } else {
+            // Max retries reached
+            showError("Account setup is taking longer than expected. Please refresh this page in a moment, or contact support if the issue persists.");
           }
-        });
-      } catch (e) {
-        console.error(e);
-        setErr(e?.message || "Could not initialize your session. Please refresh this page.");
-        // still allow manual entry + submit
-        $("create-account-form").addEventListener("submit", async (ev) => {
-          ev.preventDefault();
-          setErr(""); btn.disabled = true;
-          try {
-            await createAccountDirect();
-          } catch (e2) {
-            console.error(e2);
-            setErr(e2?.message || "Failed to create account.");
-            btn.disabled = false;
-          }
-        });
+        }
+      } catch (err) {
+        console.error("Error checking provision status:", err);
+        
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          setTimeout(checkProvisionStatus, RETRY_DELAY);
+        } else {
+          showError("Unable to verify account status. Please refresh this page or contact support.");
+        }
       }
-    })();
+    }
+
+    // Start checking provision status
+    checkProvisionStatus();
   </script>
 </body>
 </html>
+
