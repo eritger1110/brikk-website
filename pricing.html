@@ -399,12 +399,19 @@
       // Initialize
       updateCalculator();
       
-      // Stripe Checkout Integration - Exact Contract
+      // Stripe Checkout Integration - Pass priceId directly
       async function startCheckout(plan) {
+        // Get priceId from PRICING constant
+        const priceId = PRICING[plan]?.priceId;
+        if (!priceId) {
+          alert('Invalid plan selected.');
+          return;
+        }
+        
         const res = await fetch('/.netlify/functions/createCheckout', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ plan }) // one of: 'free' | 'hacker' | 'starter' | 'pro'
+          body: JSON.stringify({ priceId }) // ← Now passing priceId instead of plan
         });
         if(!res.ok){ 
           const e = await res.json().catch(()=>({}));

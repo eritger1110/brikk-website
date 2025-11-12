@@ -2,12 +2,13 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-06-20' });
 
-const PLAN_TO_PRICE = {
-  free:    process.env.PRICE_FREE,
-  hacker:  process.env.PRICE_HACKER,
-  starter: process.env.PRICE_STARTER,
-  pro:     process.env.PRICE_PRO,
-} as const;
+// Whitelist of allowed price IDs (security measure)
+const ALLOWED_PRICE_IDS = [
+  'price_1S0veEQpyOKlL3ogY1YodS3t', // Free/Business Assistant $24/mo
+  'price_1S0veEQpyOKlL3ogFDWWkgg4', // Hacker $29.99/mo
+  'price_1S0veEQpyOKlL3ogbaTnkWr3', // Starter $99.99/mo
+  'price_1S0veEQpyOKlL3ogbfGK3q76', // Professional $299.99/mo
+];
 
 function res(status: number, body: any) {
   return { statusCode: status, body: JSON.stringify(body) };
@@ -22,16 +23,22 @@ export async function handler(event: any) {
     if (!process.env.CHECKOUT_CANCEL_URL) missing.push('CHECKOUT_CANCEL_URL');
     if (missing.length) return res(500, { message: `Missing env: ${missing.join(', ')}` });
 
-    // Request
-    const { plan } = JSON.parse(event.body || '{}');
-    if (!plan || !(plan in PLAN_TO_PRICE)) return res(400, { message: 'Plan is required or invalid.' });
-
-    const price = PLAN_TO_PRICE[plan as keyof typeof PLAN_TO_PRICE];
-    if (!price) return res(500, { message: `Price ID missing for plan '${plan}'.` });
+    // Request - now accepts priceId directly
+    const { priceId } = JSON.parse(event.body || '{}');
+    
+    if (!priceId) {
+      return res(400, { message: 'priceId is required.' });
+    }
+    
+    // Security: validate priceId is in our whitelist
+    if (!ALLOWED_PRICE_IDS.includes(priceId)) {
+      return res(400, { message: 'Invalid priceId.' });
+    }
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
-      line_items: [{ price, quantity: 1 }],
+      mode: 'subscription', // ← CRITICAL: Must be subscription for recurring billing
+
+      line_items: [{ price: priceId, quantity: 1 }],
 
       // collect a card even on the $0 plan
       payment_method_collection: 'always',
@@ -71,3 +78,4 @@ export async function handler(event: any) {
     return res(500, { message: 'Failed to create checkout session.' });
   }
 }
+
